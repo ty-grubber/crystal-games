@@ -1,5 +1,6 @@
-export const Treasures = [
+const Treasures = [
   {
+    id: 1,
     description: 'Talk to the NPC who lives in the house by Tohjo Falls.',
     hintOpts: [
       'You\'ll find you\'ll treasure a nice chat with a friend.',
@@ -7,6 +8,7 @@ export const Treasures = [
     ]
   },
   {
+    id: 2,
     description: 'Collect the hidden item in the water on Cycling Road',
     hintOpts: [
       'You\'ll need to go for a ride to find this treasure.',
@@ -14,6 +16,7 @@ export const Treasures = [
     ]
   },
   {
+    id: 3,
     description: 'Collect the items from the trees in Pewter City.',
     hintOpts: [
       'You can find treasure by reaping some fruity rewards.',
@@ -21,6 +24,7 @@ export const Treasures = [
     ]
   },
   {
+    id: 4,
     description: 'Battle the non-female trainer in Janine\'s Gym.',
     hintOpts: [
       'Treasure is the reward for success on the battlefield.',
@@ -28,6 +32,7 @@ export const Treasures = [
     ]
   },
   {
+    id: 5,
     description: 'Rescue DJ Mary.',
     hintOpts: [
       'The reward of helping someone in need is all the treasure you need.',
@@ -35,6 +40,7 @@ export const Treasures = [
     ]
   },
   {
+    id: 6,
     description: 'Collect the Cerulean Cave hidden item.',
     hintOpts: [
       'You\'ll need to calm the seas to find some treasures.',
@@ -43,6 +49,7 @@ export const Treasures = [
   },
 ];
 
+export default Treasures;
 
 
 /* Remaining Treasures to add (each one is on a separate line)

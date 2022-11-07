@@ -7,19 +7,25 @@
   let seed = '';
   let locations = 10;
   let treasures = 5;
+  let warning = '';
 
   function onRandomize() {
     seed = short.generate().substring(0, 10).toUpperCase();
   }
 
   function onStartClick() {
-    dispatch('startGame', {
-      gameOptions: {
-        locations,
-        treasures,
-        seed,
-      }
-    })
+    warning = '';
+    if (locations >= treasures && treasures > 0) {
+      dispatch('startGame', {
+        gameOptions: {
+          locations,
+          treasures,
+          seed,
+        }
+      });
+    } else {
+      warning = 'Number of locations cannot be less than the number of treasures (which cannot be 0).'
+    }
   }
 </script>
 
@@ -45,3 +51,6 @@
 <button on:click={onStartClick} disabled={!seed}>
   Start Game!
 </button>
+{#if warning }
+<span>{warning}</span>
+{/if}
