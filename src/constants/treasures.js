@@ -1,4 +1,6 @@
-const Treasures = [
+// TODO? Should we get screenshots of each location and use pictures instead of text
+
+const TREASURES = [
   {
     id: 1,
     description: 'Talk to the NPC who lives in the house by Tohjo Falls.',
@@ -289,4 +291,4 @@ const Treasures = [
   }
 ];
 
-export default Treasures;
+export default TREASURES;

@@ -5,6 +5,7 @@
   const dispatch = createEventDispatcher();
 
   let seed = '';
+  let rivals = 10;
   let locations = 10;
   let treasures = 5;
   let warning = '';
@@ -15,9 +16,10 @@
 
   function onStartClick() {
     warning = '';
-    if (locations >= treasures && treasures > 0) {
+    if (locations >= treasures) {
       dispatch('startGame', {
         gameOptions: {
+          rivals,
           locations,
           treasures,
           seed,
@@ -29,6 +31,12 @@
   }
 </script>
 
+
+<label>
+  Rivals to Defeat:&nbsp;
+  <input type=number name="number-rivals" bind:value={rivals} />
+</label>
+<br /><br />
 <label>
   Searchable Treasure Locations:&nbsp;
   <input type=number name="number-locations" bind:value={locations} />
