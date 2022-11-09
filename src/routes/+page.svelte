@@ -10,11 +10,11 @@
 	 */
   let treasureLocations = [];
   /**
-	 * @type {String[]}
+	 * @type {any[]}
 	 */
-  let treasureIds = [];
+  let treasures = [];
   /**
-	 * @type {string | any[]}
+	 * @type {any[]}
 	 */
   let selectedRivals = [];
 
@@ -32,7 +32,7 @@
     const randomizedTreasures = randomizeArray(TREASURES, seed);
 
     const searchableLocations = randomizedTreasures.slice(0, parseInt(locations));
-    treasureIds = searchableLocations.slice(0, parseInt(numTreasures)).map(location => location.id);
+    treasures = searchableLocations.slice(0, parseInt(numTreasures));
 
     treasureLocations = randomizeArray(searchableLocations, `${seed}${numTreasures}`);
 
@@ -46,5 +46,5 @@
 <SeedGeneratorForm on:startGame={handleStartGame} />
 <br /><br />
 
-<Layout rivals={selectedRivals} />
+<Layout rivals={selectedRivals} locations={treasureLocations} treasures={treasures} />
 

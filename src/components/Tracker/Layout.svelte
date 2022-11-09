@@ -1,27 +1,80 @@
 <script>
+	import { randomizeArray } from '$lib/randomize';
+
+
   /**
-	 * @type {string | any[]}
+	 * @type {any[]}
 	 */
   export let rivals = [];
   /**
-	 * @type {string | any[]}
+	 * @type {any[]}
 	 */
-   export const locations = [];
+  export let locations = [];
+/**
+ * @type {any[]}
+ */
+  export let treasures = [];
+
   /**
-	 * @type {never[]}
+	 * @type {any[]}
 	 */
-   export const treasures = [];
+   let formattedLocations = [];
+  $: {
+    const treasureIds = treasures.map(treasure => treasure.id)
+    const treasureIdSeed = treasureIds.join(',');
+    const randomizedTreasures = randomizeArray(treasures, treasureIdSeed);
+
+    const nonTreasureLocations = locations.filter(location => !treasureIds.includes(location.id));
+    const randomizedNonTreasureLocationIds = randomizeArray(nonTreasureLocations, treasureIdSeed).map(l => l.id);
+
+    formattedLocations = locations.map(location => ({
+      id: location.id,
+      description: location.description,
+      found: false,
+      result:
+        treasureIds.includes(location.id)
+        ? 'TREASURE!!!'
+        : randomizedTreasures[randomizedNonTreasureLocationIds.findIndex(id => location.id === id)].hintOpts[Math.floor((Math.random() * 100)) % 2],
+    }));
+  };
+
+
+  /**
+	 * @param {number} locationIndex
+	 */
+  function handleCheckboxClick(locationIndex) {
+    formattedLocations[locationIndex].found = !formattedLocations[locationIndex].found;
+  }
 </script>
 
 <div class="container">
-  {#if locations.length > 0}
+  {#if formattedLocations.length > 0}
     <h2>Treasure Hunt</h2>
 
-    <div class="tracker-container">
-      <div class="tracker-heading">Location</div>
-      <div class="tracker-heading">Found?</div>
-      <div class="tracker-heading">Result</div>
+    <div class="tracker-container treasure">
+      <div class="tracker-heading location">Location</div>
+      <div class="tracker-heading checkbox">Found?</div>
+      <div class="tracker-heading name">Result</div>
       <div class="tracker-end-row" />
+      {#each formattedLocations as location, i (location.id)}
+        <div class="tracker-row location">
+          <label for={`location${location.id}`}><span>{location.description}</span></label>
+        </div>
+        <div class="tracker-row checkbox">
+          <input
+            type=checkbox
+            id={`location${location.id}`}
+            checked={location.found}
+            on:click={() => handleCheckboxClick(i)}
+          />
+        </div>
+        <div class="tracker-row name">
+          <span class={`${!location.found && 'hidden'}`}>
+            <span class={`${location.result === 'TREASURE!!!' && 'gold'}`}>{location.result}</span>
+          </span>
+        </div>
+        <div class="tracker-end-row" />
+      {/each}
     </div>
   {/if}
   {#if rivals.length > 0}
@@ -54,12 +107,25 @@
     line-height: 1.25;
   }
 
+  .tracker-container > div {
+    padding: 0.25rem 0.2rem;
+  }
+
   .tracker-container > .location {
     width: 250px;
   }
 
+  .tracker-container.treasure > .location {
+    width: 200px;
+  }
+
   .tracker-container > .name {
     width: 200px;
+  }
+
+  .tracker-container.treasure > .name {
+    min-width: 250px;
+    width: unset;
   }
 
   .tracker-container > .checkbox {
@@ -73,7 +139,8 @@
 
   .checkbox > input {
     height: 25px;
-    width: 25px
+    width: 25px;
+    vertical-align: middle;
   }
 
   .tracker-end-row {
@@ -81,6 +148,15 @@
   }
 
   .tracker-heading {
+    font-weight: bold;
+  }
+
+  .hidden {
+    visibility: hidden;
+  }
+
+  .gold {
+    color: goldenrod;
     font-weight: bold;
   }
 </style>
