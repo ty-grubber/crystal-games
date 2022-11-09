@@ -1,4 +1,5 @@
 <script>
+  import Layout from '../components/Tracker/Layout.svelte';
   import SeedGeneratorForm from '../components/SeedGenerator/Form.svelte';
   import RIVALS from '../constants/rivals';
   import TREASURES from '../constants/treasures';
@@ -45,31 +46,5 @@
 <SeedGeneratorForm on:startGame={handleStartGame} />
 <br /><br />
 
-{#if treasureLocations.length > 0}
-<ul>
-  {#each treasureLocations as location (location.id) }
-  <li class={treasureIds.includes(location.id) ? 'treasure' : 'not-treasure'}>{location.description}</li>
-  {/each}
-</ul>
-{/if}
+<Layout rivals={selectedRivals} />
 
-{#if selectedRivals.length > 0}
-<ul>
-  {#each selectedRivals as rival (rival.id) }
-  <li class="rival">{rival.name}</li>
-  {/each}
-</ul>
-{/if}
-
-<style>
-  .treasure {
-    color: goldenrod;
-  }
-  .not-treasure {
-    color: darkred;
-  }
-
-  .rival {
-    color: blueviolet;
-  }
-</style>
