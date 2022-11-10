@@ -1,6 +1,8 @@
 <script>
-  import Layout from '../components/Tracker/Layout.svelte';
+  import Button, { Label } from '@smui/button';
+  import Dialog, { Content, Title } from '@smui/dialog';
   import SeedGeneratorForm from '../components/SeedGenerator/Form.svelte';
+  import Layout from '../components/Tracker/Layout.svelte';
   import RIVALS from '../constants/rivals';
   import TREASURES from '../constants/treasures';
   import { randomizeArray } from '../lib/randomize';
@@ -17,6 +19,14 @@
 	 * @type {any[]}
 	 */
   let selectedRivals = [];
+  /**
+   * @type {boolean}
+   */
+  let dialogOpen = true;
+  /**
+   * @type {string}
+   */
+  let chosenSeed;
 
 
   /**
@@ -38,18 +48,32 @@
 
     const randomizedRivals = randomizeArray(RIVALS, seed);
     selectedRivals = randomizedRivals.slice(0, parseInt(rivals));
+
+    dialogOpen = false;
+    chosenSeed = seed;
+  }
+
+  function handleStartNewGame() {
+    treasures = [];
+    selectedRivals = [];
+    treasureLocations = [];
+    chosenSeed = '';
+    dialogOpen = true;
   }
 </script>
 
 <h1>Pokemon Crystal Hidden Rivals Treasure Hunt</h1>
-
-<SeedGeneratorForm on:startGame={handleStartGame} />
-<br /><br />
+<Button color="primary" on:click={handleStartNewGame} variant="raised">
+  <Label>Start New Game</Label>
+</Button>
+{#if chosenSeed}
+  <span>Current seed: {chosenSeed}</span>
+{/if}
+<Dialog bind:open={dialogOpen} surface$style="width: 850px;">
+  <Title id="settingsTitle">Tracker Settings</Title>
+  <Content id="settingsContent">
+    <SeedGeneratorForm on:startGame={handleStartGame} />
+  </Content>
+</Dialog>
 
 <Layout rivals={selectedRivals} locations={treasureLocations} treasures={treasures} />
-
-<style>
-  h1 {
-    font-family: 'Roboto', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  }
-</style>

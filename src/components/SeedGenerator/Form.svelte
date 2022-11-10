@@ -33,7 +33,7 @@
   }
 </script>
 
-
+<br />
 <TextField variant="outlined" bind:value={rivals} label="Rivals to Defeat:" type="number" />
 <br /><br />
 <TextField variant="outlined" bind:value={locations} label="Searchable Treasure Locations:" type="number" />
@@ -50,6 +50,6 @@
   <Label>Start Game!</Label>
 </Button>
 
-{#if warning }
+{#if warning}
 <span>{warning}</span>
 {/if}
