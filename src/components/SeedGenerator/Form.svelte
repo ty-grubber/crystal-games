@@ -1,6 +1,8 @@
 <script>
   import short from 'short-uuid';
   import { createEventDispatcher } from 'svelte';
+  import TextField from '@smui/textfield';
+  import Button, { Label } from '@smui/button';
 
   const dispatch = createEventDispatcher();
 
@@ -32,33 +34,22 @@
 </script>
 
 
-<label>
-  Rivals to Defeat:&nbsp;
-  <input type=number name="number-rivals" bind:value={rivals} />
-</label>
+<TextField variant="outlined" bind:value={rivals} label="Rivals to Defeat:" type="number" />
 <br /><br />
-<label>
-  Searchable Treasure Locations:&nbsp;
-  <input type=number name="number-locations" bind:value={locations} />
-</label>
+<TextField variant="outlined" bind:value={locations} label="Searchable Treasure Locations:" type="number" />
 <br /><br />
-<label>
-  Number of Treasures:&nbsp;
-  <input type=number name="number-treasures" bind:value={treasures} />
-</label>
+<TextField variant="outlined" bind:value={treasures} label="Number of Treasures:" type="number" />
 <br /><br />
-<label>
-  Seed:&nbsp;
-  <input type=text name="seed" bind:value={seed} />
-</label>
-<button on:click={onRandomize}>
-  Randomize Seed
-</button>
+<TextField variant="outlined" bind:value={seed} label="Seed:" />
+<Button color="secondary" on:click={onRandomize} variant="unelevated">
+  <Label>Randomize Seed</Label>
+</Button>
 <br /><br />
 
-<button on:click={onStartClick} disabled={!seed}>
-  Start Game!
-</button>
+<Button color="primary" on:click={onStartClick} disabled={!seed} variant="raised">
+  <Label>Start Game!</Label>
+</Button>
+
 {#if warning }
 <span>{warning}</span>
 {/if}

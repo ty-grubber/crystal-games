@@ -48,3 +48,8 @@
 
 <Layout rivals={selectedRivals} locations={treasureLocations} treasures={treasures} />
 
+<style>
+  h1 {
+    font-family: 'Roboto', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  }
+</style>
