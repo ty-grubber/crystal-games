@@ -6,25 +6,28 @@ This app was developed using [Svelte](https://svelte.dev) and includes the Svelt
 
 ## Developing & Running Locally
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), run the following steps to get the project running locally:
+Once you've created a project, run the following steps to get the project running locally:
 
 ```bash
-npm run prepare # - compiles the SMUI styles so they're available when starting the server
+npm install
 npm run dev
 ```
+
+An `npm run prepare` script exists in package.json that compiles the SMUI styles so they're available when starting the server. If you add another SMUI package or update any theme values in `./src/theme/*`, this command will need to be run so the updates are available.
 
 ## How To Play
 
 When the page initially loads you will be presented with a dialog to input the settings for the tracker:
 
 * *Rivals To Defeat* - The number of rivals you need to defeat to win Hidden Rivals. If 0, a list of rivals will not be generated.
-* *Searchable Treasure Locations* - The number of possible locations on the map where treasures could be located
+* *Searchable Treasure Locations* - The number of possible locations on the map where treasures could be located. This number cannot be smaller than the *Number of Treasures*.
 * *Number of Treasures* - The total number of treasures you need to find. If this and Searchable Treasure Locations are 0, a list of treasure locations will not be generated.
 * *Seed* - A string used for randomization purposes. Type one your choice or click the Randomize Seed button to have one generated for you.
 
 ### Treasure Hunt
 
 Treasure Hunt requires you to explore Johto and Kanto to interact with specific NPCs, items or other interactive objects in order to find treasure. Each potential treasure location is listed under the Location column of the tracker. Find all treasures to win!
+
 If you complete a task where a treasure could be found, check the box in the Found? column of the appropriate row. If there is a treasure there, the Result column will display "TREASURE!!!". If there is not a treasure there, the Result column will display a hint to another location where there is actually treasure. These hints will only double up if there are more non-treasure locations than treasure locations.
 
 ### Hidden Rivals
