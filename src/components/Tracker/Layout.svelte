@@ -1,9 +1,8 @@
 <script>
-// @ts-nocheck
-
-  import DataTable, { Head, Body, Row, Cell } from '@smui/data-table';
+  import { randomizeArray } from '$lib/randomize';
   import Checkbox from '@smui/checkbox';
-	import { randomizeArray } from '$lib/randomize';
+  import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
+  import seedrandom from 'seedrandom';
 
 
   /**
@@ -36,11 +35,13 @@
     const nonTreasureLocations = locations.filter(location => !treasureIds.includes(location.id));
     const randomizedNonTreasureLocationIds = randomizeArray(nonTreasureLocations, treasureIdSeed).map(l => l.id);
 
-    const getTreasureForNonTreasureHint = locationId => {
+    const getTreasureForNonTreasureHint = (/** @type {any} */ locationId) => {
       const nonTreasureIndex = randomizedNonTreasureLocationIds.findIndex(id => locationId === id);
       // use modulus to make sure we don't look outside the index of randomizedTreasures
       return randomizedTreasures[nonTreasureIndex % randomizedTreasures.length];
     }
+
+    const rng = seedrandom(treasureIdSeed);
 
     formattedLocations = locations.map(location => ({
       id: location.id,
@@ -49,7 +50,7 @@
       result:
         treasureIds.includes(location.id)
         ? 'TREASURE!!!'
-        : getTreasureForNonTreasureHint(location.id).hintOpts[Math.floor((Math.random() * 100)) % 2],
+        : getTreasureForNonTreasureHint(location.id).hintOpts[Math.floor((rng() * 100)) % 2],
     }));
   };
 
@@ -71,6 +72,7 @@
       defeated = [...defeated, rivalId];
     } else {
       const temp = defeated;
+      // @ts-ignore
       temp.splice(index, 1);
       defeated = temp;
     }
@@ -122,7 +124,7 @@
       </Head>
       <Body>
         {#each rivals as rival (rival.id)}
-          <Row style={defeated.includes(rival.id) && 'background-color: #ebfbe9;'}>
+          <Row style={defeated.includes(rival.id) ? 'background-color: #ebfbe9;' : ''}>
             <Cell>{rival.location}</Cell>
             <Cell>{rival.name}{#if rival.missable}{@html '<span style="color: red;">*</span>'}{/if}</Cell>
             <Cell>
