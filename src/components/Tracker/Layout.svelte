@@ -36,6 +36,12 @@
     const nonTreasureLocations = locations.filter(location => !treasureIds.includes(location.id));
     const randomizedNonTreasureLocationIds = randomizeArray(nonTreasureLocations, treasureIdSeed).map(l => l.id);
 
+    const getTreasureForNonTreasureHint = locationId => {
+      const nonTreasureIndex = randomizedNonTreasureLocationIds.findIndex(id => locationId === id);
+      // use modulus to make sure we don't look outside the index of randomizedTreasures
+      return randomizedTreasures[nonTreasureIndex % randomizedTreasures.length];
+    }
+
     formattedLocations = locations.map(location => ({
       id: location.id,
       description: location.description,
@@ -43,7 +49,7 @@
       result:
         treasureIds.includes(location.id)
         ? 'TREASURE!!!'
-        : randomizedTreasures[randomizedNonTreasureLocationIds.findIndex(id => location.id === id)].hintOpts[Math.floor((Math.random() * 100)) % 2],
+        : getTreasureForNonTreasureHint(location.id).hintOpts[Math.floor((Math.random() * 100)) % 2],
     }));
   };
 
