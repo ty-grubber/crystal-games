@@ -34,7 +34,9 @@ If you complete a task where a treasure could be found, check the box in the Fou
 
 Hidden Rivals is pretty straightforward. The tracker provides a list of trainers that you need to seek out and defeat in battle. When you have defeated all their Pokemon in battle, check the box in the Defeated? column. Check off all boxes to win!
 
-Note: some rivals are missable due to various reasons (like plot or defeating a gym leader). These rivals are marked with an * so you are aware of this potential to miss them.
+**Note:** it is recommended to play without randomizing trainer names and class names in Universal Pokemon Randomizer so the trainers in this list are easily verified when fighting them.
+
+**Note:** some rivals are missable due to various reasons (like plot or defeating a gym leader). These rivals are marked with an * so you are aware of this potential to miss them.
 
 ## Building
 
