@@ -48,6 +48,7 @@
 
     const randomizedRivals = randomizeArray(RIVALS, seed);
     selectedRivals = randomizedRivals.slice(0, parseInt(rivals));
+    // TODO: Should we auto-sort the rivals?
 
     dialogOpen = false;
     chosenSeed = seed;

@@ -13,7 +13,7 @@
   let warning = '';
 
   function onRandomize() {
-    seed = short.generate().substring(0, 10).toUpperCase();
+    seed = short.generate().substring(0, 12).toUpperCase();
   }
 
   function onStartClick() {
