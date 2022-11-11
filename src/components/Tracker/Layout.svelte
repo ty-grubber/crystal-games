@@ -124,7 +124,7 @@
         {#each rivals as rival (rival.id)}
           <Row style={defeated.includes(rival.id) && 'background-color: #ebfbe9;'}>
             <Cell>{rival.location}</Cell>
-            <Cell>{rival.name}</Cell>
+            <Cell>{rival.name}{#if rival.missable}{@html '<span style="color: red;">*</span>'}{/if}</Cell>
             <Cell>
               <Checkbox
                 on:click={() => handleRivalDefeated(rival.id)}
@@ -135,6 +135,8 @@
         {/each}
       </Body>
     </DataTable>
+    <br />
+    <span style="font-size: 0.75rem"><span style="color: red;">*</span> = Trainer is Missable</span>
   {/if}
 </div>
 
@@ -147,5 +149,9 @@
     color: goldenrod;
     font-weight: bold;
     font-size: 1.25rem;
+  }
+
+  .missable {
+    color: red;
   }
 </style>

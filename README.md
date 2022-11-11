@@ -36,7 +36,7 @@ Hidden Rivals is pretty straightforward. The tracker provides a list of trainers
 
 **Note:** it is recommended to play without randomizing trainer names and class names in Universal Pokemon Randomizer so the trainers in this list are easily verified when fighting them.
 
-**Note:** some rivals are missable due to various reasons (like plot or defeating a gym leader). These rivals are marked with an * so you are aware of this potential to miss them.
+**Note:** some rivals are missable due to various reasons (like plot or defeating a gym leader). These rivals are marked with an `*` so you are aware of this potential to miss them. This `*` assumes that the setting isn't on where all trainers are spinners, but does assume an item randomizer has been applied (so some missable trainers won't actually be missable if you are playing vanilla).
 
 ## Building
 
