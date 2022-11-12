@@ -24,3 +24,7 @@ a {
 a:visited {
   color: color.scale(#40b3ff, $lightness: -35%);
 }
+
+tr {
+  height: auto !important;
+}

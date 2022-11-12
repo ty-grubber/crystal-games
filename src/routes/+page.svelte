@@ -39,16 +39,17 @@
 	 */
   function handleStartGame(event) {
     const {rivals, locations, treasures: numTreasures, seed} = event.detail.gameOptions;
-    const randomizedTreasures = randomizeArray(TREASURES, seed);
+    const generatedSeed = `${seed}-R${rivals}-L${locations}-T${numTreasures}`;
+    const randomizedTreasures = randomizeArray(TREASURES, generatedSeed);
 
     const searchableLocations = randomizedTreasures.slice(0, parseInt(locations));
     treasures = searchableLocations.slice(0, parseInt(numTreasures));
 
-    treasureLocations = randomizeArray(searchableLocations, `${seed}${numTreasures}`);
+    treasureLocations = randomizeArray(searchableLocations, generatedSeed);
 
-    const randomizedRivals = randomizeArray(RIVALS, seed);
+    const randomizedRivals = randomizeArray(RIVALS, generatedSeed);
     selectedRivals = randomizedRivals.slice(0, parseInt(rivals));
-    // TODO: Should we auto-sort the rivals?
+    // TODO: Should we auto-sort the rivals if it gets over a certain amount?
 
     dialogOpen = false;
     chosenSeed = seed;
