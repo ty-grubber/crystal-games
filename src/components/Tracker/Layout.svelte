@@ -4,6 +4,8 @@
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import seedrandom from 'seedrandom';
 
+  const TREASURE_STR = 'TREASURE!!!';
+
 
   /**
 	 * @type {any[]}
@@ -49,7 +51,7 @@
       found: false,
       result:
         treasureIds.includes(location.id)
-        ? 'TREASURE!!!'
+        ? TREASURE_STR
         : getTreasureForNonTreasureHint(location.id).hintOpts[Math.floor((rng() * 100)) % 2],
     }));
   };
@@ -79,10 +81,14 @@
   }
 </script>
 
-<!-- TODO: display some sort of total treasures & rivals left value -->
 <div class="container">
   {#if formattedLocations.length > 0}
-    <h2>Treasure Hunt</h2>
+    <h2>
+      Treasure Hunt&nbsp;
+      <span class="gold heading">
+        ({formattedLocations.filter(l => l.found && l.result === TREASURE_STR).length}/{treasures.length})
+      </span>
+    </h2>
 
     <DataTable>
       <Head>
@@ -104,7 +110,7 @@
             </Cell>
             <Cell style="max-width: 350px; white-space: normal;">
               <span class={`${!location.found ? 'hidden' : ''}`}>
-                <span class={`${(location.result === 'TREASURE!!!' && location.found) ? 'gold' : ''}`}>
+                <span class={`${(location.result === TREASURE_STR && location.found) ? 'gold' : ''}`}>
                   {location.found ? location.result : 'Location not found'}
                 </span>
               </span>
@@ -115,7 +121,11 @@
     </DataTable>
   {/if}
   {#if rivals.length > 0}
-    <h2>Hidden Rivals</h2>
+    <h2>Hidden Rivals&nbsp;
+      <span class="green heading">
+        ({defeated.length}/{rivals.length})
+      </span>
+    </h2>
 
     <DataTable>
       <Head>
@@ -154,6 +164,14 @@
     color: goldenrod;
     font-weight: bold;
     font-size: 1.25rem;
+  }
+
+  .gold.heading {
+    font-size: unset;
+  }
+
+  .green.heading {
+    color: #155c10;
   }
 
   .missable {
