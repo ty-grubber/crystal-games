@@ -103,8 +103,10 @@
               />
             </Cell>
             <Cell style="max-width: 350px; white-space: normal;">
-              <span class={`${!location.found && 'hidden'}`}>
-                <span class={`${location.result === 'TREASURE!!!' && 'gold'}`}>{location.result}</span>
+              <span class={`${!location.found ? 'hidden' : ''}`}>
+                <span class={`${(location.result === 'TREASURE!!!' && location.found) ? 'gold' : ''}`}>
+                  {location.found ? location.result : 'Find the location to see if there\'s treasure'}
+                </span>
               </span>
             </Cell>
           </Row>
