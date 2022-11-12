@@ -79,6 +79,7 @@
   }
 </script>
 
+<!-- TODO: display some sort of total treasures & rivals left value -->
 <div class="container">
   {#if formattedLocations.length > 0}
     <h2>Treasure Hunt</h2>
