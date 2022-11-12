@@ -79,10 +79,11 @@
   }
 </script>
 
-<!-- TODO: display some sort of total treasures & rivals left value -->
 <div class="container">
   {#if formattedLocations.length > 0}
-    <h2>Treasure Hunt</h2>
+    <h2>
+      Treasure Hunt ({formattedLocations.filter(l => l.found && l.result === 'TREASURE!!!').length}/{treasures.length})
+    </h2>
 
     <DataTable>
       <Head>
@@ -115,7 +116,7 @@
     </DataTable>
   {/if}
   {#if rivals.length > 0}
-    <h2>Hidden Rivals</h2>
+    <h2>Hidden Rivals ({defeated.length}/{rivals.length})</h2>
 
     <DataTable>
       <Head>
