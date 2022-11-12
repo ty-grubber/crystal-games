@@ -96,15 +96,17 @@
         {#each formattedLocations as location, i (location.id)}
           <Row style={location.found && 'background-color: #ebfbe9;'}>
             <Cell>{location.description}</Cell>
-            <Cell>
+            <Cell style="text-align: center">
               <Checkbox
                 on:click={() => handleCheckboxClick(i)}
                 valueKey={location.id}
               />
             </Cell>
             <Cell style="max-width: 350px; white-space: normal;">
-              <span class={`${!location.found && 'hidden'}`}>
-                <span class={`${location.result === 'TREASURE!!!' && 'gold'}`}>{location.result}</span>
+              <span class={`${!location.found ? 'hidden' : ''}`}>
+                <span class={`${(location.result === 'TREASURE!!!' && location.found) ? 'gold' : ''}`}>
+                  {location.found ? location.result : 'Location not found'}
+                </span>
               </span>
             </Cell>
           </Row>
@@ -128,7 +130,7 @@
           <Row style={defeated.includes(rival.id) ? 'background-color: #ebfbe9;' : ''}>
             <Cell>{rival.location}</Cell>
             <Cell>{rival.name}{#if rival.missable}{@html '<span style="color: red;">*</span>'}{/if}</Cell>
-            <Cell>
+            <Cell style="text-align: center">
               <Checkbox
                 on:click={() => handleRivalDefeated(rival.id)}
                 valueKey={rival.name}
