@@ -156,4 +156,8 @@
   .missable {
     color: red;
   }
+
+  h3 {
+    margin: 0.5rem 0;
+  }
 </style>
