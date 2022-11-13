@@ -35,6 +35,10 @@
       }
     }
   }
+
+  function onHowToClick() {
+    dispatch('howToClick', {});
+  }
 </script>
 
 <br />
@@ -52,6 +56,9 @@
 
 <Button color="primary" on:click={onStartClick} disabled={!seed} variant="raised">
   <Label>Start Game!</Label>
+</Button>
+<Button color="secondary" on:click={onHowToClick} variant="raised">
+  <Label>How To Play</Label>
 </Button>
 <br />
 {#if warning}
