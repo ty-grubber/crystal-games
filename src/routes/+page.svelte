@@ -1,6 +1,7 @@
 <script>
   import Button, { Label } from '@smui/button';
   import Dialog, { Content, Title } from '@smui/dialog';
+  import Tooltip, { Wrapper } from '@smui/tooltip';
   import SeedGeneratorForm from '../components/SeedGenerator/Form.svelte';
   import Layout from '../components/Tracker/Layout.svelte';
   import RIVALS from '../constants/rivals';
@@ -90,9 +91,12 @@
   <Label>How To Play</Label>
 </Button>
 {#if chosenSeed}
-  <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
-    <Label>Current seed: {chosenSeed}</Label>
-  </Button>
+  <Wrapper>
+    <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
+      <Label>Current seed: {chosenSeed}</Label>
+    </Button>
+    <Tooltip xPos="start">Click to see full seed info</Tooltip>
+  </Wrapper>
 {/if}
 <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px;">
   <Title id="settingsTitle">Tracker Settings</Title>
