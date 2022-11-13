@@ -1,6 +1,7 @@
 <script>
   import Button, { Label } from '@smui/button';
   import Dialog, { Content, Title } from '@smui/dialog';
+  import Tooltip, { Wrapper } from '@smui/tooltip';
   import SeedGeneratorForm from '../components/SeedGenerator/Form.svelte';
   import Layout from '../components/Tracker/Layout.svelte';
   import RIVALS from '../constants/rivals';
@@ -27,6 +28,10 @@
    * @type {boolean}
    */
   let howToDialogOpen = false;
+  /**
+   * @type {boolean}
+   */
+  let seedInfoDialogOpen = false;
   /**
    * @type {string}
    */
@@ -60,16 +65,23 @@
   }
 
   function handleStartNewGame() {
-    treasures = [];
-    selectedRivals = [];
-    treasureLocations = [];
-    chosenSeed = '';
-    settingsDialogOpen = true;
-    howToDialogOpen = false;
+    if (!chosenSeed || confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
+      treasures = [];
+      selectedRivals = [];
+      treasureLocations = [];
+      chosenSeed = '';
+      settingsDialogOpen = true;
+      howToDialogOpen = false;
+      seedInfoDialogOpen = false;
+    }
   }
 
   function openHowToDialog() {
     howToDialogOpen = true;
+  }
+
+  function openSeedInfoDialog() {
+    seedInfoDialogOpen = true;
   }
 </script>
 
@@ -81,12 +93,26 @@
   <Label>How To Play</Label>
 </Button>
 {#if chosenSeed}
-  <span>Current seed: {chosenSeed}</span>
+  <Wrapper>
+    <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
+      <Label>Current seed: {chosenSeed}</Label>
+    </Button>
+    <Tooltip xPos="start">Click to see full seed info</Tooltip>
+  </Wrapper>
 {/if}
 <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px;">
   <Title id="settingsTitle">Tracker Settings</Title>
   <Content id="settingsContent">
     <SeedGeneratorForm on:startGame={handleStartGame} on:howToClick={openHowToDialog} />
+  </Content>
+</Dialog>
+<Dialog bind:open={seedInfoDialogOpen}>
+  <Title id="seedInfoTitle">Tracker Seed Info</Title>
+  <Content id="seedInfoContent">
+    <p><b>Rivals to Defeat:</b> {selectedRivals.length}</p>
+    <p><b>Searchable Treasure Locations:</b> {treasureLocations.length}</p>
+    <p><b>Number of Treasures:</b> {treasures.length}</p>
+    <p><b>Seed:</b> {chosenSeed}</p>
   </Content>
 </Dialog>
 <Dialog bind:open={howToDialogOpen} slot="over" surface$style="height: 600px;">
