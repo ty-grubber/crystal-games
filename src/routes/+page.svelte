@@ -1,6 +1,6 @@
 <script>
   import Button, { Label } from '@smui/button';
-  import Dialog, { Content, Title } from '@smui/dialog';
+  import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Tooltip, { Wrapper } from '@smui/tooltip';
   import SeedGeneratorForm from '../components/SeedGenerator/Form.svelte';
   import Layout from '../components/Tracker/Layout.svelte';
@@ -114,6 +114,9 @@
     <p><b>Number of Treasures:</b> {treasures.length}</p>
     <p><b>Seed:</b> {chosenSeed}</p>
   </Content>
+  <Actions>
+    <Button>Close</Button>
+  </Actions>
 </Dialog>
 <Dialog bind:open={howToDialogOpen} slot="over" surface$style="height: 600px;">
   <Title id="howToTitle">Hidden Rivals & Treasure Hunt - How To Play</Title>
@@ -144,6 +147,9 @@
 
     <p><b>Note:</b> some rivals are missable due to various reasons (like plot or defeating a gym leader). These rivals are marked with an `*` so you are aware of this potential to miss them. This `*` assumes that the Speedchoice setting isn't on where all trainers are spinners, but does assume an item randomizer has been applied (so some missable trainers won't actually be missable if you are playing vanilla).</p>
   </Content>
+  <Actions>
+    <Button>Close</Button>
+  </Actions>
 </Dialog>
 
 <Layout rivals={selectedRivals} locations={treasureLocations} treasures={treasures} />
