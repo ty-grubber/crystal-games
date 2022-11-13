@@ -6,7 +6,6 @@ This app was developed using [Svelte](https://svelte.dev) and includes the Svelt
 
 ![image](https://user-images.githubusercontent.com/19674202/201390031-40045ea3-a19c-4949-af67-221dc9d9b51c.png)
 
-
 ## Developing & Running Locally
 
 Once you've created a project, run the following steps to get the project running locally:

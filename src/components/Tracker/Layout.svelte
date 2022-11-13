@@ -6,7 +6,6 @@
 
   const TREASURE_STR = 'TREASURE!!!';
 
-
   /**
 	 * @type {any[]}
 	 */
