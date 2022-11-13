@@ -31,7 +31,7 @@
       if (treasures === 0) {
         warning = 'Number of treasures cannot be 0 if number of locations is greater than 0';
       } else {
-        warning = 'Number of locations cannot be less than the number of treasures.';
+        warning = 'Number of locations cannot be less than the number of treasures';
       }
     }
   }
@@ -62,7 +62,7 @@
 </Button>
 <br />
 {#if warning}
-<span class="red">{warning}</span>
+  <span class="red">{warning}</span>
 {/if}
 
 <style>
