@@ -18,7 +18,7 @@
 
   function onStartClick() {
     warning = '';
-    if (locations >= treasures) {
+    if ((locations >= treasures && treasures > 0) || (locations === 0 && treasures === 0)) {
       dispatch('startGame', {
         gameOptions: {
           rivals,
@@ -28,7 +28,11 @@
         }
       });
     } else {
-      warning = 'Number of locations cannot be less than the number of treasures (which cannot be 0).'
+      if (treasures === 0) {
+        warning = 'Number of treasures cannot be 0 if number of locations is greater than 0';
+      } else {
+        warning = 'Number of locations cannot be less than the number of treasures.';
+      }
     }
   }
 </script>
@@ -49,7 +53,14 @@
 <Button color="primary" on:click={onStartClick} disabled={!seed} variant="raised">
   <Label>Start Game!</Label>
 </Button>
-
+<br />
 {#if warning}
-<span>{warning}</span>
+<span class="red">{warning}</span>
 {/if}
+
+<style>
+  span.red {
+    color: darkred;
+    font-size: 0.8rem;
+  }
+</style>
