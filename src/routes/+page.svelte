@@ -85,7 +85,9 @@
   }
 </script>
 
-<h1>Pokemon Crystal Hidden Rivals & Treasure Hunt</h1>
+{#if !chosenSeed}
+  <h1>Pokemon Crystal Rival & Treasure Hunt</h1>
+{/if}
 <Button color="primary" on:click={handleStartNewGame} variant="raised">
   <Label>Start New Game</Label>
 </Button>
@@ -101,7 +103,7 @@
   </Wrapper>
 {/if}
 <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px;">
-  <Title id="settingsTitle">Tracker Settings</Title>
+  <Title id="settingsTitle">Pokemon Crystal Rival & Treasure Hunt - Tracker Settings</Title>
   <Content id="settingsContent">
     <SeedGeneratorForm on:startGame={handleStartGame} on:howToClick={openHowToDialog} />
   </Content>
