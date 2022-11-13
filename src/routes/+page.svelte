@@ -65,13 +65,15 @@
   }
 
   function handleStartNewGame() {
-    treasures = [];
-    selectedRivals = [];
-    treasureLocations = [];
-    chosenSeed = '';
-    settingsDialogOpen = true;
-    howToDialogOpen = false;
-    seedInfoDialogOpen = false;
+    if (!chosenSeed || confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
+      treasures = [];
+      selectedRivals = [];
+      treasureLocations = [];
+      chosenSeed = '';
+      settingsDialogOpen = true;
+      howToDialogOpen = false;
+      seedInfoDialogOpen = false;
+    }
   }
 
   function openHowToDialog() {
