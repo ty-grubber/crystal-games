@@ -107,7 +107,7 @@
                 valueKey={location.id}
               />
             </Cell>
-            <Cell style="max-width: 350px; white-space: normal;">
+            <Cell style="width: 350px; white-space: normal;">
               <span class={`${!location.found ? 'hidden' : ''}`}>
                 <span class={`${(location.result === TREASURE_STR && location.found) ? 'gold' : ''}`}>
                   {location.found ? location.result : 'Location not found'}
@@ -175,6 +175,10 @@
 
   .missable {
     color: red;
+  }
+
+  h2 {
+    margin: 0.75rem 0 0.5rem;
   }
 
   h3 {

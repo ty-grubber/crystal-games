@@ -21,6 +21,11 @@
 	 */
   let selectedRivals = [];
   /**
+   * @type {string}
+   */
+  let chosenSeed;
+
+  /**
    * @type {boolean}
    */
   let settingsDialogOpen = true;
@@ -33,9 +38,9 @@
    */
   let seedInfoDialogOpen = false;
   /**
-   * @type {string}
+   * @type {boolean}
    */
-  let chosenSeed;
+  let menuDialogOpen = false;
 
 
   /**
@@ -73,6 +78,7 @@
       settingsDialogOpen = true;
       howToDialogOpen = false;
       seedInfoDialogOpen = false;
+      menuDialogOpen = false;
     }
   }
 
@@ -83,25 +89,49 @@
   function openSeedInfoDialog() {
     seedInfoDialogOpen = true;
   }
+
+  function openMenuDialog() {
+    menuDialogOpen = true;
+  }
 </script>
 
-<h1>Pokemon Crystal Hidden Rivals & Treasure Hunt</h1>
-<Button color="primary" on:click={handleStartNewGame} variant="raised">
-  <Label>Start New Game</Label>
-</Button>
-<Button color="secondary" on:click={openHowToDialog} variant="raised">
-  <Label>How To Play</Label>
-</Button>
-{#if chosenSeed}
-  <Wrapper>
-    <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
-      <Label>Current seed: {chosenSeed}</Label>
-    </Button>
-    <Tooltip xPos="start">Click to see full seed info</Tooltip>
-  </Wrapper>
+{#if !chosenSeed}
+  <h1>Pokemon Crystal Rival & Treasure Hunt</h1>
+  <Button color="primary" on:click={handleStartNewGame} variant="raised">
+    <Label>Start New Game</Label>
+  </Button>
+  <Button color="secondary" on:click={openHowToDialog} variant="raised">
+    <Label>How To Play</Label>
+  </Button>
 {/if}
+{#if chosenSeed}
+  <div class='floating-menu'>
+    <Button color="primary" on:click={openMenuDialog} variant="raised">
+      <Label>Menu</Label>
+    </Button>
+  </div>
+{/if}
+<Dialog bind:open={menuDialogOpen}>
+  <Title>Tracker Menu</Title>
+  <Content>
+    <Button color="secondary" on:click={openHowToDialog} variant="raised">
+      <Label>How To Play</Label>
+    </Button>
+    <br /><br />
+    <Wrapper>
+      <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
+        <Label>Seed Info</Label>
+      </Button>
+      <Tooltip xPos="start">Click to see full seed info</Tooltip>
+    </Wrapper>
+    <br /><br />
+    <Button color="primary" on:click={handleStartNewGame} variant="raised">
+      <Label>Start New Game</Label>
+    </Button>
+  </Content>
+</Dialog>
 <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px;">
-  <Title id="settingsTitle">Tracker Settings</Title>
+  <Title id="settingsTitle">Pokemon Crystal Rival & Treasure Hunt - Tracker Settings</Title>
   <Content id="settingsContent">
     <SeedGeneratorForm on:startGame={handleStartGame} on:howToClick={openHowToDialog} />
   </Content>
@@ -153,3 +183,11 @@
 </Dialog>
 
 <Layout rivals={selectedRivals} locations={treasureLocations} treasures={treasures} />
+
+<style>
+  .floating-menu {
+    position: absolute;
+    top: 1%;
+    right: 1%;
+  }
+</style>
