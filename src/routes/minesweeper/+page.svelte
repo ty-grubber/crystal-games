@@ -44,8 +44,40 @@
 	 */
   function monAction(status) {
     if (selectedMonIndex > -1) {
+      if (status === 'mined') {
+        mineMon(selectedMonIndex);
+      }
       statusList[selectedMonIndex] = status;
-      selectedMonIndex = -1
+      selectedMonIndex = -1;
+    }
+  }
+
+  /**
+	 * @param {number} monIndex
+	 */
+  function mineMon(monIndex) {
+    if (mineList && typeof(mineList[monIndex]) !== 'undefined' && statusList && statusList[monIndex] !== 'mined') {
+      statusList[monIndex] = 'mined';
+
+      // Mine all mons around it if the mine value is 0
+      if (mineList[monIndex] === 0) {
+        mineMon(monIndex - GRID_COLUMNS); // mon above
+        mineMon(monIndex + GRID_COLUMNS); // mon below
+
+        // Make sure we aren't at left edge of grid
+        if (monIndex > 0 && Math.abs(monIndex % GRID_COLUMNS - ((monIndex - 1) % GRID_COLUMNS)) === 1) {
+          mineMon(monIndex - 1); // mon to left
+          mineMon(monIndex - GRID_COLUMNS - 1); // mon to upper left
+          mineMon(monIndex + GRID_COLUMNS - 1); // mon to lower left
+        }
+
+        // Make sure we aren't at right edge of grid
+        if (Math.abs(monIndex % GRID_COLUMNS - ((monIndex + 1) % GRID_COLUMNS)) === 1) {
+          mineMon(monIndex + 1); // mon to right
+          mineMon(monIndex - GRID_COLUMNS + 1); //mon to upper right
+          mineMon(monIndex + GRID_COLUMNS + 1); // mon to lower right
+        }
+      }
     }
   }
 
