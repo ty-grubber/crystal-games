@@ -22,7 +22,7 @@
 	 */
   let mineList = [];
 
-  let selectedMonIndex = 0;
+  let selectedMonIndex = -1;
 
   function onRandomizeGridSeed() {
     gridSeed = short.generate().substring(0, 12).toUpperCase();
@@ -39,9 +39,13 @@
     selectedMonIndex = index;
   }
 
-  function mineMon() {
-    if (selectedMonIndex > 0) {
-      statusList[selectedMonIndex] = 'mined';
+  /**
+	 * @param {string} status
+	 */
+  function monAction(status) {
+    if (selectedMonIndex > -1) {
+      statusList[selectedMonIndex] = status;
+      selectedMonIndex = -1
     }
   }
 
@@ -50,6 +54,8 @@
     mineSeed = '';
     monList = NATIONAL_DEX;
     mineList = [];
+    statusList = [];
+    selectedMonIndex = -1;
   }
 
   function onStartClick() {
@@ -127,12 +133,16 @@
           class={`dex-mon ${
             statusList[i] === 'mined'
               ? mineList[i] === 'M' ? 'mine' : `safe${mineList[i]}`
-              : statusList[i]
+              : statusList[i] || ''
           } ${i === selectedMonIndex ? 'selected' : ''}`}
           on:click={() => selectMon(i)}
           on:keypress={() => selectMon(i)}
         >
-          <img class="mon-icon" src={`/pokedex/${pokemon.id}.png`} alt={pokemon.name} />
+          <img
+            class={`mon-icon ${statusList[i] === 'mined' ? 'mined' : ''}`}
+            src={`/pokedex/${pokemon.id}.png`}
+            alt={pokemon.name}
+          />
           {#if mineList.length > 0 && statusList[i] === 'mined'}
             <div class="mine-value-container">
               <span class="mine-list-value">{mineList[i]}</span>
@@ -141,19 +151,19 @@
         </div>
       {/each}
       {#if mineList.length > 0}
-        <div class="dex-mon empty">
+        <div class={`dex-mon empty safe${mineList[mineList.length - 5]}`}>
           {mineList[mineList.length - 5]}
         </div>
-        <div class="dex-mon empty">
+        <div class={`dex-mon empty safe${mineList[mineList.length - 4]}`}>
           {mineList[mineList.length - 4]}
         </div>
-        <div class="dex-mon empty">
+        <div class={`dex-mon empty safe${mineList[mineList.length - 3]}`}>
           {mineList[mineList.length - 3]}
         </div>
-        <div class="dex-mon empty">
+        <div class={`dex-mon empty safe${mineList[mineList.length - 2]}`}>
           {mineList[mineList.length - 2]}
         </div>
-        <div class="dex-mon empty">
+        <div class={`dex-mon empty safe${mineList[mineList.length - 1]}`}>
           {mineList[mineList.length - 1]}
         </div>
       {/if}
@@ -182,35 +192,35 @@
       <h2>Actions:</h2>
       <span class="selected-mon">
         <b>Selected Mon:</b>
-        {#if selectedMonIndex > 0}
+        {#if selectedMonIndex > -1}
           {monList[selectedMonIndex].name}
         {/if}
       </span>
       <br />
       <span class="selected-mon">
         <b>Status:</b>
-        {#if selectedMonIndex > 0 && statusList[selectedMonIndex]}
+        {#if selectedMonIndex > -1 && statusList[selectedMonIndex]}
           {statusList[selectedMonIndex].toUpperCase()}
         {/if}
       </span>
       <br /><br />
-      <Button style="background-color: #8b0000" variant="unelevated">
+      <Button style="background-color: red" on:click={() => monAction('flagged')} variant="unelevated">
         <Label>Flag</Label>
       </Button>
       <br /><br />
-      <Button style="background-color: #008b8b" variant="unelevated">
+      <Button style="background-color: #008b8b" on:click={() => monAction('seen')} variant="unelevated">
         <Label>Seen</Label>
       </Button>
       <br /><br />
-      <Button style="background-color: #8b8b00" variant="unelevated">
+      <Button style="background-color: #ffc0cb" on:click={() => monAction('owned')} variant="unelevated">
         <Label>Own</Label>
       </Button>
       <br /><br />
-      <Button style="background-color: #556b2f" variant="unelevated">
+      <Button style="background-color: #008000" on:click={() => monAction('safe')} variant="unelevated">
         <Label>Safe</Label>
       </Button>
       <br /><br />
-      <Button style="background-color: #8b008b" on:click={mineMon} variant="unelevated">
+      <Button style="background-color: #8b008b" on:click={() => monAction('mined')} variant="unelevated">
         <Label>Mine</Label>
       </Button>
       <br /><br />
@@ -232,10 +242,10 @@
   }
 
   .dex > .dex-mon {
-    width: calc(100% / 16 - 2px);
-    height: calc(100% / 16 - 2px);
+    width: calc(100% / 16 - 4px);
+    height: calc(100% / 16 - 4px);
     position: relative;
-    border: 1px solid white;
+    border: 2px solid white;
     background-color: white;
     color: white;
   }
@@ -244,7 +254,6 @@
     font-size: 2rem;
     text-align: center;
     line-height: 1.25;
-    color: #000;
   }
 
   .mine-value-container {
@@ -271,46 +280,63 @@
   }
 
   .dex-mon.safe1 {
-    background-color: #888;
-    border-color: #888;
+    background-color: #434343;
+    border-color: #434343;
   }
   .dex-mon.safe2 {
-    background-color: #777;
-    border-color: #777;
+    background-color: #3b3b3b;
+    border-color: #3b3b3b;
   }
   .dex-mon.safe3 {
-    background-color: #666;
-    border-color: #666;
+    background-color: #333333;
+    border-color: #333333;
   }
   .dex-mon.safe4 {
-    background-color: #555;
-    border-color: #555;
+    background-color: #2b2b2b;
+    border-color: #2b2b2b;
   }
   .dex-mon.safe5 {
-    background-color: #444;
-    border-color: #444;
+    background-color: #232323;
+    border-color: #232323;
   }
   .dex-mon.safe6 {
-    background-color: #333;
-    border-color: #333;
+    background-color: #1b1b1b;
+    border-color: #1b1b1b;
   }
   .dex-mon.safe7 {
-    background-color: #222;
-    border-color: #222;
+    background-color: #131313;
+    border-color: #131313;
   }
   .dex-mon.safe8 {
-    background-color: #111;
-    border-color: #111;
+    background-color: #0b0b0b;
+    border-color: #0b0b0b;
+  }
+
+  .dex-mon.flagged {
+    border-color: red;
+  }
+
+  .dex-mon.seen {
+    border-color: #008b8b;
+  }
+
+  .dex-mon.owned {
+    border-color: #ffc0cb;
+  }
+
+  .dex-mon.safe {
+    border-color: #008000;
   }
 
   .dex-mon.selected {
     border-color: #daa520;
-    border-width: 2px;
-    width: calc(100% / 16 - 4px);
-    height: calc(100% / 16 - 4px);
   }
 
   .mon-icon {
     width: 100%;
+  }
+
+  .mon-icon.mined {
+    opacity: 0.5;
   }
 </style>
