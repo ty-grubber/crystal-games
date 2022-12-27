@@ -1,5 +1,7 @@
 <script>
   // TODO: make right-click auto-flag cell
+  // TODO: add field to set number of mines
+  // TODO: add field to set number of columns or mons
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
   import TextField from '@smui/textfield';
@@ -47,8 +49,17 @@
     if (selectedMonIndex > -1) {
       if (status === 'mined') {
         mineMon(selectedMonIndex);
+      } else {
+        // TODO: combine statuses of flag/safe with own/seen
+        statusList[selectedMonIndex] = status;
       }
-      statusList[selectedMonIndex] = status;
+      selectedMonIndex = -1;
+    }
+  }
+
+  function clearStatus() {
+    if (selectedMonIndex > -1 && statusList[selectedMonIndex] !== 'mined') {
+      statusList[selectedMonIndex] = '';
       selectedMonIndex = -1;
     }
   }
@@ -240,6 +251,10 @@
         {/if}
       </span>
       <br /><br />
+      <Button style="background-color: #fff; color: #000; border: 1px solid #000" on:click={clearStatus} variant="unelevated">
+        <Label>Clear</Label>
+      </Button>
+      <br /><br />
       <Button style="background-color: red" on:click={() => monAction('flagged')} variant="unelevated">
         <Label>Flag</Label>
       </Button>
@@ -248,7 +263,7 @@
         <Label>Seen</Label>
       </Button>
       <br /><br />
-      <Button style="background-color: #ffc0cb" on:click={() => monAction('owned')} variant="unelevated">
+      <Button style="background-color: #ffc0cb; color: #000;" on:click={() => monAction('owned')} variant="unelevated">
         <Label>Own</Label>
       </Button>
       <br /><br />
@@ -257,8 +272,9 @@
       </Button>
       <br /><br />
       <Button style="background-color: #8b008b" on:click={() => monAction('mined')} variant="unelevated">
-        <Label>Mine</Label>
+        <Label>Excavate</Label>
       </Button>
+      *cannot be undone
       <br /><br />
     </div>
   </div>
