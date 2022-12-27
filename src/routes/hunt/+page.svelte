@@ -2,11 +2,11 @@
   import Button, { Label } from '@smui/button';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Tooltip, { Wrapper } from '@smui/tooltip';
-  import SeedGeneratorForm from '../components/SeedGenerator/Form.svelte';
-  import Layout from '../components/Tracker/Layout.svelte';
-  import RIVALS from '../constants/rivals';
-  import TREASURES from '../constants/treasures';
-  import { randomizeArray } from '../lib/randomize';
+  import SeedGeneratorForm from '../../components/SeedGenerator/Form.svelte';
+  import Layout from '../../components/Tracker/Layout.svelte';
+  import RIVALS from '../../constants/rivals';
+  import TREASURES from '../../constants/treasures';
+  import { randomizeArray } from '../../lib/randomize';
 
   /**
 	 * @type {any[]}
@@ -96,7 +96,7 @@
 </script>
 
 {#if !chosenSeed}
-  <h1>Pokemon Crystal Rival & Treasure Hunt</h1>
+  <h1>Pokémon Crystal Rival & Treasure Hunt</h1>
   <Button color="primary" on:click={handleStartNewGame} variant="raised">
     <Label>Start New Game</Label>
   </Button>
@@ -131,7 +131,7 @@
   </Content>
 </Dialog>
 <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px;">
-  <Title id="settingsTitle">Pokemon Crystal Rival & Treasure Hunt - Tracker Settings</Title>
+  <Title id="settingsTitle">Pokémon Crystal Rival & Treasure Hunt - Tracker Settings</Title>
   <Content id="settingsContent">
     <SeedGeneratorForm on:startGame={handleStartGame} on:howToClick={openHowToDialog} />
   </Content>
@@ -169,11 +169,11 @@
 
     <h3>Hidden Rivals</h3>
 
-    <p>Hidden Rivals is pretty straightforward. The tracker provides a list of trainers that you need to seek out and defeat in battle. When you have defeated all their Pokemon in battle, check the box in the <b>Defeated</b> column. Check off all boxes to win!</p>
+    <p>Hidden Rivals is pretty straightforward. The tracker provides a list of trainers that you need to seek out and defeat in battle. When you have defeated all their Pokémon in battle, check the box in the <b>Defeated</b> column. Check off all boxes to win!</p>
 
     <p>If you wish to only play Treasure Hunt and not Hidden Rivals, make sure you set the <b>Rivals To Defeat:</b> to 0 on the settings dialog before you click <b>Start Game</b>.</p>
 
-    <p><b>Note:</b> it is recommended to play without randomizing trainer names and class names in Universal Pokemon Randomizer so the trainers in this list are easily verified when fighting them.</p>
+    <p><b>Note:</b> it is recommended to play without randomizing trainer names and class names in Universal Pokémon Randomizer so the trainers in this list are easily verified when fighting them.</p>
 
     <p><b>Note:</b> some rivals are missable due to various reasons (like plot or defeating a gym leader). These rivals are marked with an `*` so you are aware of this potential to miss them. This `*` assumes that the Speedchoice setting isn't on where all trainers are spinners, but does assume an item randomizer has been applied (so some missable trainers won't actually be missable if you are playing vanilla).</p>
   </Content>
