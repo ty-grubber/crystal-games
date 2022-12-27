@@ -100,6 +100,11 @@
       {#each monList as pokemon, i (pokemon.id)}
         <div class={`dex-mon ${mineList[i] === 'M' ? 'mine' : `safe${mineList[i]}`}`}>
           <img class="mon-icon" src={`/pokedex/${pokemon.id}.png`} alt={pokemon.name} />
+          {#if mineList.length > 0}
+            <div class="mine-value-container">
+              <span class="mine-list-value">{mineList[i]}</span>
+            </div>
+          {/if}
         </div>
       {/each}
       {#if mineList.length > 0}
@@ -179,8 +184,12 @@
   }
 
   .dex > .dex-mon {
-    width: calc(100% / 16);
-    height: calc(100% / 16);
+    width: calc(100% / 16 - 2px);
+    height: calc(100% / 16 - 2px);
+    position: relative;
+    border: 1px solid white;
+    background-color: white;
+    color: white;
   }
 
   .dex-mon.empty {
@@ -189,24 +198,50 @@
     line-height: 1.5;
   }
 
+  .mine-value-container {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 0;
+    z-index: 2;
+  }
+
+  .mine-list-value {
+    font-size: 2rem;
+    line-height: 1.5;
+  }
+
   .dex-mon.mine {
     background-color: red;
   }
 
+  .dex-mon.safe0 {
+    color: #000;
+  }
+
   .dex-mon.safe1 {
-    background-color: #111;
+    background-color: #888;
   }
   .dex-mon.safe2 {
-    background-color: #222;
+    background-color: #777;
   }
   .dex-mon.safe3 {
-    background-color: #333;
+    background-color: #666;
   }
   .dex-mon.safe4 {
-    background-color: #444;
+    background-color: #555;
   }
   .dex-mon.safe5 {
-    background-color: #555;
+    background-color: #444;
+  }
+  .dex-mon.safe6 {
+    background-color: #333;
+  }
+  .dex-mon.safe7 {
+    background-color: #222;
+  }
+  .dex-mon.safe8 {
+    background-color: #111;
   }
 
   .mon-icon {
