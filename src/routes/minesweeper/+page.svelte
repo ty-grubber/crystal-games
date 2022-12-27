@@ -8,31 +8,39 @@
 
   const GRID_COLUMNS = 16;
   const NUM_MINES = 40;
+  const emptyMineList = [0, 0, 0, 0, 0];
 
-  let seed = '';
+  let gridSeed = '';
+  let mineSeed = '';
   let monList = NATIONAL_DEX;
   /**
 	 * @type {any[]}
 	 */
   let mineList = [];
 
-  function onRandomize() {
-    seed = short.generate().substring(0, 12).toUpperCase();
+  function onRandomizeGridSeed() {
+    gridSeed = short.generate().substring(0, 12).toUpperCase();
+  }
+
+  function onRandomizeMineSeed() {
+    mineSeed = short.generate().substring(0, 12).toUpperCase();
   }
 
   function onResetClick() {
-    seed = '';
+    gridSeed = '';
+    mineSeed = '';
     monList = NATIONAL_DEX;
+    mineList = [];
   }
 
   function onStartClick() {
     // Build randomized mon list
-    monList = randomizeArray(NATIONAL_DEX, seed);
+    monList = randomizeArray(NATIONAL_DEX, gridSeed);
 
     // Build randomized mine list
     const unshuffledMines = Array(NATIONAL_DEX.length).fill('M', 0, NUM_MINES).fill(0, NUM_MINES);
-    const shuffledMines = randomizeArray(unshuffledMines, seed);
-    const shuffledMinesWithBlanks = shuffledMines.concat([0, 0, 0, 0, 0]);
+    const shuffledMines = randomizeArray(unshuffledMines, mineSeed);
+    const shuffledMinesWithBlanks = shuffledMines.concat(emptyMineList);
 
     const mine2DGrid = convertTo2DArray(shuffledMinesWithBlanks, GRID_COLUMNS);
 
@@ -94,13 +102,35 @@
           <img class="mon-icon" src={`/pokedex/${pokemon.id}.png`} alt={pokemon.name} />
         </div>
       {/each}
+      {#if mineList.length > 0}
+        <div class="dex-mon empty">
+          {mineList[mineList.length - 5]}
+        </div>
+        <div class="dex-mon empty">
+          {mineList[mineList.length - 4]}
+        </div>
+        <div class="dex-mon empty">
+          {mineList[mineList.length - 3]}
+        </div>
+        <div class="dex-mon empty">
+          {mineList[mineList.length - 2]}
+        </div>
+        <div class="dex-mon empty">
+          {mineList[mineList.length - 1]}
+        </div>
+      {/if}
     </div>
   </div>
   <div class="options">
     <div class="randomizer">
-      <TextField variant="outlined" bind:value={seed} label="Seed:" />
-      <Button color="secondary" on:click={onRandomize} variant="unelevated">
-        <Label>Randomize Seed</Label>
+      <TextField variant="outlined" bind:value={gridSeed} label="Grid Seed:" />
+      <Button color="secondary" on:click={onRandomizeGridSeed} variant="unelevated">
+        <Label>Randomize Grid Seed</Label>
+      </Button>
+      <br /><br />
+      <TextField variant="outlined" bind:value={mineSeed} label="Mine Seed:" />
+      <Button color="secondary" on:click={onRandomizeMineSeed} variant="unelevated">
+        <Label>Randomize Mine Seed</Label>
       </Button>
       <br /><br />
       <Button color="primary" on:click={onStartClick} variant="unelevated">
@@ -109,6 +139,28 @@
       <Button color="secondary" on:click={onResetClick} variant="unelevated">
         <Label>Reset Grid</Label>
       </Button>
+      <br /><br />
+      <h2>Actions:</h2>
+      <Button style="background-color: #8b0000" variant="unelevated">
+        <Label>Flag</Label>
+      </Button>
+      <br /><br />
+      <Button style="background-color: #008b8b" variant="unelevated">
+        <Label>Seen</Label>
+      </Button>
+      <br /><br />
+      <Button style="background-color: #daa520" variant="unelevated">
+        <Label>Own</Label>
+      </Button>
+      <br /><br />
+      <Button style="background-color: #556b2f" variant="unelevated">
+        <Label>Safe</Label>
+      </Button>
+      <br /><br />
+      <Button style="background-color: #8b008b" variant="unelevated">
+        <Label>Mine</Label>
+      </Button>
+      <br /><br />
     </div>
   </div>
 </div>
@@ -129,6 +181,12 @@
   .dex > .dex-mon {
     width: calc(100% / 16);
     height: calc(100% / 16);
+  }
+
+  .dex-mon.empty {
+    font-size: 2rem;
+    text-align: center;
+    line-height: 1.5;
   }
 
   .dex-mon.mine {
