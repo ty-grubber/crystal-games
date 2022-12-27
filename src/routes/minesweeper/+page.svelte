@@ -22,12 +22,27 @@
 	 */
   let mineList = [];
 
+  let selectedMonIndex = 0;
+
   function onRandomizeGridSeed() {
     gridSeed = short.generate().substring(0, 12).toUpperCase();
   }
 
   function onRandomizeMineSeed() {
     mineSeed = short.generate().substring(0, 12).toUpperCase();
+  }
+
+  /**
+	 * @param {number} index
+	 */
+  function selectMon(index) {
+    selectedMonIndex = index;
+  }
+
+  function mineMon() {
+    if (selectedMonIndex > 0) {
+      statusList[selectedMonIndex] = 'mined';
+    }
   }
 
   function onResetClick() {
@@ -108,11 +123,15 @@
   <div class="grid">
     <div class="dex">
       {#each monList as pokemon, i (pokemon.id)}
-        <div class={`dex-mon ${
-          statusList[i] === 'mined'
-            ? mineList[i] === 'M' ? 'mine' : `safe${mineList[i]}`
-            : statusList[i]
-        }`}>
+        <div
+          class={`dex-mon ${
+            statusList[i] === 'mined'
+              ? mineList[i] === 'M' ? 'mine' : `safe${mineList[i]}`
+              : statusList[i]
+          } ${i === selectedMonIndex ? 'selected' : ''}`}
+          on:click={() => selectMon(i)}
+          on:keypress={() => selectMon(i)}
+        >
           <img class="mon-icon" src={`/pokedex/${pokemon.id}.png`} alt={pokemon.name} />
           {#if mineList.length > 0 && statusList[i] === 'mined'}
             <div class="mine-value-container">
@@ -139,6 +158,7 @@
         </div>
       {/if}
     </div>
+    <br />
   </div>
   <div class="options">
     <div class="randomizer">
@@ -160,6 +180,20 @@
       </Button>
       <br /><br />
       <h2>Actions:</h2>
+      <span class="selected-mon">
+        <b>Selected Mon:</b>
+        {#if selectedMonIndex > 0}
+          {monList[selectedMonIndex].name}
+        {/if}
+      </span>
+      <br />
+      <span class="selected-mon">
+        <b>Status:</b>
+        {#if selectedMonIndex > 0 && statusList[selectedMonIndex]}
+          {statusList[selectedMonIndex].toUpperCase()}
+        {/if}
+      </span>
+      <br /><br />
       <Button style="background-color: #8b0000" variant="unelevated">
         <Label>Flag</Label>
       </Button>
@@ -168,7 +202,7 @@
         <Label>Seen</Label>
       </Button>
       <br /><br />
-      <Button style="background-color: #daa520" variant="unelevated">
+      <Button style="background-color: #8b8b00" variant="unelevated">
         <Label>Own</Label>
       </Button>
       <br /><br />
@@ -176,7 +210,7 @@
         <Label>Safe</Label>
       </Button>
       <br /><br />
-      <Button style="background-color: #8b008b" variant="unelevated">
+      <Button style="background-color: #8b008b" on:click={mineMon} variant="unelevated">
         <Label>Mine</Label>
       </Button>
       <br /><br />
@@ -209,11 +243,12 @@
   .dex-mon.empty {
     font-size: 2rem;
     text-align: center;
-    line-height: 1.5;
+    line-height: 1.25;
     color: #000;
   }
 
   .mine-value-container {
+    height: 100%;
     position: absolute;
     width: 100%;
     text-align: center;
@@ -223,11 +258,12 @@
 
   .mine-list-value {
     font-size: 2rem;
-    line-height: 1.5;
+    line-height: 1.25;
   }
 
   .dex-mon.mine {
     background-color: red;
+    border-color: red;
   }
 
   .dex-mon.safe0 {
@@ -265,6 +301,13 @@
   .dex-mon.safe8 {
     background-color: #111;
     border-color: #111;
+  }
+
+  .dex-mon.selected {
+    border-color: #daa520;
+    border-width: 2px;
+    width: calc(100% / 16 - 4px);
+    height: calc(100% / 16 - 4px);
   }
 
   .mon-icon {
