@@ -1,6 +1,6 @@
 # Hidden Rivals Treasure Hunt
 
-This is a tracker app for playing Hidden Rivals Treasure Hunt in Pokemon Crystal.
+This is a tracker app for playing Hidden Rivals Treasure Hunt in Pokémon Crystal.
 
 This app was developed using [Svelte](https://svelte.dev) and includes the Svelte Material UI (SMUI) component library for its designs
 
@@ -34,9 +34,9 @@ If you complete a task where a treasure could be found, check the box in the Fou
 
 ### Hidden Rivals
 
-Hidden Rivals is pretty straightforward. The tracker provides a list of trainers that you need to seek out and defeat in battle. When you have defeated all their Pokemon in battle, check the box in the Defeated? column. Check off all boxes to win!
+Hidden Rivals is pretty straightforward. The tracker provides a list of trainers that you need to seek out and defeat in battle. When you have defeated all their Pokémon in battle, check the box in the Defeated? column. Check off all boxes to win!
 
-**Note:** it is recommended to play without randomizing trainer names and class names in Universal Pokemon Randomizer so the trainers in this list are easily verified when fighting them.
+**Note:** it is recommended to play without randomizing trainer names and class names in Universal Pokémon Randomizer so the trainers in this list are easily verified when fighting them.
 
 **Note:** some rivals are missable due to various reasons (like plot or defeating a gym leader). These rivals are marked with an `*` so you are aware of this potential to miss them. This `*` assumes that the setting isn't on where all trainers are spinners, but does assume an item randomizer has been applied (so some missable trainers won't actually be missable if you are playing vanilla).
 
