@@ -12,6 +12,10 @@
 
   let gridSeed = '';
   let mineSeed = '';
+  /**
+   * @type {string[]}
+   */
+  let statusList = [];
   let monList = NATIONAL_DEX;
   /**
 	 * @type {any[]}
@@ -88,7 +92,13 @@
       }
     }
 
-    mineList = flatten2DArray(mine2DGrid);
+    const flattenedMineGrid = flatten2DArray(mine2DGrid);
+    mineList = flattenedMineGrid;
+    const startingStatusList = Array(flattenedMineGrid.length).fill('');
+    for(var i = 1; i <= emptyMineList.length; i++) {
+      startingStatusList[startingStatusList.length - i] = 'mined';
+    }
+    statusList = startingStatusList;
   }
 </script>
 
@@ -98,9 +108,13 @@
   <div class="grid">
     <div class="dex">
       {#each monList as pokemon, i (pokemon.id)}
-        <div class={`dex-mon ${mineList[i] === 'M' ? 'mine' : `safe${mineList[i]}`}`}>
+        <div class={`dex-mon ${
+          statusList[i] === 'mined'
+            ? mineList[i] === 'M' ? 'mine' : `safe${mineList[i]}`
+            : statusList[i]
+        }`}>
           <img class="mon-icon" src={`/pokedex/${pokemon.id}.png`} alt={pokemon.name} />
-          {#if mineList.length > 0}
+          {#if mineList.length > 0 && statusList[i] === 'mined'}
             <div class="mine-value-container">
               <span class="mine-list-value">{mineList[i]}</span>
             </div>
@@ -196,6 +210,7 @@
     font-size: 2rem;
     text-align: center;
     line-height: 1.5;
+    color: #000;
   }
 
   .mine-value-container {
@@ -221,27 +236,35 @@
 
   .dex-mon.safe1 {
     background-color: #888;
+    border-color: #888;
   }
   .dex-mon.safe2 {
     background-color: #777;
+    border-color: #777;
   }
   .dex-mon.safe3 {
     background-color: #666;
+    border-color: #666;
   }
   .dex-mon.safe4 {
     background-color: #555;
+    border-color: #555;
   }
   .dex-mon.safe5 {
     background-color: #444;
+    border-color: #444;
   }
   .dex-mon.safe6 {
     background-color: #333;
+    border-color: #333;
   }
   .dex-mon.safe7 {
     background-color: #222;
+    border-color: #222;
   }
   .dex-mon.safe8 {
     background-color: #111;
+    border-color: #111;
   }
 
   .mon-icon {
