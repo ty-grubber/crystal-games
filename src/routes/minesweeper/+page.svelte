@@ -1,4 +1,5 @@
 <script>
+  // TODO: make right-click auto-flag cell
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
   import TextField from '@smui/textfield';
@@ -147,11 +148,14 @@
 
     const flattenedMineGrid = flatten2DArray(mine2DGrid);
     mineList = flattenedMineGrid;
-    const startingStatusList = Array(flattenedMineGrid.length).fill('');
-    for(var i = 1; i <= emptyMineList.length; i++) {
-      startingStatusList[startingStatusList.length - i] = 'mined';
-    }
-    statusList = startingStatusList;
+    statusList = Array(flattenedMineGrid.length).fill('');
+
+    // auto-mine freebie cells
+    mineMon(flattenedMineGrid.length - 5);
+    mineMon(flattenedMineGrid.length - 4);
+    mineMon(flattenedMineGrid.length - 3);
+    mineMon(flattenedMineGrid.length - 2);
+    mineMon(flattenedMineGrid.length - 1);
   }
 </script>
 
