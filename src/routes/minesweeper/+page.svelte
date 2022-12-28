@@ -297,14 +297,16 @@
     mineMon(flattenedMineGrid.length - 3);
     mineMon(flattenedMineGrid.length - 2);
     mineMon(flattenedMineGrid.length - 1);
+
+    settingsDialogOpen = false;
   }
 </script>
 
 <svelte:window on:keydown={updateSearch} />
 
 <div class="page">
-  <h1>Pokémon Crystal Minesweeper</h1>
-  {#if !mineSeed && !gridSeed}
+  {#if mineList.length === 0}
+    <h1>Pokémon Crystal Minesweeper</h1>
     <Button color="primary" on:click={handleStartNewGame} variant="raised">
       <Label>Start New Game</Label>
     </Button>
@@ -312,7 +314,7 @@
       <Label>How To Play</Label>
     </Button>
   {/if}
-  {#if mineSeed && gridSeed}
+  {#if mineList.length > 0}
     <div class='floating-menu'>
       <Button color="primary" on:click={openMenuDialog} variant="raised">
         <Label>Menu</Label>
@@ -352,6 +354,7 @@
   <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px">
     <Title id="settingsTitle">Pokémon Crystal Minesweeper - Tracker Settings</Title>
     <Content id="settingsContent">
+      <br />
       <TextField
         variant="outlined"
         bind:value={gridSeed}
@@ -389,181 +392,186 @@
     </Actions>
   </Dialog>
 
-  {#if gridSeed && mineSeed}
-    <div class="grid">
-      <div class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
-        {#each monList as pokemon, i (pokemon.id)}
-          <div
-            class={`dex-mon ${
-              statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED
-                ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
-                : statusList[i] || ''
-            } ${
-              i === selectedMonIndex ? 'selected' : ''
-            } ${
-              pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
-            }`}
-            on:click={() => selectMon(i)}
-            on:keypress={() => selectMon(i)}
-          >
-            <img
-              class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED ? STATUS.MINED : ''}`}
-              src={`/pokedex/${pokemon.id}.png`}
-              alt={pokemon.name}
-            />
-            {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED)}
-              <div class="mine-value-container">
-                <span class="mine-list-value">
-                  {statusList[i] === STATUS.EXPLODED && mineList[i] === MINE ? EXPLOSION : mineList[i]}
-                </span>
-              </div>
-            {/if}
-          </div>
-        {/each}
-        {#if mineList.length > 0}
-          <div class={`dex-mon empty safe${mineList[mineList.length - 5]}`}>
-            {mineList[mineList.length - 5]}
-          </div>
-          <div class={`dex-mon empty safe${mineList[mineList.length - 4]}`}>
-            {mineList[mineList.length - 4]}
-          </div>
-          <div class={`dex-mon empty safe${mineList[mineList.length - 3]}`}>
-            {mineList[mineList.length - 3]}
-          </div>
-          <div class={`dex-mon empty safe${mineList[mineList.length - 2]}`}>
-            {mineList[mineList.length - 2]}
-          </div>
-          <div class={`dex-mon empty safe${mineList[mineList.length - 1]}`}>
-            {mineList[mineList.length - 1]}
-          </div>
-        {/if}
-        <TextField
-          variant="outlined"
-          bind:value={searchTerm}
-          bind:this={searchInput}
-          on:blur={() => searchFocussed = false}
-          on:focus={() => searchFocussed = true}
-          on:keydown={searchKeyDown}
-          label="Dex Search"
-          style={'margin-top: 1rem'}
-        />
+  {#if mineList.length > 0}
+    <div class="playArea">
+      <div class="grid">
+        <div class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
+          {#each monList as pokemon, i (pokemon.id)}
+            <div
+              class={`dex-mon ${
+                statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED
+                  ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
+                  : statusList[i] || ''
+              } ${
+                i === selectedMonIndex ? 'selected' : ''
+              } ${
+                pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
+              }`}
+              on:click={() => selectMon(i)}
+              on:keypress={() => selectMon(i)}
+            >
+              <img
+                class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED ? STATUS.MINED : ''}`}
+                src={`/pokedex/${pokemon.id}.png`}
+                alt={pokemon.name}
+              />
+              {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED)}
+                <div class="mine-value-container">
+                  <span class="mine-list-value">
+                    {statusList[i] === STATUS.EXPLODED && mineList[i] === MINE ? EXPLOSION : mineList[i]}
+                  </span>
+                </div>
+              {/if}
+            </div>
+          {/each}
+          {#if mineList.length > 0}
+            <div class={`dex-mon empty safe${mineList[mineList.length - 5]}`}>
+              {mineList[mineList.length - 5]}
+            </div>
+            <div class={`dex-mon empty safe${mineList[mineList.length - 4]}`}>
+              {mineList[mineList.length - 4]}
+            </div>
+            <div class={`dex-mon empty safe${mineList[mineList.length - 3]}`}>
+              {mineList[mineList.length - 3]}
+            </div>
+            <div class={`dex-mon empty safe${mineList[mineList.length - 2]}`}>
+              {mineList[mineList.length - 2]}
+            </div>
+            <div class={`dex-mon empty safe${mineList[mineList.length - 1]}`}>
+              {mineList[mineList.length - 1]}
+            </div>
+          {/if}
+          <TextField
+            variant="outlined"
+            bind:value={searchTerm}
+            bind:this={searchInput}
+            on:blur={() => searchFocussed = false}
+            on:focus={() => searchFocussed = true}
+            on:keydown={searchKeyDown}
+            label="Dex Search"
+            style={'margin-top: 1rem'}
+          />
+        </div>
       </div>
-    </div>
-    <div class="options">
-      <h2>
-        Mines Found:&nbsp;
-        {#if statusList.length > 0}
-          {statusList.filter((status, index) =>
-            status.includes(STATUS.FLAGGED) ||
-            ((status === STATUS.MINED || status === STATUS.EXPLODED) && mineList[index] === MINE
-          )).length} / {NUM_MINES}
-        {/if}
-      </h2>
-      <h2>
-        Time Penalty:&nbsp;
-        {#if statusList.length > 0}
-          {statusList.reduce((acc, curr, currIndex) => {
-            if (mineList[currIndex] === MINE) {
-              if (curr === STATUS.MINED) {
-                return acc + 15;
-              } else if (curr === STATUS.EXPLODED) {
-                return acc + 5;
+      <div class="options">
+        <h2>
+          Mines Found:&nbsp;
+          {#if statusList.length > 0}
+            {statusList.filter((status, index) =>
+              status.includes(STATUS.FLAGGED) ||
+              ((status === STATUS.MINED || status === STATUS.EXPLODED) && mineList[index] === MINE
+            )).length} / {NUM_MINES}
+          {/if}
+        </h2>
+        <h2>
+          Time Penalty:&nbsp;
+          {#if statusList.length > 0}
+            {statusList.reduce((acc, curr, currIndex) => {
+              if (mineList[currIndex] === MINE) {
+                if (curr === STATUS.MINED) {
+                  return acc + 15;
+                } else if (curr === STATUS.EXPLODED) {
+                  return acc + 5;
+                }
               }
-            }
-            return acc;
-          }, 0)}:00
-        {/if}
-      </h2>
-      <h2>Actions</h2>
-      <span class="selected-mon">
-        <b>Selected Mon:</b>
-        {#if selectedMonIndex > -1}
-          {monList[selectedMonIndex].name}
-        {/if}
-      </span>
-      <br />
-      <span class="selected-mon">
-        <b>Status:</b>
-        {#if selectedMonIndex > -1 && statusList[selectedMonIndex]}
-          {statusList[selectedMonIndex].toUpperCase()}
-        {/if}
-      </span>
-      <br /><br />
-      <Button
-        style="background-color: #fff; color: #000; border: 1px solid #000"
-        on:click={clearStatus}
-        variant="unelevated"
-      >
-        <Label>Clear Status</Label>
-      </Button>
-      <br /><br />
-      <Button
-        style="background-color: red"
-        on:click={() => monAction(STATUS.FLAGGED)}
-        variant="unelevated"
-      >
-        <Label>Flag</Label>
-      </Button>
-      <Button
-        style="background-color: #008000"
-        on:click={() => monAction(STATUS.SAFE)}
-        variant="unelevated"
-      >
-        <Label>Safe</Label>
-      </Button>
-      <br /><br />
-      <Button
-        style="background-color: blue"
-        on:click={() => monAction(STATUS.SEEN)}
-        variant="unelevated"
-      >
-        <Label>Seen</Label>
-      </Button>
-      <Button
-        style="background-color: #8b008b"
-        on:click={() => monAction(STATUS.OWNED)}
-        variant="unelevated"
-      >
-        <Label>Own</Label>
-      </Button>
-      <br /><br />
-      {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes(STATUS.OWNED)}
+              return acc;
+            }, 0)}:00
+          {/if}
+        </h2>
+        <h2>Actions</h2>
+        <span class="selected-mon">
+          <b>Selected Mon:</b>
+          {#if selectedMonIndex > -1}
+            {monList[selectedMonIndex].name}
+          {/if}
+        </span>
+        <br />
+        <span class="selected-mon">
+          <b>Status:</b>
+          {#if selectedMonIndex > -1 && statusList[selectedMonIndex]}
+            {statusList[selectedMonIndex].toUpperCase()}
+          {/if}
+        </span>
+        <br /><br />
         <Button
-          style="background-color: #434343"
-          on:click={() => monAction(STATUS.MINED)}
+          style="background-color: #fff; color: #000; border: 1px solid #000"
+          on:click={clearStatus}
           variant="unelevated"
         >
-          <Label>Excavate</Label>
+          <Label>Clear Status</Label>
         </Button>
-        *cannot be undone
-        <br /><br />
-      {/if}
-      {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED].includes(statusList[selectedMonIndex])}
         <br /><br />
         <Button
-          style="background-color: #880000"
-          on:click={() => explodeMon(selectedMonIndex)}
-          variant="raised"
+          style="background-color: red"
+          on:click={() => monAction(STATUS.FLAGGED)}
+          variant="unelevated"
         >
-          <Label>Explosion</Label>
+          <Label>Flag</Label>
         </Button>
-        *cannot be undone
-      {/if}
+        <Button
+          style="background-color: #008000"
+          on:click={() => monAction(STATUS.SAFE)}
+          variant="unelevated"
+        >
+          <Label>Safe</Label>
+        </Button>
+        <br /><br />
+        <Button
+          style="background-color: blue"
+          on:click={() => monAction(STATUS.SEEN)}
+          variant="unelevated"
+        >
+          <Label>Seen</Label>
+        </Button>
+        <Button
+          style="background-color: #8b008b"
+          on:click={() => monAction(STATUS.OWNED)}
+          variant="unelevated"
+        >
+          <Label>Own</Label>
+        </Button>
+        <br /><br />
+        {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes(STATUS.OWNED)}
+          <Button
+            style="background-color: #434343"
+            on:click={() => monAction(STATUS.MINED)}
+            variant="unelevated"
+          >
+            <Label>Excavate</Label>
+          </Button>
+          *cannot be undone
+          <br /><br />
+        {/if}
+        {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED].includes(statusList[selectedMonIndex])}
+          <br /><br />
+          <Button
+            style="background-color: #880000"
+            on:click={() => explodeMon(selectedMonIndex)}
+            variant="raised"
+          >
+            <Label>Explosion</Label>
+          </Button>
+          *cannot be undone
+        {/if}
+      </div>
     </div>
   {/if}
 </div>
 
 <style>
-  .grid,
-  .options {
+  .playArea {
     display: inline-flex;
+  }
+
+  .options {
+    margin-left: 1rem;
   }
 
   .dex {
     display: flex;
     flex-wrap: wrap;
-    max-width: 700px;
-    max-height: 700px;
+    height: 700px;
+    width: 700px;
   }
 
   .dex > .dex-mon {
