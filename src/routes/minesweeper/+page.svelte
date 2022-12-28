@@ -63,6 +63,7 @@
     } else if (keyCode === 27) {
       searchInput.blur();
       searchTerm = '';
+      selectedMonIndex = -1;
     }
   }
 
@@ -95,7 +96,9 @@
         // TODO: combine statuses of flag/safe with own/seen
         statusList[selectedMonIndex] = status;
       }
-      selectedMonIndex = -1;
+      if (status !== 'owned') {
+        selectedMonIndex = -1;
+      }
     }
   }
 
@@ -201,7 +204,7 @@
 
     const flattenedMineGrid = flatten2DArray(mine2DGrid);
     mineList = flattenedMineGrid;
-    statusList = Array(flattenedMineGrid.length).fill('');
+    statusList = Array(flattenedMineGrid.length).fill('unknown');
 
     // auto-mine freebie cells
     mineMon(flattenedMineGrid.length - 5);
@@ -322,31 +325,58 @@
         {/if}
       </span>
       <br /><br />
-      <Button style="background-color: #fff; color: #000; border: 1px solid #000" on:click={clearStatus} variant="unelevated">
-        <Label>Clear</Label>
-      </Button>
-      <br /><br />
-      <Button style="background-color: red" on:click={() => monAction('flagged')} variant="unelevated">
-        <Label>Flag</Label>
-      </Button>
-      <br /><br />
-      <Button style="background-color: #008b8b" on:click={() => monAction('seen')} variant="unelevated">
-        <Label>Seen</Label>
-      </Button>
-      <br /><br />
-      <Button style="background-color: #ffc0cb; color: #000;" on:click={() => monAction('owned')} variant="unelevated">
-        <Label>Own</Label>
-      </Button>
-      <br /><br />
-      <Button style="background-color: #008000" on:click={() => monAction('safe')} variant="unelevated">
-        <Label>Safe</Label>
-      </Button>
-      <br /><br />
-      <Button style="background-color: #8b008b" on:click={() => monAction('mined')} variant="unelevated">
-        <Label>Excavate</Label>
-      </Button>
-      *cannot be undone
-      <br /><br />
+      {#if selectedMonIndex > -1}
+        <Button
+          style="background-color: #fff; color: #000; border: 1px solid #000"
+          on:click={clearStatus}
+          variant="unelevated"
+        >
+          <Label>Clear</Label>
+        </Button>
+        <br /><br />
+        <Button
+          style="background-color: red"
+          on:click={() => monAction('flagged')}
+          variant="unelevated"
+        >
+          <Label>Flag</Label>
+        </Button>
+        <br /><br />
+        <Button
+          style="background-color: #008b8b"
+          on:click={() => monAction('seen')}
+          variant="unelevated"
+        >
+          <Label>Seen</Label>
+        </Button>
+        <br /><br />
+        <Button
+          style="background-color: #ffc0cb; color: #000;"
+          on:click={() => monAction('owned')}
+          variant="unelevated"
+        >
+          <Label>Own</Label>
+        </Button>
+        <br /><br />
+        <Button
+          style="background-color: #008000"
+          on:click={() => monAction('safe')}
+          variant="unelevated"
+        >
+          <Label>Safe</Label>
+        </Button>
+        <br /><br />
+        {#if statusList && statusList[selectedMonIndex] === 'owned'}
+          <Button
+            style="background-color: #8b008b"
+            on:click={() => monAction('mined')}
+            variant="unelevated"
+          >
+            <Label>Excavate</Label>
+          </Button>
+          *cannot be undone
+        {/if}
+      {/if}
     </div>
   </div>
 </div>
