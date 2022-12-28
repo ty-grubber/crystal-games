@@ -3,15 +3,22 @@
   // TODO: add field to set number of columns or mons
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
+	import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import TextField from '@smui/textfield';
   import { NATIONAL_DEX } from '../../constants/pokedex';
 	import { randomizeArray } from '$lib/randomize';
 	import { convertTo2DArray, flatten2DArray } from '$lib/arrayConversion';
 	import { EXPLOSION, MINE, STATUS } from '../../constants/minesweeper';
+	import Tooltip, { Wrapper } from '@smui/tooltip';
 
   const GRID_COLUMNS = 16;
   const NUM_MINES = 40;
   const emptyMineList = [0, 0, 0, 0, 0];
+
+  let settingsDialogOpen = true;
+  let seedInfoDialogOpen = false;
+  let menuDialogOpen = false;
+  let howToDialogOpen = false;
 
   let gridSeed = '';
   let mineSeed = '';
@@ -29,19 +36,39 @@
 	 * @type {TextField}
 	 */
   let searchInput;
-  /**
-	 * @type {TextField}
-	 */
-  let gridSeedInput;
-  /**
-	 * @type {TextField}
-	 */
-  let mineSeedInput;
+
   let searchTerm = '';
   let searchFocussed = false;
   let gridSeedFocussed = false;
   let mineSeedFocussed = false;
   let selectedMonIndex = -1;
+
+  function handleStartNewGame() {
+    if (!gridSeed || !mineSeed || confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
+      mineList = [];
+      statusList = [];
+      monList = NATIONAL_DEX;
+      gridSeed = '';
+      mineSeed = '';
+      selectedMonIndex = -1;
+      settingsDialogOpen = true;
+      howToDialogOpen = false;
+      seedInfoDialogOpen = false;
+      menuDialogOpen = false;
+    }
+  }
+
+  function openHowToDialog() {
+    howToDialogOpen = true;
+  }
+
+  function openSeedInfoDialog() {
+    seedInfoDialogOpen = true;
+  }
+
+  function openMenuDialog() {
+    menuDialogOpen = true;
+  }
 
   function onRandomizeGridSeed() {
     gridSeed = short.generate().substring(0, 12).toUpperCase();
@@ -154,7 +181,13 @@
    * @param {string} mineStatus
 	 */
   function mineMon(monIndex, mineStatus = STATUS.MINED) {
-    if (mineList && typeof(mineList[monIndex]) !== 'undefined' && statusList && statusList[monIndex] !== STATUS.MINED) {
+    if (
+      mineList &&
+      typeof(mineList[monIndex]) !== 'undefined' &&
+      statusList &&
+      ![STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(statusList[monIndex])
+    ) {
+      // Set the status of the requested mon
       statusList[monIndex] = mineStatus;
 
       // Mine all mons around it if the mine value is 0
@@ -184,7 +217,7 @@
 	 */
   function explodeMon(monIndex) {
     // explode selected mon
-    mineMon(monIndex, STATUS.EXPLODED);
+    mineMon(monIndex, STATUS.ORIGIN_EXPLODED);
 
     // explode mons around it
     mineMon(monIndex - GRID_COLUMNS, STATUS.EXPLODED); // mon above
@@ -203,15 +236,6 @@
       mineMon(monIndex - GRID_COLUMNS + 1, STATUS.EXPLODED); //mon to upper right
       mineMon(monIndex + GRID_COLUMNS + 1, STATUS.EXPLODED); // mon to lower right
     }
-  }
-
-  function onResetClick() {
-    gridSeed = '';
-    mineSeed = '';
-    monList = NATIONAL_DEX;
-    mineList = [];
-    statusList = [];
-    selectedMonIndex = -1;
   }
 
   function onStartClick() {
@@ -279,79 +303,67 @@
     mineMon(flattenedMineGrid.length - 3);
     mineMon(flattenedMineGrid.length - 2);
     mineMon(flattenedMineGrid.length - 1);
+
+    settingsDialogOpen = false;
   }
 </script>
 
 <svelte:window on:keydown={updateSearch} />
 
 <div class="page">
-  <h1>Pokémon Crystal Minesweeper</h1>
-
-  <div class="grid">
-    <div class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
-      {#each monList as pokemon, i (pokemon.id)}
-        <div
-          class={`dex-mon ${
-            statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED
-              ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
-              : statusList[i] || ''
-          } ${
-            i === selectedMonIndex ? 'selected' : ''
-          } ${
-            pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
-          }`}
-          on:click={() => selectMon(i)}
-          on:keypress={() => selectMon(i)}
-        >
-          <img
-            class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED ? STATUS.MINED : ''}`}
-            src={`/pokedex/${pokemon.id}.png`}
-            alt={pokemon.name}
-          />
-          {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED)}
-            <div class="mine-value-container">
-              <span class="mine-list-value">
-                {statusList[i] === STATUS.EXPLODED && mineList[i] === MINE ? EXPLOSION : mineList[i]}
-              </span>
-            </div>
-          {/if}
-        </div>
-      {/each}
-      {#if mineList.length > 0}
-        <div class={`dex-mon empty safe${mineList[mineList.length - 5]}`}>
-          {mineList[mineList.length - 5]}
-        </div>
-        <div class={`dex-mon empty safe${mineList[mineList.length - 4]}`}>
-          {mineList[mineList.length - 4]}
-        </div>
-        <div class={`dex-mon empty safe${mineList[mineList.length - 3]}`}>
-          {mineList[mineList.length - 3]}
-        </div>
-        <div class={`dex-mon empty safe${mineList[mineList.length - 2]}`}>
-          {mineList[mineList.length - 2]}
-        </div>
-        <div class={`dex-mon empty safe${mineList[mineList.length - 1]}`}>
-          {mineList[mineList.length - 1]}
-        </div>
-      {/if}
-      <TextField
-        variant="outlined"
-        bind:value={searchTerm}
-        bind:this={searchInput}
-        on:blur={() => searchFocussed = false}
-        on:focus={() => searchFocussed = true}
-        on:keydown={searchKeyDown}
-        label="Dex Search"
-        style={'margin-top: 1rem'}
-      />
+  {#if mineList.length === 0}
+    <h1>Pokémon Crystal Minesweeper</h1>
+    <Button color="primary" on:click={handleStartNewGame} variant="raised">
+      <Label>Start New Game</Label>
+    </Button>
+    <Button color="secondary" on:click={openHowToDialog} variant="raised">
+      <Label>How To Play</Label>
+    </Button>
+  {/if}
+  {#if mineList.length > 0}
+    <div class='floating-menu'>
+      <Button color="primary" on:click={openMenuDialog} variant="raised">
+        <Label>Menu</Label>
+      </Button>
     </div>
-  </div>
-  <div class="options">
-    <div class="randomizer">
+  {/if}
+
+  <Dialog bind:open={menuDialogOpen}>
+    <Title>Minesweeper Menu</Title>
+    <Content>
+      <Button color="secondary" on:click={openHowToDialog} variant="raised">
+        <Label>How To Play</Label>
+      </Button>
+      <br /><br />
+      <Wrapper>
+        <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
+          <Label>Seed Info</Label>
+        </Button>
+        <Tooltip xPos="start">Click to see full seed info</Tooltip>
+      </Wrapper>
+      <br /><br />
+      <Button color="primary" on:click={handleStartNewGame} variant="raised">
+        <Label>Start New Game</Label>
+      </Button>
+    </Content>
+  </Dialog>
+  <Dialog bind:open={seedInfoDialogOpen}>
+    <Title id="seedInfoTitle">Minesweeper Seed Info</Title>
+    <Content id="seedInfoContent">
+      <p><b>Dex Grid Seed:</b> {gridSeed}</p>
+      <p><b>Mining Grid Seed:</b> {mineSeed}</p>
+    </Content>
+    <Actions>
+      <Button>Close</Button>
+    </Actions>
+  </Dialog>
+  <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px">
+    <Title id="settingsTitle">Pokémon Crystal Minesweeper - Grid Settings</Title>
+    <Content id="settingsContent">
+      <br />
       <TextField
         variant="outlined"
         bind:value={gridSeed}
-        bind:this={gridSeedInput}
         on:blur={() => gridSeedFocussed = false}
         on:focus={() => gridSeedFocussed = true}
         label="Grid Seed:"
@@ -363,7 +375,6 @@
       <TextField
         variant="outlined"
         bind:value={mineSeed}
-        bind:this={mineSeedInput}
         on:blur={() => mineSeedFocussed = false}
         on:focus={() => mineSeedFocussed = true}
         label="Mine Seed:"
@@ -375,124 +386,260 @@
       <Button color="primary" on:click={onStartClick} variant="unelevated">
         <Label>Start Game!</Label>
       </Button>
-      <Button color="secondary" on:click={onResetClick} variant="unelevated">
-        <Label>Reset Grid</Label>
-      </Button>
-      <br /><br />
-      <h2>
-        Mines Found:&nbsp;
-        {#if statusList.length > 0}
-          {statusList.filter((status, index) =>
-            status.includes(STATUS.FLAGGED) ||
-            ((status === STATUS.MINED || status === STATUS.EXPLODED) && mineList[index] === MINE
-          )).length} / {NUM_MINES}
-        {/if}
-      </h2>
-      <h2>
-        Time Penalty:&nbsp;
-        {#if statusList.length > 0}
-          {statusList.reduce((acc, curr, currIndex) => {
-            if (mineList[currIndex] === MINE) {
-              if (curr === STATUS.MINED) {
-                return acc + 15;
-              } else if (curr === STATUS.EXPLODED) {
-                return acc + 5;
+    </Content>
+  </Dialog>
+  <Dialog bind:open={howToDialogOpen} slot="over" surface$style="height: 600px; width: 800px">
+    <Title id="howToTitle">Pokédex Minesweeper - How To Play</Title>
+    <Content id="howToContent">
+      <h3>Object</h3>
+
+      <p>The object of Pokédex Minesweeper is to find all of the hidden mines in the Pokédex grid as fast as possible. This is ideally done by using logic to flag the Pokémon you know to be mines based on the clues given by other excavated Pokémon. Once all 40 mines have been found, stop your timer (not implemented on this page) and add any accrued penalties to your time to find your final score (see below for Penalties).</p>
+
+      <p>Pokédex Minesweeper is a great way to spice up a standard Catch-Em-All randomizer and it is highly encouraged to add in a full-item or even a map randomizer to make things extra chaotic!</p>
+
+      <h3>Setting Up A Game</h3>
+      <p>When the page initially loads, or when you start a new game, you will be presented with a dialog to input the settings for minesweeper:</p>
+      <ul>
+        <li><b>Grid Seed:</b> - A string used for randomization of the Pokédex. Type one of your choice or click the Randomize Grid Seed button to have one generated for you.</li>
+        <li><b>Mine Seed:</b> - A string used for randomization of the grid for the mines. Type one of your choice or click the Randomize Mine Seed button to have one generated for you.</li>
+      </ul>
+      <p>Once you have clicked the 'Start Game!' button, the dialog should close and before you will be a Pokédex grid along with info and actions beside it. Every game of Minesweeper starts with the last 5 squares in the bottom pre-excavated for you.</p>
+
+      <h3>The Grid</h3>
+      <p>The Pokédex grid displays all important information and clues about where mines are hidden in the grid. Any square that has a number or a letter overtop of the Pokémon's icon indicates that that square has been mined. That number or letter indicates the following:</p>
+      <ul>
+        <li><b>Number:</b> - indicates how many mines are adjacent (including diagonals) to this square</li>
+        <li><b>M:</b> - indicates that this square contains a mine (and appropriate penalty has been applied)</li>
+        <li><b>E:</b> - (optional, see Actions below) indicates that this square exploded on its own and contained a mine (and appropriate penalty has been applied)</li>
+      </ul>
+
+      <p>Additionally, each Pokémon in the grid is colored in a way to indicate its different potential statuses:</p>
+      <ul>
+        <li><b>Gold Border:</b> - indicates this Pokémon is currently selected. Actions can now be performed on its cell and you can see its full status written out above the Actions on the right. </li>
+        <li><b>Red Border:</b> - indicates this Pokémon's cell has been flagged, meaning you think there is a mine underneath. This cell will also have a light red background.</li>
+        <li><b>Green Border:</b> - indicates this Pokémon's cell is safe to be excavated (ie. you do not think there is a mine underneath it). This cell will also have a light green background.</li>
+        <li><b>Blue Border:</b> - indicates that you have seen this Pokémon during game play.</li>
+        <li><b>Purple Border:</b> - indicates that you have caught or own this Pokémon in your game's Pokédex.</li>
+        <li><b>Light Blue Background:</b> - indicates that a search is active below the grid and this Pokémon matches the search term provided.</li>
+        <li><b>Red Background:</b> - indicates that this cell has been excavated and a mine was found or the cell exploded (indicated by the letter in the cell, see above)</li>
+        <li><b>Grey-scale Background:</b> - indicates the cell has been mined, but no mine was found underneath. The darker the background the more mines that are adjacent (including diagonals) to this cell.</li>
+      </ul>
+      <p>Some statuses of a cell can be stacked, such as Safe and Seen. In this case, the border of that Pokémon's cell will be a mix of those two status colors.</p>
+
+      <h3>Information Panel</h3>
+      <p>This information panel provides a quick look at how you are doing in the game. It will list how many mines you have found (via excavation, explosion, flagging), what your current time penalty is (due to mine excavations (15 minutes each) and explosions (5 minutes each)), the currently selected Pokémon in the grid and the current status of the selected Pokémon (there could be more than one).</p>
+
+      <h3>Actions</h3>
+      <p>Once you have selected a Pokémon in the grid, various actions can be performed on that cell to add a status to that Pokémon's cell. Unless otherwise stated, once a Pokémon in the grid has been excavated or has exploded, no further actions can be performed on it. The possible actions are:</p>
+      <ul>
+        <li><b>Clear Status:</b> - clear all existing statuses on the cell</li>
+        <li><b>Flag:</b> - mark the cell as flagged. This will auto-increment the number of found mines by 1</li>
+        <li><b>Safe:</b> - mark the cell as safe to be mined</li>
+        <li><b>Seen:</b> - mark the Pokémon as seen</li>
+        <li><b>Own:</b> - mark the Pokémon as owned (which makes the Pokémon's cell able to be excavated)</li>
+        <li><b>Excavate</b> - excavate the Pokémon's cell. This is only performable if the Pokémon has already been set to Owned. This action cannot be undone once performed. If you excavate a cell and a mine is underneath, the number of mines found will auto-increment by 1 and you'll incur a 15-minute penalty to your overall time.</li>
+        <li><b>Explosion</b> - explode the Pokémon's cell, which will also excavate all adjacent cells automatically, incurring penalties as required. This action cannot be undone once performed. (see optional rules for more info)</li>
+      </ul>
+
+      <h3>End Game</h3>
+      <p>When you have found the 40th mine in the grid (via excavation, explosion, or flagging), stop your timer. Your game is over and you can tally your final time. At this point, you need to excavate all un-excavated cells in the grid, even if you don't own the Pokémon of the cell. If your flagging is correct, you have nothing to worry about, but if a mine is uncovered this way, its penalty will still be applied to your final time.</p>
+      <p>Once all un-excavated cells have been excavated, add your timer's time to the Time Penalty indicated in the Information Panel to get your final time. If you are racing against others, whoever has the fastest time wins the race!</p>
+
+      <h3>Optional Explosions</h3>
+      <p>To add a bit of difficulty to your game play in Pokémon Crystal, you can implement this optional Explosions rule-set to Minesweeper.</p>
+      <p>While playing Pokémon Crystal, if <b>any</b> Pokémon in the game uses the move SelfDestruct or Explosion on you, that Pokémon also explodes in your grid. When this occurs, select the Pokémon that exploded on you in the grid and click the Explosion action.</p>
+      <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded, which is indicated by a red number or E) incurs a 5-minute penalty to your overall time.</p>
+      <p>One thing to note is that if a Pokémon has already been excavated, it cannot explode afterwards, therefore, you will not be able to select the Explosion action in this case.</p>
+    </Content>
+    <Actions>
+      <Button>Close</Button>
+    </Actions>
+  </Dialog>
+
+  {#if mineList.length > 0}
+    <div class="playArea">
+      <div class="grid">
+        <div class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
+          {#each monList as pokemon, i (pokemon.id)}
+            <div
+              class={`dex-mon ${
+                statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED)
+                  ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
+                  : statusList[i] || ''
+              } ${
+                i === selectedMonIndex ? 'selected' : ''
+              } ${
+                pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
+              }`}
+              on:click={() => selectMon(i)}
+              on:keypress={() => selectMon(i)}
+            >
+              <img
+                class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED) ? STATUS.MINED : ''}`}
+                src={`/pokedex/${pokemon.id}.png`}
+                alt={pokemon.name}
+              />
+              {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED))}
+                <div class="mine-value-container">
+                  <span class={`mine-list-value ${statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''}`}>
+                    {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE ? EXPLOSION : mineList[i]}
+                  </span>
+                </div>
+              {/if}
+            </div>
+          {/each}
+          {#if mineList.length > 0}
+            <div class={`dex-mon empty safe${mineList[mineList.length - 5]}`}>
+              {mineList[mineList.length - 5]}
+            </div>
+            <div class={`dex-mon empty safe${mineList[mineList.length - 4]}`}>
+              {mineList[mineList.length - 4]}
+            </div>
+            <div class={`dex-mon empty safe${mineList[mineList.length - 3]}`}>
+              {mineList[mineList.length - 3]}
+            </div>
+            <div class={`dex-mon empty safe${mineList[mineList.length - 2]}`}>
+              {mineList[mineList.length - 2]}
+            </div>
+            <div class={`dex-mon empty safe${mineList[mineList.length - 1]}`}>
+              {mineList[mineList.length - 1]}
+            </div>
+          {/if}
+          <TextField
+            variant="outlined"
+            bind:value={searchTerm}
+            bind:this={searchInput}
+            on:blur={() => searchFocussed = false}
+            on:focus={() => searchFocussed = true}
+            on:keydown={searchKeyDown}
+            label="Dex Search"
+            style={'margin-top: 1rem'}
+          />
+        </div>
+      </div>
+      <div class="options">
+        <h2>
+          Mines Found:&nbsp;
+          {#if statusList.length > 0}
+            {statusList.filter((status, index) =>
+              status.includes(STATUS.FLAGGED) ||
+              ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
+            )).length} / {NUM_MINES}
+          {/if}
+        </h2>
+        <h2>
+          Time Penalty:&nbsp;
+          {#if statusList.length > 0}
+            {statusList.reduce((acc, curr, currIndex) => {
+              if (mineList[currIndex] === MINE) {
+                if (curr === STATUS.MINED) {
+                  return acc + 15;
+                } else if (curr === STATUS.EXPLODED || curr === STATUS.ORIGIN_EXPLODED) {
+                  return acc + 5;
+                }
+              } else {
+                if (curr === STATUS.ORIGIN_EXPLODED) {
+                  return acc + 5;
+                }
               }
-            }
-            return acc;
-          }, 0)}:00
-        {/if}
-      </h2>
-      <h2>Actions</h2>
-      <span class="selected-mon">
-        <b>Selected Mon:</b>
-        {#if selectedMonIndex > -1}
-          {monList[selectedMonIndex].name}
-        {/if}
-      </span>
-      <br />
-      <span class="selected-mon">
-        <b>Status:</b>
-        {#if selectedMonIndex > -1 && statusList[selectedMonIndex]}
-          {statusList[selectedMonIndex].toUpperCase()}
-        {/if}
-      </span>
-      <br /><br />
-      <Button
-        style="background-color: #fff; color: #000; border: 1px solid #000"
-        on:click={clearStatus}
-        variant="unelevated"
-      >
-        <Label>Clear Status</Label>
-      </Button>
-      <br /><br />
-      <Button
-        style="background-color: red"
-        on:click={() => monAction(STATUS.FLAGGED)}
-        variant="unelevated"
-      >
-        <Label>Flag</Label>
-      </Button>
-      <Button
-        style="background-color: #008000"
-        on:click={() => monAction(STATUS.SAFE)}
-        variant="unelevated"
-      >
-        <Label>Safe</Label>
-      </Button>
-      <br /><br />
-      <Button
-        style="background-color: blue"
-        on:click={() => monAction(STATUS.SEEN)}
-        variant="unelevated"
-      >
-        <Label>Seen</Label>
-      </Button>
-      <Button
-        style="background-color: #8b008b"
-        on:click={() => monAction(STATUS.OWNED)}
-        variant="unelevated"
-      >
-        <Label>Own</Label>
-      </Button>
-      <br /><br />
-      {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes(STATUS.OWNED)}
+              return acc;
+            }, 0)}:00
+          {/if}
+        </h2>
+        <h2>Actions</h2>
+        <span class="selected-mon">
+          <b>Selected Mon:</b>
+          {#if selectedMonIndex > -1}
+            {monList[selectedMonIndex].name}
+          {/if}
+        </span>
+        <br />
+        <span class="selected-mon">
+          <b>Status:</b>
+          {#if selectedMonIndex > -1 && statusList[selectedMonIndex]}
+            {statusList[selectedMonIndex].toUpperCase()}
+          {/if}
+        </span>
+        <br /><br />
         <Button
-          style="background-color: #434343"
-          on:click={() => monAction(STATUS.MINED)}
+          style="background-color: #fff; color: #000; border: 1px solid #000"
+          on:click={clearStatus}
           variant="unelevated"
         >
-          <Label>Excavate</Label>
+          <Label>Clear Status</Label>
         </Button>
-        *cannot be undone
-        <br /><br />
-      {/if}
-      {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED].includes(statusList[selectedMonIndex])}
         <br /><br />
         <Button
-          style="background-color: #880000"
-          on:click={() => explodeMon(selectedMonIndex)}
-          variant="raised"
+          style="background-color: red"
+          on:click={() => monAction(STATUS.FLAGGED)}
+          variant="unelevated"
         >
-          <Label>Explosion</Label>
+          <Label>Flag</Label>
         </Button>
-        *cannot be undone
-      {/if}
+        <Button
+          style="background-color: #008000"
+          on:click={() => monAction(STATUS.SAFE)}
+          variant="unelevated"
+        >
+          <Label>Safe</Label>
+        </Button>
+        <br /><br />
+        <Button
+          style="background-color: blue"
+          on:click={() => monAction(STATUS.SEEN)}
+          variant="unelevated"
+        >
+          <Label>Seen</Label>
+        </Button>
+        <Button
+          style="background-color: #8b008b"
+          on:click={() => monAction(STATUS.OWNED)}
+          variant="unelevated"
+        >
+          <Label>Own</Label>
+        </Button>
+        <br /><br />
+        {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes(STATUS.OWNED)}
+          <Button
+            style="background-color: #434343"
+            on:click={() => monAction(STATUS.MINED)}
+            variant="unelevated"
+          >
+            <Label>Excavate</Label>
+          </Button>
+          *cannot be undone
+          <br /><br />
+        {/if}
+        {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(statusList[selectedMonIndex])}
+          <br /><br />
+          <Button
+            style="background-color: #880000"
+            on:click={() => explodeMon(selectedMonIndex)}
+            variant="raised"
+          >
+            <Label>Explosion</Label>
+          </Button>
+          *cannot be undone
+        {/if}
+      </div>
     </div>
-  </div>
+  {/if}
 </div>
 
 <style>
-  .grid,
-  .options {
+  .playArea {
     display: inline-flex;
+  }
+
+  .options {
+    margin-left: 1rem;
   }
 
   .dex {
     display: flex;
     flex-wrap: wrap;
-    max-width: 700px;
-    max-height: 700px;
+    height: 700px;
+    width: 700px;
   }
 
   .dex > .dex-mon {
@@ -531,6 +678,10 @@
   .mine-list-value {
     font-size: 2rem;
     line-height: 1.25;
+  }
+
+  .mine-list-value.origin-explosion {
+    color: red;
   }
 
   .dex-mon.mine {
@@ -631,5 +782,11 @@
 
   .mon-icon.mined {
     opacity: 0.5;
+  }
+
+  .floating-menu {
+    position: absolute;
+    top: 1%;
+    right: 1%;
   }
 </style>

@@ -6,6 +6,7 @@ const STATUS = {
   OWNED: 'owned',
   MINED: 'mined',
   EXPLODED: 'exploded',
+  ORIGIN_EXPLODED: 'origin_exploded',
 };
 
 const MINE = 'M';
