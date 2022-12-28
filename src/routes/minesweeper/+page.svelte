@@ -1,5 +1,4 @@
 <script>
-  // TODO: make right-click auto-flag cell
   // TODO: add field to set number of mines
   // TODO: add field to set number of columns or mons
   import short from 'short-uuid';
@@ -63,6 +62,7 @@
     } else if (keyCode === 27) {
       searchInput.blur();
       searchTerm = '';
+      selectedMonIndex = -1;
     }
   }
 
@@ -89,13 +89,55 @@
 	 */
   function monAction(status) {
     if (selectedMonIndex > -1) {
-      if (status === 'mined') {
-        mineMon(selectedMonIndex);
-      } else {
-        // TODO: combine statuses of flag/safe with own/seen
-        statusList[selectedMonIndex] = status;
+      let currentStatus = statusList[selectedMonIndex];
+      if (currentStatus === 'unknown') {
+        currentStatus = '';
       }
-      selectedMonIndex = -1;
+
+      if (currentStatus.includes(status)) {
+        return;
+      }
+
+      switch (status) {
+        case 'mined':
+          mineMon(selectedMonIndex);
+          break;
+        case 'flagged':
+          if (currentStatus.includes('safe')) {
+            statusList[selectedMonIndex] = currentStatus.replace('safe', status);
+          } else {
+            statusList[selectedMonIndex] = currentStatus.concat(' ', status);
+          }
+          break;
+        case 'safe':
+          if (currentStatus.includes('flagged')) {
+            statusList[selectedMonIndex] = currentStatus.replace('flagged', status);
+          } else {
+            statusList[selectedMonIndex] = currentStatus.concat(' ', status);
+          }
+          break;
+        case 'seen':
+          if (currentStatus.includes('owned')) {
+            statusList[selectedMonIndex] = currentStatus.replace('owned', status);
+          } else {
+            statusList[selectedMonIndex] = currentStatus.concat(' ', status);
+          }
+          break;
+        case 'owned':
+          if (currentStatus.includes('seen')) {
+            statusList[selectedMonIndex] = currentStatus.replace('seen', status);
+          } else {
+            statusList[selectedMonIndex] = currentStatus.concat(' ', status);
+          }
+          break;
+        default:
+          break;
+      }
+
+      // allow players to immediately excavate a mon if their status is now owned
+      if (status !== 'owned') {
+        selectedMonIndex = -1;
+      }
     }
   }
 
@@ -201,7 +243,7 @@
 
     const flattenedMineGrid = flatten2DArray(mine2DGrid);
     mineList = flattenedMineGrid;
-    statusList = Array(flattenedMineGrid.length).fill('');
+    statusList = Array(flattenedMineGrid.length).fill('unknown');
 
     // auto-mine freebie cells
     mineMon(flattenedMineGrid.length - 5);
@@ -307,7 +349,23 @@
         <Label>Reset Grid</Label>
       </Button>
       <br /><br />
-      <h2>Actions:</h2>
+      <h2>
+        Mines Found:&nbsp;
+        {#if statusList.length > 0}
+          {statusList.filter((status, index) =>
+            status.includes('flagged') || (status === 'mined' && mineList[index] === 'M'
+          )).length} / {NUM_MINES}
+        {/if}
+      </h2>
+      <h2>
+        Time Penalty:&nbsp;
+        {#if statusList.length > 0}
+          {statusList.filter((status, index) =>
+            status === 'mined' && mineList[index] === 'M'
+          ).length * 15}:00
+        {/if}
+      </h2>
+      <h2>Actions</h2>
       <span class="selected-mon">
         <b>Selected Mon:</b>
         {#if selectedMonIndex > -1}
@@ -322,31 +380,55 @@
         {/if}
       </span>
       <br /><br />
-      <Button style="background-color: #fff; color: #000; border: 1px solid #000" on:click={clearStatus} variant="unelevated">
-        <Label>Clear</Label>
+      <Button
+        style="background-color: #fff; color: #000; border: 1px solid #000"
+        on:click={clearStatus}
+        variant="unelevated"
+      >
+        <Label>Clear Status</Label>
       </Button>
       <br /><br />
-      <Button style="background-color: red" on:click={() => monAction('flagged')} variant="unelevated">
+      <Button
+        style="background-color: red"
+        on:click={() => monAction('flagged')}
+        variant="unelevated"
+      >
         <Label>Flag</Label>
       </Button>
-      <br /><br />
-      <Button style="background-color: #008b8b" on:click={() => monAction('seen')} variant="unelevated">
-        <Label>Seen</Label>
-      </Button>
-      <br /><br />
-      <Button style="background-color: #ffc0cb; color: #000;" on:click={() => monAction('owned')} variant="unelevated">
-        <Label>Own</Label>
-      </Button>
-      <br /><br />
-      <Button style="background-color: #008000" on:click={() => monAction('safe')} variant="unelevated">
+      <Button
+        style="background-color: #008000"
+        on:click={() => monAction('safe')}
+        variant="unelevated"
+      >
         <Label>Safe</Label>
       </Button>
       <br /><br />
-      <Button style="background-color: #8b008b" on:click={() => monAction('mined')} variant="unelevated">
-        <Label>Excavate</Label>
+      <Button
+        style="background-color: blue"
+        on:click={() => monAction('seen')}
+        variant="unelevated"
+      >
+        <Label>Seen</Label>
       </Button>
-      *cannot be undone
+      <Button
+        style="background-color: #8b008b"
+        on:click={() => monAction('owned')}
+        variant="unelevated"
+      >
+        <Label>Own</Label>
+      </Button>
       <br /><br />
+      {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes('owned')}
+        <Button
+          style="background-color: #434343"
+          on:click={() => monAction('mined')}
+          variant="unelevated"
+        >
+          <Label>Excavate</Label>
+        </Button>
+        *cannot be undone
+        <br /><br />
+      {/if}
     </div>
   </div>
 </div>
@@ -446,18 +528,48 @@
 
   .dex-mon.flagged {
     border-color: red;
+    background-color: rgba(255, 0, 0, 0.2);
   }
 
-  .dex-mon.seen {
-    border-color: #008b8b;
+  .dex-mon.flagged.seen {
+    border-top-color: red;
+    border-bottom-color: red;
+    border-left-color: blue;
+    border-right-color: blue;
   }
 
-  .dex-mon.owned {
-    border-color: #ffc0cb;
+  .dex-mon.flagged.owned {
+    border-top-color: red;
+    border-bottom-color: red;
+    border-left-color: #8b008b;
+    border-right-color: #8b008b;
   }
 
   .dex-mon.safe {
     border-color: #008000;
+    background-color: rgba(0, 127, 0, 0.2);
+  }
+
+  .dex-mon.safe.seen {
+    border-top-color: #008000;
+    border-bottom-color: #008000;
+    border-left-color: blue;
+    border-right-color: blue;
+  }
+
+  .dex-mon.safe.owned {
+    border-top-color: #008000;
+    border-bottom-color: #008000;
+    border-left-color: #8b008b;
+    border-right-color: #8b008b;
+  }
+
+  .dex-mon.seen {
+    border-color: blue;
+  }
+
+  .dex-mon.owned {
+    border-color: #8b008b;
   }
 
   .dex-mon.selected {
