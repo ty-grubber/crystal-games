@@ -25,6 +25,12 @@
 	 */
   let mineList = [];
 
+  /**
+	 * @type {TextField}
+	 */
+  let searchInput;
+  let searchTerm = '';
+  let searchFocussed = false;
   let selectedMonIndex = -1;
 
   function onRandomizeGridSeed() {
@@ -33,6 +39,32 @@
 
   function onRandomizeMineSeed() {
     mineSeed = short.generate().substring(0, 12).toUpperCase();
+  }
+
+  /**
+	 * @param {{ which: any; keyCode: any; }} e
+	 */
+  function updateSearch(e) {
+    const keyCode = e.which || e.keyCode;
+    // valid keys are letters, numbers, dash, apostrophe or period;
+    const validKeyPressed = (keyCode >= 48 && keyCode <= 90) || keyCode === 222 || keyCode === 189 || keyCode === 190;
+    if (!searchFocussed && validKeyPressed) {
+      searchInput.focus();
+    } else if (keyCode === 27) {
+      searchInput.blur();
+      searchTerm = '';
+    }
+  }
+
+  /**
+	 * @param {any} e
+	 */
+  function searchKeyDown(e) {
+    const keyCode = e.which || e.keyCode;
+    if (keyCode === 27) {
+      searchTerm = '';
+      searchInput.blur();
+    }
   }
 
   /**
@@ -170,18 +202,24 @@
   }
 </script>
 
+<svelte:window on:keydown={updateSearch} />
+
 <div class="page">
   <h1>Pokémon Crystal Minesweeper</h1>
 
   <div class="grid">
-    <div class="dex">
+    <div class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
       {#each monList as pokemon, i (pokemon.id)}
         <div
           class={`dex-mon ${
             statusList[i] === 'mined'
               ? mineList[i] === 'M' ? 'mine' : `safe${mineList[i]}`
               : statusList[i] || ''
-          } ${i === selectedMonIndex ? 'selected' : ''}`}
+          } ${
+            i === selectedMonIndex ? 'selected' : ''
+          } ${
+            pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
+          }`}
           on:click={() => selectMon(i)}
           on:keypress={() => selectMon(i)}
         >
@@ -214,8 +252,17 @@
           {mineList[mineList.length - 1]}
         </div>
       {/if}
+      <TextField
+        variant="outlined"
+        bind:value={searchTerm}
+        bind:this={searchInput}
+        on:blur={() => searchFocussed = false}
+        on:focus={() => searchFocussed = true}
+        on:keydown={searchKeyDown}
+        label="Dex Search"
+        style={'margin-top: 1rem'}
+      />
     </div>
-    <br />
   </div>
   <div class="options">
     <div class="randomizer">
@@ -300,6 +347,15 @@
     border: 2px solid white;
     background-color: white;
     color: white;
+  }
+
+  .dex.search > .dex-mon {
+    opacity: 0.3;
+  }
+
+  .dex.search > .dex-mon.matched {
+    opacity: 1;
+    background-color: lightblue;
   }
 
   .dex-mon.empty {
