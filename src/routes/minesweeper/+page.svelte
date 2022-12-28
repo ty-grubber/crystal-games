@@ -7,6 +7,7 @@
   import { NATIONAL_DEX } from '../../constants/pokedex';
 	import { randomizeArray } from '$lib/randomize';
 	import { convertTo2DArray, flatten2DArray } from '$lib/arrayConversion';
+	import { EXPLOSION, MINE, STATUS } from '../../constants/minesweeper';
 
   const GRID_COLUMNS = 16;
   const NUM_MINES = 40;
@@ -90,7 +91,7 @@
   function monAction(status) {
     if (selectedMonIndex > -1) {
       let currentStatus = statusList[selectedMonIndex];
-      if (currentStatus === 'unknown') {
+      if (currentStatus === STATUS.EMPTY) {
         currentStatus = '';
       }
 
@@ -99,33 +100,33 @@
       }
 
       switch (status) {
-        case 'mined':
+        case STATUS.MINED:
           mineMon(selectedMonIndex);
           break;
-        case 'flagged':
-          if (currentStatus.includes('safe')) {
-            statusList[selectedMonIndex] = currentStatus.replace('safe', status);
+        case STATUS.FLAGGED:
+          if (currentStatus.includes(STATUS.SAFE)) {
+            statusList[selectedMonIndex] = currentStatus.replace(STATUS.SAFE, status);
           } else {
             statusList[selectedMonIndex] = currentStatus.concat(' ', status);
           }
           break;
-        case 'safe':
-          if (currentStatus.includes('flagged')) {
-            statusList[selectedMonIndex] = currentStatus.replace('flagged', status);
+        case STATUS.SAFE:
+          if (currentStatus.includes(STATUS.FLAGGED)) {
+            statusList[selectedMonIndex] = currentStatus.replace(STATUS.FLAGGED, status);
           } else {
             statusList[selectedMonIndex] = currentStatus.concat(' ', status);
           }
           break;
-        case 'seen':
-          if (currentStatus.includes('owned')) {
-            statusList[selectedMonIndex] = currentStatus.replace('owned', status);
+        case STATUS.SEEN:
+          if (currentStatus.includes(STATUS.OWNED)) {
+            statusList[selectedMonIndex] = currentStatus.replace(STATUS.OWNED, status);
           } else {
             statusList[selectedMonIndex] = currentStatus.concat(' ', status);
           }
           break;
-        case 'owned':
-          if (currentStatus.includes('seen')) {
-            statusList[selectedMonIndex] = currentStatus.replace('seen', status);
+        case STATUS.OWNED:
+          if (currentStatus.includes(STATUS.SEEN)) {
+            statusList[selectedMonIndex] = currentStatus.replace(STATUS.SEEN, status);
           } else {
             statusList[selectedMonIndex] = currentStatus.concat(' ', status);
           }
@@ -135,25 +136,26 @@
       }
 
       // allow players to immediately excavate a mon if their status is now owned
-      if (status !== 'owned') {
+      if (status !== STATUS.OWNED) {
         selectedMonIndex = -1;
       }
     }
   }
 
   function clearStatus() {
-    if (selectedMonIndex > -1 && statusList[selectedMonIndex] !== 'mined') {
-      statusList[selectedMonIndex] = '';
+    if (selectedMonIndex > -1 && statusList[selectedMonIndex] !== STATUS.MINED) {
+      statusList[selectedMonIndex] = STATUS.EMPTY;
       selectedMonIndex = -1;
     }
   }
 
   /**
 	 * @param {number} monIndex
+   * @param {string} mineStatus
 	 */
-  function mineMon(monIndex) {
-    if (mineList && typeof(mineList[monIndex]) !== 'undefined' && statusList && statusList[monIndex] !== 'mined') {
-      statusList[monIndex] = 'mined';
+  function mineMon(monIndex, mineStatus = STATUS.MINED) {
+    if (mineList && typeof(mineList[monIndex]) !== 'undefined' && statusList && statusList[monIndex] !== STATUS.MINED) {
+      statusList[monIndex] = mineStatus;
 
       // Mine all mons around it if the mine value is 0
       if (mineList[monIndex] === 0) {
@@ -177,6 +179,32 @@
     }
   }
 
+  /**
+	 * @param {number} monIndex
+	 */
+  function explodeMon(monIndex) {
+    // explode selected mon
+    mineMon(monIndex, STATUS.EXPLODED);
+
+    // explode mons around it
+    mineMon(monIndex - GRID_COLUMNS, STATUS.EXPLODED); // mon above
+    mineMon(monIndex + GRID_COLUMNS, STATUS.EXPLODED); // mon below
+
+    // Make sure we aren't at left edge of grid
+    if (monIndex > 0 && Math.abs(monIndex % GRID_COLUMNS - ((monIndex - 1) % GRID_COLUMNS)) === 1) {
+      mineMon(monIndex - 1, STATUS.EXPLODED); // mon to left
+      mineMon(monIndex - GRID_COLUMNS - 1, STATUS.EXPLODED); // mon to upper left
+      mineMon(monIndex + GRID_COLUMNS - 1, STATUS.EXPLODED); // mon to lower left
+    }
+
+    // Make sure we aren't at right edge of grid
+    if (Math.abs(monIndex % GRID_COLUMNS - ((monIndex + 1) % GRID_COLUMNS)) === 1) {
+      mineMon(monIndex + 1, STATUS.EXPLODED); // mon to right
+      mineMon(monIndex - GRID_COLUMNS + 1, STATUS.EXPLODED); //mon to upper right
+      mineMon(monIndex + GRID_COLUMNS + 1, STATUS.EXPLODED); // mon to lower right
+    }
+  }
+
   function onResetClick() {
     gridSeed = '';
     mineSeed = '';
@@ -191,7 +219,7 @@
     monList = randomizeArray(NATIONAL_DEX, gridSeed);
 
     // Build randomized mine list
-    const unshuffledMines = Array(NATIONAL_DEX.length).fill('M', 0, NUM_MINES).fill(0, NUM_MINES);
+    const unshuffledMines = Array(NATIONAL_DEX.length).fill(MINE, 0, NUM_MINES).fill(0, NUM_MINES);
     const shuffledMines = randomizeArray(unshuffledMines, mineSeed);
     const shuffledMinesWithBlanks = shuffledMines.concat(emptyMineList);
 
@@ -200,40 +228,40 @@
     // Build the hint numbers for the mine list
     for (var row = 0; row < mine2DGrid.length; row++) {
       for (var col = 0; col < GRID_COLUMNS; col++) {
-        if (mine2DGrid[row][col] === 'M') {
+        if (mine2DGrid[row][col] === MINE) {
           const isNotLeftEdgeCol = col - 1 >= 0;
           const isNotRightEdgeCol = col + 1 < GRID_COLUMNS;
 
           // Current Row
-          if (isNotLeftEdgeCol && mine2DGrid[row][col - 1] !== 'M') {
+          if (isNotLeftEdgeCol && mine2DGrid[row][col - 1] !== MINE) {
             mine2DGrid[row][col - 1] += 1;
           }
-          if (isNotRightEdgeCol && mine2DGrid[row][col + 1] !== 'M') {
+          if (isNotRightEdgeCol && mine2DGrid[row][col + 1] !== MINE) {
             mine2DGrid[row][col + 1] += 1;
           }
 
           if (row - 1 >= 0) {
             // Previous row exists, so check through valid columns
-            if (mine2DGrid[row - 1][col] !== 'M') {
+            if (mine2DGrid[row - 1][col] !== MINE) {
               mine2DGrid[row - 1][col] += 1;
             }
-            if (isNotLeftEdgeCol && mine2DGrid[row - 1][col - 1] !== 'M') {
+            if (isNotLeftEdgeCol && mine2DGrid[row - 1][col - 1] !== MINE) {
               mine2DGrid[row - 1][col - 1] += 1;
             }
-            if (isNotRightEdgeCol && mine2DGrid[row - 1][col + 1] !== 'M') {
+            if (isNotRightEdgeCol && mine2DGrid[row - 1][col + 1] !== MINE) {
               mine2DGrid[row - 1][col + 1] += 1;
             }
           }
 
           if (row + 1 < mine2DGrid.length) {
             // Next row exists, so check through valid columns
-            if (mine2DGrid[row + 1][col] !== 'M') {
+            if (mine2DGrid[row + 1][col] !== MINE) {
               mine2DGrid[row + 1][col] += 1;
             }
-            if (isNotLeftEdgeCol && mine2DGrid[row + 1][col - 1] !== 'M') {
+            if (isNotLeftEdgeCol && mine2DGrid[row + 1][col - 1] !== MINE) {
               mine2DGrid[row + 1][col - 1] += 1;
             }
-            if (isNotRightEdgeCol && mine2DGrid[row + 1][col + 1] !== 'M') {
+            if (isNotRightEdgeCol && mine2DGrid[row + 1][col + 1] !== MINE) {
               mine2DGrid[row + 1][col + 1] += 1;
             }
           }
@@ -243,7 +271,7 @@
 
     const flattenedMineGrid = flatten2DArray(mine2DGrid);
     mineList = flattenedMineGrid;
-    statusList = Array(flattenedMineGrid.length).fill('unknown');
+    statusList = Array(flattenedMineGrid.length).fill(STATUS.EMPTY);
 
     // auto-mine freebie cells
     mineMon(flattenedMineGrid.length - 5);
@@ -264,8 +292,8 @@
       {#each monList as pokemon, i (pokemon.id)}
         <div
           class={`dex-mon ${
-            statusList[i] === 'mined'
-              ? mineList[i] === 'M' ? 'mine' : `safe${mineList[i]}`
+            statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED
+              ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
               : statusList[i] || ''
           } ${
             i === selectedMonIndex ? 'selected' : ''
@@ -276,13 +304,15 @@
           on:keypress={() => selectMon(i)}
         >
           <img
-            class={`mon-icon ${statusList[i] === 'mined' ? 'mined' : ''}`}
+            class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED ? STATUS.MINED : ''}`}
             src={`/pokedex/${pokemon.id}.png`}
             alt={pokemon.name}
           />
-          {#if mineList.length > 0 && statusList[i] === 'mined'}
+          {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED)}
             <div class="mine-value-container">
-              <span class="mine-list-value">{mineList[i]}</span>
+              <span class="mine-list-value">
+                {statusList[i] === STATUS.EXPLODED && mineList[i] === MINE ? EXPLOSION : mineList[i]}
+              </span>
             </div>
           {/if}
         </div>
@@ -353,7 +383,7 @@
         Mines Found:&nbsp;
         {#if statusList.length > 0}
           {statusList.filter((status, index) =>
-            status.includes('flagged') || (status === 'mined' && mineList[index] === 'M'
+            status.includes(STATUS.FLAGGED) || ((status === STATUS.MINED || status === STATUS.EXPLODED) && mineList[index] === MINE
           )).length} / {NUM_MINES}
         {/if}
       </h2>
@@ -361,7 +391,7 @@
         Time Penalty:&nbsp;
         {#if statusList.length > 0}
           {statusList.filter((status, index) =>
-            status === 'mined' && mineList[index] === 'M'
+            status === STATUS.MINED && mineList[index] === MINE
           ).length * 15}:00
         {/if}
       </h2>
@@ -390,14 +420,14 @@
       <br /><br />
       <Button
         style="background-color: red"
-        on:click={() => monAction('flagged')}
+        on:click={() => monAction(STATUS.FLAGGED)}
         variant="unelevated"
       >
         <Label>Flag</Label>
       </Button>
       <Button
         style="background-color: #008000"
-        on:click={() => monAction('safe')}
+        on:click={() => monAction(STATUS.SAFE)}
         variant="unelevated"
       >
         <Label>Safe</Label>
@@ -405,29 +435,40 @@
       <br /><br />
       <Button
         style="background-color: blue"
-        on:click={() => monAction('seen')}
+        on:click={() => monAction(STATUS.SEEN)}
         variant="unelevated"
       >
         <Label>Seen</Label>
       </Button>
       <Button
         style="background-color: #8b008b"
-        on:click={() => monAction('owned')}
+        on:click={() => monAction(STATUS.OWNED)}
         variant="unelevated"
       >
         <Label>Own</Label>
       </Button>
       <br /><br />
-      {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes('owned')}
+      {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes(STATUS.OWNED)}
         <Button
           style="background-color: #434343"
-          on:click={() => monAction('mined')}
+          on:click={() => monAction(STATUS.MINED)}
           variant="unelevated"
         >
           <Label>Excavate</Label>
         </Button>
         *cannot be undone
         <br /><br />
+      {/if}
+      {#if statusList && selectedMonIndex > -1}
+        <br /><br />
+        <Button
+          style="background-color: #880000"
+          on:click={() => explodeMon(selectedMonIndex)}
+          variant="raised"
+        >
+          <Label>Explosion</Label>
+        </Button>
+        *cannot be undone
       {/if}
     </div>
   </div>
