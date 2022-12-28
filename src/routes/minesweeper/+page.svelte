@@ -3,6 +3,7 @@
   // TODO: add field to set number of columns or mons
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
+	import Dialog, { Content, Title } from '@smui/dialog';
   import TextField from '@smui/textfield';
   import { NATIONAL_DEX } from '../../constants/pokedex';
 	import { randomizeArray } from '$lib/randomize';
@@ -12,6 +13,8 @@
   const GRID_COLUMNS = 16;
   const NUM_MINES = 40;
   const emptyMineList = [0, 0, 0, 0, 0];
+
+  let settingsDialogOpen = true;
 
   let gridSeed = '';
   let mineSeed = '';
@@ -286,68 +289,25 @@
 
 <div class="page">
   <h1>Pokémon Crystal Minesweeper</h1>
-
-  <div class="grid">
-    <div class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
-      {#each monList as pokemon, i (pokemon.id)}
-        <div
-          class={`dex-mon ${
-            statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED
-              ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
-              : statusList[i] || ''
-          } ${
-            i === selectedMonIndex ? 'selected' : ''
-          } ${
-            pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
-          }`}
-          on:click={() => selectMon(i)}
-          on:keypress={() => selectMon(i)}
-        >
-          <img
-            class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED ? STATUS.MINED : ''}`}
-            src={`/pokedex/${pokemon.id}.png`}
-            alt={pokemon.name}
-          />
-          {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED)}
-            <div class="mine-value-container">
-              <span class="mine-list-value">
-                {statusList[i] === STATUS.EXPLODED && mineList[i] === MINE ? EXPLOSION : mineList[i]}
-              </span>
-            </div>
-          {/if}
-        </div>
-      {/each}
-      {#if mineList.length > 0}
-        <div class={`dex-mon empty safe${mineList[mineList.length - 5]}`}>
-          {mineList[mineList.length - 5]}
-        </div>
-        <div class={`dex-mon empty safe${mineList[mineList.length - 4]}`}>
-          {mineList[mineList.length - 4]}
-        </div>
-        <div class={`dex-mon empty safe${mineList[mineList.length - 3]}`}>
-          {mineList[mineList.length - 3]}
-        </div>
-        <div class={`dex-mon empty safe${mineList[mineList.length - 2]}`}>
-          {mineList[mineList.length - 2]}
-        </div>
-        <div class={`dex-mon empty safe${mineList[mineList.length - 1]}`}>
-          {mineList[mineList.length - 1]}
-        </div>
-      {/if}
-      <TextField
-        variant="outlined"
-        bind:value={searchTerm}
-        bind:this={searchInput}
-        on:blur={() => searchFocussed = false}
-        on:focus={() => searchFocussed = true}
-        on:keydown={searchKeyDown}
-        label="Dex Search"
-        style={'margin-top: 1rem'}
-      />
+  {#if !mineSeed && !gridSeed}
+    <Button color="primary" on:click={() => {}} variant="raised">
+      <Label>Start New Game</Label>
+    </Button>
+    <Button color="secondary" on:click={() => {}} variant="raised">
+      <Label>How To Play</Label>
+    </Button>
+  {/if}
+  {#if mineSeed && gridSeed}
+    <div class='floating-menu'>
+      <Button color="primary" on:click={() => {}} variant="raised">
+        <Label>Menu</Label>
+      </Button>
     </div>
-  </div>
-  <div class="options">
-    <div class="randomizer">
+  {/if}
+
+  <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px">
+    <Title id="settingsTitle">Pokémon Crystal Minesweeper - Tracker Settings</Title>
+    <Content id="settingsContent">
       <TextField
         variant="outlined"
         bind:value={gridSeed}
@@ -378,7 +338,70 @@
       <Button color="secondary" on:click={onResetClick} variant="unelevated">
         <Label>Reset Grid</Label>
       </Button>
-      <br /><br />
+    </Content>
+  </Dialog>
+
+  {#if gridSeed && mineSeed}
+    <div class="grid">
+      <div class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
+        {#each monList as pokemon, i (pokemon.id)}
+          <div
+            class={`dex-mon ${
+              statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED
+                ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
+                : statusList[i] || ''
+            } ${
+              i === selectedMonIndex ? 'selected' : ''
+            } ${
+              pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
+            }`}
+            on:click={() => selectMon(i)}
+            on:keypress={() => selectMon(i)}
+          >
+            <img
+              class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED ? STATUS.MINED : ''}`}
+              src={`/pokedex/${pokemon.id}.png`}
+              alt={pokemon.name}
+            />
+            {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED)}
+              <div class="mine-value-container">
+                <span class="mine-list-value">
+                  {statusList[i] === STATUS.EXPLODED && mineList[i] === MINE ? EXPLOSION : mineList[i]}
+                </span>
+              </div>
+            {/if}
+          </div>
+        {/each}
+        {#if mineList.length > 0}
+          <div class={`dex-mon empty safe${mineList[mineList.length - 5]}`}>
+            {mineList[mineList.length - 5]}
+          </div>
+          <div class={`dex-mon empty safe${mineList[mineList.length - 4]}`}>
+            {mineList[mineList.length - 4]}
+          </div>
+          <div class={`dex-mon empty safe${mineList[mineList.length - 3]}`}>
+            {mineList[mineList.length - 3]}
+          </div>
+          <div class={`dex-mon empty safe${mineList[mineList.length - 2]}`}>
+            {mineList[mineList.length - 2]}
+          </div>
+          <div class={`dex-mon empty safe${mineList[mineList.length - 1]}`}>
+            {mineList[mineList.length - 1]}
+          </div>
+        {/if}
+        <TextField
+          variant="outlined"
+          bind:value={searchTerm}
+          bind:this={searchInput}
+          on:blur={() => searchFocussed = false}
+          on:focus={() => searchFocussed = true}
+          on:keydown={searchKeyDown}
+          label="Dex Search"
+          style={'margin-top: 1rem'}
+        />
+      </div>
+    </div>
+    <div class="options">
       <h2>
         Mines Found:&nbsp;
         {#if statusList.length > 0}
@@ -479,7 +502,7 @@
         *cannot be undone
       {/if}
     </div>
-  </div>
+  {/if}
 </div>
 
 <style>
