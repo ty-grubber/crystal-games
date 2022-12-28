@@ -29,8 +29,18 @@
 	 * @type {TextField}
 	 */
   let searchInput;
+  /**
+	 * @type {TextField}
+	 */
+  let gridSeedInput;
+  /**
+	 * @type {TextField}
+	 */
+  let mineSeedInput;
   let searchTerm = '';
   let searchFocussed = false;
+  let gridSeedFocussed = false;
+  let mineSeedFocussed = false;
   let selectedMonIndex = -1;
 
   function onRandomizeGridSeed() {
@@ -48,7 +58,7 @@
     const keyCode = e.which || e.keyCode;
     // valid keys are letters, numbers, dash, apostrophe or period;
     const validKeyPressed = (keyCode >= 48 && keyCode <= 90) || keyCode === 222 || keyCode === 189 || keyCode === 190;
-    if (!searchFocussed && validKeyPressed) {
+    if (!searchFocussed && !gridSeedFocussed && !mineSeedFocussed && validKeyPressed) {
       searchInput.focus();
     } else if (keyCode === 27) {
       searchInput.blur();
@@ -266,12 +276,26 @@
   </div>
   <div class="options">
     <div class="randomizer">
-      <TextField variant="outlined" bind:value={gridSeed} label="Grid Seed:" />
+      <TextField
+        variant="outlined"
+        bind:value={gridSeed}
+        bind:this={gridSeedInput}
+        on:blur={() => gridSeedFocussed = false}
+        on:focus={() => gridSeedFocussed = true}
+        label="Grid Seed:"
+      />
       <Button color="secondary" on:click={onRandomizeGridSeed} variant="unelevated">
         <Label>Randomize Grid Seed</Label>
       </Button>
       <br /><br />
-      <TextField variant="outlined" bind:value={mineSeed} label="Mine Seed:" />
+      <TextField
+        variant="outlined"
+        bind:value={mineSeed}
+        bind:this={mineSeedInput}
+        on:blur={() => mineSeedFocussed = false}
+        on:focus={() => mineSeedFocussed = true}
+        label="Mine Seed:"
+      />
       <Button color="secondary" on:click={onRandomizeMineSeed} variant="unelevated">
         <Label>Randomize Mine Seed</Label>
       </Button>
