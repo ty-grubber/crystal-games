@@ -383,16 +383,24 @@
         Mines Found:&nbsp;
         {#if statusList.length > 0}
           {statusList.filter((status, index) =>
-            status.includes(STATUS.FLAGGED) || ((status === STATUS.MINED || status === STATUS.EXPLODED) && mineList[index] === MINE
+            status.includes(STATUS.FLAGGED) ||
+            ((status === STATUS.MINED || status === STATUS.EXPLODED) && mineList[index] === MINE
           )).length} / {NUM_MINES}
         {/if}
       </h2>
       <h2>
         Time Penalty:&nbsp;
         {#if statusList.length > 0}
-          {statusList.filter((status, index) =>
-            status === STATUS.MINED && mineList[index] === MINE
-          ).length * 15}:00
+          {statusList.reduce((acc, curr, currIndex) => {
+            if (mineList[currIndex] === MINE) {
+              if (curr === STATUS.MINED) {
+                return acc + 15;
+              } else if (curr === STATUS.EXPLODED) {
+                return acc + 5;
+              }
+            }
+            return acc;
+          }, 0)}:00
         {/if}
       </h2>
       <h2>Actions</h2>
@@ -459,7 +467,7 @@
         *cannot be undone
         <br /><br />
       {/if}
-      {#if statusList && selectedMonIndex > -1}
+      {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED].includes(statusList[selectedMonIndex])}
         <br /><br />
         <Button
           style="background-color: #880000"
