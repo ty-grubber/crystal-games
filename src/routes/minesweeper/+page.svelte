@@ -357,6 +357,14 @@
           )).length} / {NUM_MINES}
         {/if}
       </h2>
+      <h2>
+        Time Penalty:&nbsp;
+        {#if statusList.length > 0}
+          {statusList.filter((status, index) =>
+            status === 'mined' && mineList[index] === 'M'
+          ).length * 15}:00
+        {/if}
+      </h2>
       <h2>Actions</h2>
       <span class="selected-mon">
         <b>Selected Mon:</b>
