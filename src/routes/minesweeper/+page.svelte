@@ -181,7 +181,13 @@
    * @param {string} mineStatus
 	 */
   function mineMon(monIndex, mineStatus = STATUS.MINED) {
-    if (mineList && typeof(mineList[monIndex]) !== 'undefined' && statusList && statusList[monIndex] !== STATUS.MINED) {
+    if (
+      mineList &&
+      typeof(mineList[monIndex]) !== 'undefined' &&
+      statusList &&
+      ![STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(statusList[monIndex])
+    ) {
+      // Set the status of the requested mon
       statusList[monIndex] = mineStatus;
 
       // Mine all mons around it if the mine value is 0
@@ -211,7 +217,7 @@
 	 */
   function explodeMon(monIndex) {
     // explode selected mon
-    mineMon(monIndex, STATUS.EXPLODED);
+    mineMon(monIndex, STATUS.ORIGIN_EXPLODED);
 
     // explode mons around it
     mineMon(monIndex - GRID_COLUMNS, STATUS.EXPLODED); // mon above
@@ -387,7 +393,9 @@
     <Content id="howToContent">
       <h3>Object</h3>
 
-      <p>The object of Pokédex Minesweeper is to find all of the hidden mines in the Pokédex grid as fast as possible. This is ideally done by using logic to flag the Pokémon you know to be mines based on the clues given by other excavated Pokémon. Once all 40 mines have been found, stop your timer (not implemented on this page) and add any accrued penalties to your time to find your final score (see below for Penalties)</p>
+      <p>The object of Pokédex Minesweeper is to find all of the hidden mines in the Pokédex grid as fast as possible. This is ideally done by using logic to flag the Pokémon you know to be mines based on the clues given by other excavated Pokémon. Once all 40 mines have been found, stop your timer (not implemented on this page) and add any accrued penalties to your time to find your final score (see below for Penalties).</p>
+
+      <p>Pokédex Minesweeper is a great way to spice up a standard Catch-Em-All randomizer and it is highly encouraged to add in a full-item or even a map randomizer to make things extra chaotic!</p>
 
       <h3>Setting Up A Game</h3>
       <p>When the page initially loads, or when you start a new game, you will be presented with a dialog to input the settings for minesweeper:</p>
@@ -416,10 +424,10 @@
         <li><b>Red Background:</b> - indicates that this cell has been excavated and a mine was found or the cell exploded (indicated by the letter in the cell, see above)</li>
         <li><b>Grey-scale Background:</b> - indicates the cell has been mined, but no mine was found underneath. The darker the background the more mines that are adjacent (including diagonals) to this cell.</li>
       </ul>
-      <p>Some statuses of a cell can be stacked, such as Safe and Seen. In this case, the border of that Pokémon's cell will be a mix of those two status colors</p>
+      <p>Some statuses of a cell can be stacked, such as Safe and Seen. In this case, the border of that Pokémon's cell will be a mix of those two status colors.</p>
 
       <h3>Information Panel</h3>
-      <p>This information panel provides a quick look at how you are doing in the game. It will list how many mines you have found (via excavation, explosion, flagging), what your current time penalty is (due to mine excavations and explosions), the currently selected Pokémon in the grid and the current status of the selected Pokémon (there could be more than one).</p>
+      <p>This information panel provides a quick look at how you are doing in the game. It will list how many mines you have found (via excavation, explosion, flagging), what your current time penalty is (due to mine excavations (15 minutes each) and explosions (5 minutes each)), the currently selected Pokémon in the grid and the current status of the selected Pokémon (there could be more than one).</p>
 
       <h3>Actions</h3>
       <p>Once you have selected a Pokémon in the grid, various actions can be performed on that cell to add a status to that Pokémon's cell. Unless otherwise stated, once a Pokémon in the grid has been excavated or has exploded, no further actions can be performed on it. The possible actions are:</p>
@@ -440,7 +448,8 @@
       <h3>Optional Explosions</h3>
       <p>To add a bit of difficulty to your game play in Pokémon Crystal, you can implement this optional Explosions rule-set to Minesweeper.</p>
       <p>While playing Pokémon Crystal, if <b>any</b> Pokémon in the game uses the move SelfDestruct or Explosion on you, that Pokémon also explodes in your grid. When this occurs, select the Pokémon that exploded on you in the grid and click the Explosion action.</p>
-      <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded) incurs a 5-minute penalty to your overall time.</p>
+      <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded, which is indicated by a red number or E) incurs a 5-minute penalty to your overall time.</p>
+      <p>One thing to note is that if a Pokémon has already been excavated, it cannot explode afterwards, therefore, you will not be able to select the Explosion action in this case.</p>
     </Content>
     <Actions>
       <Button>Close</Button>
@@ -454,7 +463,7 @@
           {#each monList as pokemon, i (pokemon.id)}
             <div
               class={`dex-mon ${
-                statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED
+                statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED)
                   ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
                   : statusList[i] || ''
               } ${
@@ -466,14 +475,14 @@
               on:keypress={() => selectMon(i)}
             >
               <img
-                class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED ? STATUS.MINED : ''}`}
+                class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED) ? STATUS.MINED : ''}`}
                 src={`/pokedex/${pokemon.id}.png`}
                 alt={pokemon.name}
               />
-              {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i] === STATUS.EXPLODED)}
+              {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED))}
                 <div class="mine-value-container">
-                  <span class="mine-list-value">
-                    {statusList[i] === STATUS.EXPLODED && mineList[i] === MINE ? EXPLOSION : mineList[i]}
+                  <span class={`mine-list-value ${statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''}`}>
+                    {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE ? EXPLOSION : mineList[i]}
                   </span>
                 </div>
               {/if}
@@ -514,7 +523,7 @@
           {#if statusList.length > 0}
             {statusList.filter((status, index) =>
               status.includes(STATUS.FLAGGED) ||
-              ((status === STATUS.MINED || status === STATUS.EXPLODED) && mineList[index] === MINE
+              ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
             )).length} / {NUM_MINES}
           {/if}
         </h2>
@@ -525,7 +534,11 @@
               if (mineList[currIndex] === MINE) {
                 if (curr === STATUS.MINED) {
                   return acc + 15;
-                } else if (curr === STATUS.EXPLODED) {
+                } else if (curr === STATUS.EXPLODED || curr === STATUS.ORIGIN_EXPLODED) {
+                  return acc + 5;
+                }
+              } else {
+                if (curr === STATUS.ORIGIN_EXPLODED) {
                   return acc + 5;
                 }
               }
@@ -597,7 +610,7 @@
           *cannot be undone
           <br /><br />
         {/if}
-        {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED].includes(statusList[selectedMonIndex])}
+        {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(statusList[selectedMonIndex])}
           <br /><br />
           <Button
             style="background-color: #880000"
@@ -665,6 +678,10 @@
   .mine-list-value {
     font-size: 2rem;
     line-height: 1.25;
+  }
+
+  .mine-list-value.origin-explosion {
+    color: red;
   }
 
   .dex-mon.mine {
