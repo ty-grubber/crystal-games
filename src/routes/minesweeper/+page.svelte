@@ -1,5 +1,4 @@
 <script>
-  // TODO: make right-click auto-flag cell
   // TODO: add field to set number of mines
   // TODO: add field to set number of columns or mons
   import short from 'short-uuid';
@@ -90,12 +89,52 @@
 	 */
   function monAction(status) {
     if (selectedMonIndex > -1) {
-      if (status === 'mined') {
-        mineMon(selectedMonIndex);
-      } else {
-        // TODO: combine statuses of flag/safe with own/seen
-        statusList[selectedMonIndex] = status;
+      let currentStatus = statusList[selectedMonIndex];
+      if (currentStatus === 'unknown') {
+        currentStatus = '';
       }
+
+      if (currentStatus.includes(status)) {
+        return;
+      }
+
+      switch (status) {
+        case 'mined':
+          mineMon(selectedMonIndex);
+          break;
+        case 'flagged':
+          if (currentStatus.includes('safe')) {
+            statusList[selectedMonIndex] = currentStatus.replace('safe', status);
+          } else {
+            statusList[selectedMonIndex] = currentStatus.concat(' ', status);
+          }
+          break;
+        case 'safe':
+          if (currentStatus.includes('flagged')) {
+            statusList[selectedMonIndex] = currentStatus.replace('flagged', status);
+          } else {
+            statusList[selectedMonIndex] = currentStatus.concat(' ', status);
+          }
+          break;
+        case 'seen':
+          if (currentStatus.includes('owned')) {
+            statusList[selectedMonIndex] = currentStatus.replace('owned', status);
+          } else {
+            statusList[selectedMonIndex] = currentStatus.concat(' ', status);
+          }
+          break;
+        case 'owned':
+          if (currentStatus.includes('seen')) {
+            statusList[selectedMonIndex] = currentStatus.replace('seen', status);
+          } else {
+            statusList[selectedMonIndex] = currentStatus.concat(' ', status);
+          }
+          break;
+        default:
+          break;
+      }
+
+      // allow players to immediately excavate a mon if their status is now owned
       if (status !== 'owned') {
         selectedMonIndex = -1;
       }
@@ -325,57 +364,55 @@
         {/if}
       </span>
       <br /><br />
-      {#if selectedMonIndex > -1}
+      <Button
+        style="background-color: #fff; color: #000; border: 1px solid #000"
+        on:click={clearStatus}
+        variant="unelevated"
+      >
+        <Label>Clear</Label>
+      </Button>
+      <br /><br />
+      <Button
+        style="background-color: red"
+        on:click={() => monAction('flagged')}
+        variant="unelevated"
+      >
+        <Label>Flag</Label>
+      </Button>
+      <br /><br />
+      <Button
+        style="background-color: #008000"
+        on:click={() => monAction('safe')}
+        variant="unelevated"
+      >
+        <Label>Safe</Label>
+      </Button>
+      <br /><br />
+      <Button
+        style="background-color: blue"
+        on:click={() => monAction('seen')}
+        variant="unelevated"
+      >
+        <Label>Seen</Label>
+      </Button>
+      <br /><br />
+      <Button
+        style="background-color: #ffc0cb; color: #000;"
+        on:click={() => monAction('owned')}
+        variant="unelevated"
+      >
+        <Label>Own</Label>
+      </Button>
+      <br /><br />
+      {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes('owned')}
         <Button
-          style="background-color: #fff; color: #000; border: 1px solid #000"
-          on:click={clearStatus}
+          style="background-color: #8b008b"
+          on:click={() => monAction('mined')}
           variant="unelevated"
         >
-          <Label>Clear</Label>
+          <Label>Excavate</Label>
         </Button>
-        <br /><br />
-        <Button
-          style="background-color: red"
-          on:click={() => monAction('flagged')}
-          variant="unelevated"
-        >
-          <Label>Flag</Label>
-        </Button>
-        <br /><br />
-        <Button
-          style="background-color: #008b8b"
-          on:click={() => monAction('seen')}
-          variant="unelevated"
-        >
-          <Label>Seen</Label>
-        </Button>
-        <br /><br />
-        <Button
-          style="background-color: #ffc0cb; color: #000;"
-          on:click={() => monAction('owned')}
-          variant="unelevated"
-        >
-          <Label>Own</Label>
-        </Button>
-        <br /><br />
-        <Button
-          style="background-color: #008000"
-          on:click={() => monAction('safe')}
-          variant="unelevated"
-        >
-          <Label>Safe</Label>
-        </Button>
-        <br /><br />
-        {#if statusList && statusList[selectedMonIndex] === 'owned'}
-          <Button
-            style="background-color: #8b008b"
-            on:click={() => monAction('mined')}
-            variant="unelevated"
-          >
-            <Label>Excavate</Label>
-          </Button>
-          *cannot be undone
-        {/if}
+        *cannot be undone
       {/if}
     </div>
   </div>
@@ -478,16 +515,44 @@
     border-color: red;
   }
 
-  .dex-mon.seen {
-    border-color: #008b8b;
+  .dex-mon.flagged.seen {
+    border-top-color: red;
+    border-bottom-color: red;
+    border-left-color: blue;
+    border-right-color: blue;
   }
 
-  .dex-mon.owned {
-    border-color: #ffc0cb;
+  .dex-mon.flagged.owned {
+    border-top-color: red;
+    border-bottom-color: red;
+    border-left-color: #ffc0cb;
+    border-right-color: #ffc0cb;
   }
 
   .dex-mon.safe {
     border-color: #008000;
+  }
+
+  .dex-mon.safe.seen {
+    border-top-color: #008000;
+    border-bottom-color: #008000;
+    border-left-color: blue;
+    border-right-color: blue;
+  }
+
+  .dex-mon.safe.owned {
+    border-top-color: #008000;
+    border-bottom-color: #008000;
+    border-left-color: #ffc0cb;
+    border-right-color: #ffc0cb;
+  }
+
+  .dex-mon.seen {
+    border-color: blue;
+  }
+
+  .dex-mon.owned {
+    border-color: #ffc0cb;
   }
 
   .dex-mon.selected {
