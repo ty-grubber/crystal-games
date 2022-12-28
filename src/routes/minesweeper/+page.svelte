@@ -385,7 +385,7 @@
         on:click={clearStatus}
         variant="unelevated"
       >
-        <Label>Clear</Label>
+        <Label>Clear Status</Label>
       </Button>
       <br /><br />
       <Button
@@ -395,7 +395,6 @@
       >
         <Label>Flag</Label>
       </Button>
-      <br /><br />
       <Button
         style="background-color: #008000"
         on:click={() => monAction('safe')}
@@ -411,9 +410,8 @@
       >
         <Label>Seen</Label>
       </Button>
-      <br /><br />
       <Button
-        style="background-color: #ffc0cb; color: #000;"
+        style="background-color: #8b008b"
         on:click={() => monAction('owned')}
         variant="unelevated"
       >
@@ -422,13 +420,14 @@
       <br /><br />
       {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes('owned')}
         <Button
-          style="background-color: #8b008b"
+          style="background-color: #434343"
           on:click={() => monAction('mined')}
           variant="unelevated"
         >
           <Label>Excavate</Label>
         </Button>
         *cannot be undone
+        <br /><br />
       {/if}
     </div>
   </div>
@@ -529,6 +528,7 @@
 
   .dex-mon.flagged {
     border-color: red;
+    background-color: rgba(255, 0, 0, 0.2);
   }
 
   .dex-mon.flagged.seen {
@@ -541,12 +541,13 @@
   .dex-mon.flagged.owned {
     border-top-color: red;
     border-bottom-color: red;
-    border-left-color: #ffc0cb;
-    border-right-color: #ffc0cb;
+    border-left-color: #8b008b;
+    border-right-color: #8b008b;
   }
 
   .dex-mon.safe {
     border-color: #008000;
+    background-color: rgba(0, 127, 0, 0.2);
   }
 
   .dex-mon.safe.seen {
@@ -559,8 +560,8 @@
   .dex-mon.safe.owned {
     border-top-color: #008000;
     border-bottom-color: #008000;
-    border-left-color: #ffc0cb;
-    border-right-color: #ffc0cb;
+    border-left-color: #8b008b;
+    border-right-color: #8b008b;
   }
 
   .dex-mon.seen {
@@ -568,7 +569,7 @@
   }
 
   .dex-mon.owned {
-    border-color: #ffc0cb;
+    border-color: #8b008b;
   }
 
   .dex-mon.selected {
