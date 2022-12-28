@@ -352,7 +352,7 @@
     </Actions>
   </Dialog>
   <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px">
-    <Title id="settingsTitle">Pokémon Crystal Minesweeper - Tracker Settings</Title>
+    <Title id="settingsTitle">Pokémon Crystal Minesweeper - Grid Settings</Title>
     <Content id="settingsContent">
       <br />
       <TextField
@@ -382,10 +382,65 @@
       </Button>
     </Content>
   </Dialog>
-  <Dialog bind:open={howToDialogOpen} slot="over" surface$style="height: 600px;">
+  <Dialog bind:open={howToDialogOpen} slot="over" surface$style="height: 600px; width: 800px">
     <Title id="howToTitle">Pokédex Minesweeper - How To Play</Title>
     <Content id="howToContent">
-      TO DO
+      <h3>Object</h3>
+
+      <p>The object of Pokédex Minesweeper is to find all of the hidden mines in the Pokédex grid as fast as possible. This is ideally done by using logic to flag the Pokémon you know to be mines based on the clues given by other excavated Pokémon. Once all 40 mines have been found, stop your timer (not implemented on this page) and add any accrued penalties to your time to find your final score (see below for Penalties)</p>
+
+      <h3>Setting Up A Game</h3>
+      <p>When the page initially loads, or when you start a new game, you will be presented with a dialog to input the settings for minesweeper:</p>
+      <ul>
+        <li><b>Grid Seed:</b> - A string used for randomization of the Pokédex. Type one of your choice or click the Randomize Grid Seed button to have one generated for you.</li>
+        <li><b>Mine Seed:</b> - A string used for randomization of the grid for the mines. Type one of your choice or click the Randomize Mine Seed button to have one generated for you.</li>
+      </ul>
+      <p>Once you have clicked the 'Start Game!' button, the dialog should close and before you will be a Pokédex grid along with info and actions beside it. Every game of Minesweeper starts with the last 5 squares in the bottom pre-excavated for you.</p>
+
+      <h3>The Grid</h3>
+      <p>The Pokédex grid displays all important information and clues about where mines are hidden in the grid. Any square that has a number or a letter overtop of the Pokémon's icon indicates that that square has been mined. That number or letter indicates the following:</p>
+      <ul>
+        <li><b>Number:</b> - indicates how many mines are adjacent (including diagonals) to this square</li>
+        <li><b>M:</b> - indicates that this square contains a mine (and appropriate penalty has been applied)</li>
+        <li><b>E:</b> - (optional, see Actions below) indicates that this square exploded on its own and contained a mine (and appropriate penalty has been applied)</li>
+      </ul>
+
+      <p>Additionally, each Pokémon in the grid is colored in a way to indicate its different potential statuses:</p>
+      <ul>
+        <li><b>Gold Border:</b> - indicates this Pokémon is currently selected. Actions can now be performed on its cell and you can see its full status written out above the Actions on the right. </li>
+        <li><b>Red Border:</b> - indicates this Pokémon's cell has been flagged, meaning you think there is a mine underneath. This cell will also have a light red background.</li>
+        <li><b>Green Border:</b> - indicates this Pokémon's cell is safe to be excavated (ie. you do not think there is a mine underneath it). This cell will also have a light green background.</li>
+        <li><b>Blue Border:</b> - indicates that you have seen this Pokémon during game play.</li>
+        <li><b>Purple Border:</b> - indicates that you have caught or own this Pokémon in your game's Pokédex.</li>
+        <li><b>Light Blue Background:</b> - indicates that a search is active below the grid and this Pokémon matches the search term provided.</li>
+        <li><b>Red Background:</b> - indicates that this cell has been excavated and a mine was found or the cell exploded (indicated by the letter in the cell, see above)</li>
+        <li><b>Grey-scale Background:</b> - indicates the cell has been mined, but no mine was found underneath. The darker the background the more mines that are adjacent (including diagonals) to this cell.</li>
+      </ul>
+      <p>Some statuses of a cell can be stacked, such as Safe and Seen. In this case, the border of that Pokémon's cell will be a mix of those two status colors</p>
+
+      <h3>Information Panel</h3>
+      <p>This information panel provides a quick look at how you are doing in the game. It will list how many mines you have found (via excavation, explosion, flagging), what your current time penalty is (due to mine excavations and explosions), the currently selected Pokémon in the grid and the current status of the selected Pokémon (there could be more than one).</p>
+
+      <h3>Actions</h3>
+      <p>Once you have selected a Pokémon in the grid, various actions can be performed on that cell to add a status to that Pokémon's cell. Unless otherwise stated, once a Pokémon in the grid has been excavated or has exploded, no further actions can be performed on it. The possible actions are:</p>
+      <ul>
+        <li><b>Clear Status:</b> - clear all existing statuses on the cell</li>
+        <li><b>Flag:</b> - mark the cell as flagged. This will auto-increment the number of found mines by 1</li>
+        <li><b>Safe:</b> - mark the cell as safe to be mined</li>
+        <li><b>Seen:</b> - mark the Pokémon as seen</li>
+        <li><b>Own:</b> - mark the Pokémon as owned (which makes the Pokémon's cell able to be excavated)</li>
+        <li><b>Excavate</b> - excavate the Pokémon's cell. This is only performable if the Pokémon has already been set to Owned. This action cannot be undone once performed. If you excavate a cell and a mine is underneath, the number of mines found will auto-increment by 1 and you'll incur a 15-minute penalty to your overall time.</li>
+        <li><b>Explosion</b> - explode the Pokémon's cell, which will also excavate all adjacent cells automatically, incurring penalties as required. This action cannot be undone once performed. (see optional rules for more info)</li>
+      </ul>
+
+      <h3>End Game</h3>
+      <p>When you have found the 40th mine in the grid (via excavation, explosion, or flagging), stop your timer. Your game is over and you can tally your final time. At this point, you need to excavate all un-excavated cells in the grid, even if you don't own the Pokémon of the cell. If your flagging is correct, you have nothing to worry about, but if a mine is uncovered this way, its penalty will still be applied to your final time.</p>
+      <p>Once all un-excavated cells have been excavated, add your timer's time to the Time Penalty indicated in the Information Panel to get your final time. If you are racing against others, whoever has the fastest time wins the race!</p>
+
+      <h3>Optional Explosions</h3>
+      <p>To add a bit of difficulty to your game play in Pokémon Crystal, you can implement this optional Explosions rule-set to Minesweeper.</p>
+      <p>While playing Pokémon Crystal, if <b>any</b> Pokémon in the game uses the move SelfDestruct or Explosion on you, that Pokémon also explodes in your grid. When this occurs, select the Pokémon that exploded on you in the grid and click the Explosion action.</p>
+      <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded) incurs a 5-minute penalty to your overall time.</p>
     </Content>
     <Actions>
       <Button>Close</Button>
