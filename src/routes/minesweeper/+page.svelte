@@ -349,7 +349,15 @@
         <Label>Reset Grid</Label>
       </Button>
       <br /><br />
-      <h2>Actions:</h2>
+      <h2>
+        Mines Found:&nbsp;
+        {#if statusList.length > 0}
+          {statusList.filter((status, index) =>
+            status.includes('flagged') || (status === 'mined' && mineList[index] === 'M'
+          )).length} / {NUM_MINES}
+        {/if}
+      </h2>
+      <h2>Actions</h2>
       <span class="selected-mon">
         <b>Selected Mon:</b>
         {#if selectedMonIndex > -1}
