@@ -3,18 +3,22 @@
   // TODO: add field to set number of columns or mons
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
-	import Dialog, { Content, Title } from '@smui/dialog';
+	import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import TextField from '@smui/textfield';
   import { NATIONAL_DEX } from '../../constants/pokedex';
 	import { randomizeArray } from '$lib/randomize';
 	import { convertTo2DArray, flatten2DArray } from '$lib/arrayConversion';
 	import { EXPLOSION, MINE, STATUS } from '../../constants/minesweeper';
+	import Tooltip, { Wrapper } from '@smui/tooltip';
 
   const GRID_COLUMNS = 16;
   const NUM_MINES = 40;
   const emptyMineList = [0, 0, 0, 0, 0];
 
   let settingsDialogOpen = true;
+  let seedInfoDialogOpen = false;
+  let menuDialogOpen = false;
+  let howToDialogOpen = false;
 
   let gridSeed = '';
   let mineSeed = '';
@@ -32,19 +36,39 @@
 	 * @type {TextField}
 	 */
   let searchInput;
-  /**
-	 * @type {TextField}
-	 */
-  let gridSeedInput;
-  /**
-	 * @type {TextField}
-	 */
-  let mineSeedInput;
+
   let searchTerm = '';
   let searchFocussed = false;
   let gridSeedFocussed = false;
   let mineSeedFocussed = false;
   let selectedMonIndex = -1;
+
+  function handleStartNewGame() {
+    if (!gridSeed || !mineSeed || confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
+      mineList = [];
+      statusList = [];
+      monList = NATIONAL_DEX;
+      gridSeed = '';
+      mineSeed = '';
+      selectedMonIndex = -1;
+      settingsDialogOpen = true;
+      howToDialogOpen = false;
+      seedInfoDialogOpen = false;
+      menuDialogOpen = false;
+    }
+  }
+
+  function openHowToDialog() {
+    howToDialogOpen = true;
+  }
+
+  function openSeedInfoDialog() {
+    seedInfoDialogOpen = true;
+  }
+
+  function openMenuDialog() {
+    menuDialogOpen = true;
+  }
 
   function onRandomizeGridSeed() {
     gridSeed = short.generate().substring(0, 12).toUpperCase();
@@ -208,15 +232,6 @@
     }
   }
 
-  function onResetClick() {
-    gridSeed = '';
-    mineSeed = '';
-    monList = NATIONAL_DEX;
-    mineList = [];
-    statusList = [];
-    selectedMonIndex = -1;
-  }
-
   function onStartClick() {
     // Build randomized mon list
     monList = randomizeArray(NATIONAL_DEX, gridSeed);
@@ -290,28 +305,56 @@
 <div class="page">
   <h1>Pokémon Crystal Minesweeper</h1>
   {#if !mineSeed && !gridSeed}
-    <Button color="primary" on:click={() => {}} variant="raised">
+    <Button color="primary" on:click={handleStartNewGame} variant="raised">
       <Label>Start New Game</Label>
     </Button>
-    <Button color="secondary" on:click={() => {}} variant="raised">
+    <Button color="secondary" on:click={openHowToDialog} variant="raised">
       <Label>How To Play</Label>
     </Button>
   {/if}
   {#if mineSeed && gridSeed}
     <div class='floating-menu'>
-      <Button color="primary" on:click={() => {}} variant="raised">
+      <Button color="primary" on:click={openMenuDialog} variant="raised">
         <Label>Menu</Label>
       </Button>
     </div>
   {/if}
 
+  <Dialog bind:open={menuDialogOpen}>
+    <Title>Minesweeper Menu</Title>
+    <Content>
+      <Button color="secondary" on:click={openHowToDialog} variant="raised">
+        <Label>How To Play</Label>
+      </Button>
+      <br /><br />
+      <Wrapper>
+        <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
+          <Label>Seed Info</Label>
+        </Button>
+        <Tooltip xPos="start">Click to see full seed info</Tooltip>
+      </Wrapper>
+      <br /><br />
+      <Button color="primary" on:click={handleStartNewGame} variant="raised">
+        <Label>Start New Game</Label>
+      </Button>
+    </Content>
+  </Dialog>
+  <Dialog bind:open={seedInfoDialogOpen}>
+    <Title id="seedInfoTitle">Minesweeper Seed Info</Title>
+    <Content id="seedInfoContent">
+      <p><b>Dex Grid Seed:</b> {gridSeed}</p>
+      <p><b>Mining Grid Seed:</b> {mineSeed}</p>
+    </Content>
+    <Actions>
+      <Button>Close</Button>
+    </Actions>
+  </Dialog>
   <Dialog bind:open={settingsDialogOpen} surface$style="width: 850px">
     <Title id="settingsTitle">Pokémon Crystal Minesweeper - Tracker Settings</Title>
     <Content id="settingsContent">
       <TextField
         variant="outlined"
         bind:value={gridSeed}
-        bind:this={gridSeedInput}
         on:blur={() => gridSeedFocussed = false}
         on:focus={() => gridSeedFocussed = true}
         label="Grid Seed:"
@@ -323,7 +366,6 @@
       <TextField
         variant="outlined"
         bind:value={mineSeed}
-        bind:this={mineSeedInput}
         on:blur={() => mineSeedFocussed = false}
         on:focus={() => mineSeedFocussed = true}
         label="Mine Seed:"
@@ -335,10 +377,16 @@
       <Button color="primary" on:click={onStartClick} variant="unelevated">
         <Label>Start Game!</Label>
       </Button>
-      <Button color="secondary" on:click={onResetClick} variant="unelevated">
-        <Label>Reset Grid</Label>
-      </Button>
     </Content>
+  </Dialog>
+  <Dialog bind:open={howToDialogOpen} slot="over" surface$style="height: 600px;">
+    <Title id="howToTitle">Pokédex Minesweeper - How To Play</Title>
+    <Content id="howToContent">
+      TO DO
+    </Content>
+    <Actions>
+      <Button>Close</Button>
+    </Actions>
   </Dialog>
 
   {#if gridSeed && mineSeed}
@@ -654,5 +702,11 @@
 
   .mon-icon.mined {
     opacity: 0.5;
+  }
+
+  .floating-menu {
+    position: absolute;
+    top: 1%;
+    right: 1%;
   }
 </style>
