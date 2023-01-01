@@ -592,7 +592,7 @@
           <Label>Seen</Label>
         </Button>
         <Button
-          style="background-color: #daa520"
+          style="background-color: #daa520; color: #000;"
           on:click={() => monAction(STATUS.OWNED)}
           variant="unelevated"
         >
@@ -638,16 +638,16 @@
   .dex {
     display: flex;
     flex-wrap: wrap;
-    height: 700px;
-    width: 700px;
+    height: 750px;
+    width: 750px;
   }
 
   .dex > .dex-mon {
     width: calc(100% / 16 - 4px);
     height: calc(100% / 16 - 4px);
     position: relative;
-    border: 2px solid white;
-    background-color: white;
+    border: 2px solid #ddd;
+    background-color: #ddd;
     color: white;
   }
 
@@ -690,40 +690,47 @@
   }
 
   .dex-mon.safe0 {
+    background-color: white;
+    border-color: white;
     color: #000;
   }
 
   .dex-mon.safe1 {
-    background-color: #434343;
-    border-color: #434343;
+    background-color: #777;
+    border-color: #777;
   }
   .dex-mon.safe2 {
-    background-color: #3b3b3b;
-    border-color: #3b3b3b;
+    background-color: #666;
+    border-color: #666;
   }
   .dex-mon.safe3 {
-    background-color: #333333;
-    border-color: #333333;
+    background-color: #555;
+    border-color: #555;
   }
   .dex-mon.safe4 {
-    background-color: #2b2b2b;
-    border-color: #2b2b2b;
+    background-color: #444;
+    border-color: #444;
   }
   .dex-mon.safe5 {
-    background-color: #232323;
-    border-color: #232323;
+    background-color: #333;
+    border-color: #333;
   }
   .dex-mon.safe6 {
-    background-color: #1b1b1b;
-    border-color: #1b1b1b;
+    background-color: #222;
+    border-color: #222;
   }
   .dex-mon.safe7 {
-    background-color: #131313;
-    border-color: #131313;
+    background-color: #111;
+    border-color: #111;
   }
   .dex-mon.safe8 {
-    background-color: #0b0b0b;
-    border-color: #0b0b0b;
+    background-color: #000;
+    border-color: #000;
+  }
+
+  .dex-mon.owned {
+    border-color: #daa520;
+    background-color: rgba(218, 165, 32, 0.2);
   }
 
   .dex-mon.flagged {
@@ -768,11 +775,6 @@
     border-color: blue;
   }
 
-  .dex-mon.owned {
-    border-color: #daa520;
-    background-color: rgba(218, 165, 32, 0.2);
-  }
-
   .dex-mon.selected {
     border-color: #8b008b;
   }
@@ -789,5 +791,9 @@
     position: absolute;
     top: 1%;
     right: 1%;
+  }
+
+  .selected-mon {
+    font-size: 1.2rem;
   }
 </style>
