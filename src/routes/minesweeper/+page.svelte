@@ -1,6 +1,7 @@
 <script>
   // TODO: add field to set number of mines
   // TODO: add field to set number of columns or mons
+  // TODO: toggle flag, then safe, then clear with right-click
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
@@ -37,8 +38,15 @@
 	 */
   let searchInput;
 
+  /**
+	 * @type {string}
+	 */
   let searchTerm = '';
   let searchFocussed = false;
+  /**
+	 * @type {NodeJS.Timeout}
+	 */
+  let searchBlurTimeout;
   let gridSeedFocussed = false;
   let mineSeedFocussed = false;
   let selectedMonIndex = -1;
@@ -50,6 +58,7 @@
       monList = NATIONAL_DEX;
       gridSeed = '';
       mineSeed = '';
+      searchTerm = '';
       selectedMonIndex = -1;
       settingsDialogOpen = true;
       howToDialogOpen = false;
@@ -87,6 +96,7 @@
     const validKeyPressed = (keyCode >= 48 && keyCode <= 90) || keyCode === 222 || keyCode === 189 || keyCode === 190;
     if (!searchFocussed && !gridSeedFocussed && !mineSeedFocussed && validKeyPressed) {
       searchInput.focus();
+      selectedMonIndex = -1;
     } else if (keyCode === 27) {
       searchInput.blur();
       searchTerm = '';
@@ -102,6 +112,13 @@
     if (keyCode === 27) {
       searchTerm = '';
       searchInput.blur();
+      selectedMonIndex = -1;
+    } else {
+      clearTimeout(searchBlurTimeout);
+      searchBlurTimeout = setTimeout(() => {
+        searchInput.blur();
+        searchTerm = '';
+      }, 5000);
     }
   }
 
@@ -166,6 +183,9 @@
       if (status !== STATUS.OWNED) {
         selectedMonIndex = -1;
       }
+
+      // clear any search once action is performed
+      searchTerm = '';
     }
   }
 
@@ -469,7 +489,7 @@
               } ${
                 i === selectedMonIndex ? 'selected' : ''
               } ${
-                pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
+                searchTerm !== '' && pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
               }`}
               on:click={() => selectMon(i)}
               on:keypress={() => selectMon(i)}
@@ -592,7 +612,7 @@
           <Label>Seen</Label>
         </Button>
         <Button
-          style="background-color: #8b008b"
+          style="background-color: #daa520; color: #000;"
           on:click={() => monAction(STATUS.OWNED)}
           variant="unelevated"
         >
@@ -638,16 +658,16 @@
   .dex {
     display: flex;
     flex-wrap: wrap;
-    height: 700px;
-    width: 700px;
+    height: 750px;
+    width: 750px;
   }
 
   .dex > .dex-mon {
     width: calc(100% / 16 - 4px);
     height: calc(100% / 16 - 4px);
     position: relative;
-    border: 2px solid white;
-    background-color: white;
+    border: 2px solid #ddd;
+    background-color: #ddd;
     color: white;
   }
 
@@ -658,6 +678,7 @@
   .dex.search > .dex-mon.matched {
     opacity: 1;
     background-color: lightblue;
+    border-color: lightblue;
   }
 
   .dex-mon.empty {
@@ -690,40 +711,47 @@
   }
 
   .dex-mon.safe0 {
+    background-color: white;
+    border-color: white;
     color: #000;
   }
 
   .dex-mon.safe1 {
-    background-color: #434343;
-    border-color: #434343;
+    background-color: #777;
+    border-color: #777;
   }
   .dex-mon.safe2 {
-    background-color: #3b3b3b;
-    border-color: #3b3b3b;
+    background-color: #666;
+    border-color: #666;
   }
   .dex-mon.safe3 {
-    background-color: #333333;
-    border-color: #333333;
+    background-color: #555;
+    border-color: #555;
   }
   .dex-mon.safe4 {
-    background-color: #2b2b2b;
-    border-color: #2b2b2b;
+    background-color: #444;
+    border-color: #444;
   }
   .dex-mon.safe5 {
-    background-color: #232323;
-    border-color: #232323;
+    background-color: #333;
+    border-color: #333;
   }
   .dex-mon.safe6 {
-    background-color: #1b1b1b;
-    border-color: #1b1b1b;
+    background-color: #222;
+    border-color: #222;
   }
   .dex-mon.safe7 {
-    background-color: #131313;
-    border-color: #131313;
+    background-color: #111;
+    border-color: #111;
   }
   .dex-mon.safe8 {
-    background-color: #0b0b0b;
-    border-color: #0b0b0b;
+    background-color: #000;
+    border-color: #000;
+  }
+
+  .dex-mon.owned {
+    border-color: #daa520;
+    background-color: rgba(218, 165, 32, 0.2);
   }
 
   .dex-mon.flagged {
@@ -741,8 +769,8 @@
   .dex-mon.flagged.owned {
     border-top-color: red;
     border-bottom-color: red;
-    border-left-color: #8b008b;
-    border-right-color: #8b008b;
+    border-left-color: #daa520;
+    border-right-color: #daa520;
   }
 
   .dex-mon.safe {
@@ -760,20 +788,17 @@
   .dex-mon.safe.owned {
     border-top-color: #008000;
     border-bottom-color: #008000;
-    border-left-color: #8b008b;
-    border-right-color: #8b008b;
+    border-left-color: #daa520;
+    border-right-color: #daa520;
   }
 
   .dex-mon.seen {
     border-color: blue;
   }
 
-  .dex-mon.owned {
+  .dex-mon.selected,
+  .dex.search > .dex-mon.selected.matched {
     border-color: #8b008b;
-  }
-
-  .dex-mon.selected {
-    border-color: #daa520;
   }
 
   .mon-icon {
@@ -788,5 +813,9 @@
     position: absolute;
     top: 1%;
     right: 1%;
+  }
+
+  .selected-mon {
+    font-size: 1.2rem;
   }
 </style>
