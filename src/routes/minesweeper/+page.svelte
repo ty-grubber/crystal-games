@@ -1,6 +1,7 @@
 <script>
   // TODO: add field to set number of mines
   // TODO: add field to set number of columns or mons
+  // TODO: toggle flag, then safe, then clear with right-click
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
@@ -37,8 +38,15 @@
 	 */
   let searchInput;
 
+  /**
+	 * @type {string}
+	 */
   let searchTerm = '';
   let searchFocussed = false;
+  /**
+	 * @type {NodeJS.Timeout}
+	 */
+  let searchBlurTimeout;
   let gridSeedFocussed = false;
   let mineSeedFocussed = false;
   let selectedMonIndex = -1;
@@ -50,6 +58,7 @@
       monList = NATIONAL_DEX;
       gridSeed = '';
       mineSeed = '';
+      searchTerm = '';
       selectedMonIndex = -1;
       settingsDialogOpen = true;
       howToDialogOpen = false;
@@ -87,6 +96,7 @@
     const validKeyPressed = (keyCode >= 48 && keyCode <= 90) || keyCode === 222 || keyCode === 189 || keyCode === 190;
     if (!searchFocussed && !gridSeedFocussed && !mineSeedFocussed && validKeyPressed) {
       searchInput.focus();
+      selectedMonIndex = -1;
     } else if (keyCode === 27) {
       searchInput.blur();
       searchTerm = '';
@@ -102,6 +112,13 @@
     if (keyCode === 27) {
       searchTerm = '';
       searchInput.blur();
+      selectedMonIndex = -1;
+    } else {
+      clearTimeout(searchBlurTimeout);
+      searchBlurTimeout = setTimeout(() => {
+        searchInput.blur();
+        searchTerm = '';
+      }, 5000);
     }
   }
 
@@ -166,6 +183,9 @@
       if (status !== STATUS.OWNED) {
         selectedMonIndex = -1;
       }
+
+      // clear any search once action is performed
+      searchTerm = '';
     }
   }
 
@@ -469,7 +489,7 @@
               } ${
                 i === selectedMonIndex ? 'selected' : ''
               } ${
-                pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
+                searchTerm !== '' && pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
               }`}
               on:click={() => selectMon(i)}
               on:keypress={() => selectMon(i)}
@@ -658,6 +678,7 @@
   .dex.search > .dex-mon.matched {
     opacity: 1;
     background-color: lightblue;
+    border-color: lightblue;
   }
 
   .dex-mon.empty {
@@ -775,7 +796,8 @@
     border-color: blue;
   }
 
-  .dex-mon.selected {
+  .dex-mon.selected,
+  .dex.search > .dex-mon.selected.matched {
     border-color: #8b008b;
   }
 
