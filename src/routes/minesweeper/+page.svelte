@@ -592,7 +592,7 @@
           <Label>Seen</Label>
         </Button>
         <Button
-          style="background-color: #8b008b"
+          style="background-color: #daa520"
           on:click={() => monAction(STATUS.OWNED)}
           variant="unelevated"
         >
@@ -741,8 +741,8 @@
   .dex-mon.flagged.owned {
     border-top-color: red;
     border-bottom-color: red;
-    border-left-color: #8b008b;
-    border-right-color: #8b008b;
+    border-left-color: #daa520;
+    border-right-color: #daa520;
   }
 
   .dex-mon.safe {
@@ -760,8 +760,8 @@
   .dex-mon.safe.owned {
     border-top-color: #008000;
     border-bottom-color: #008000;
-    border-left-color: #8b008b;
-    border-right-color: #8b008b;
+    border-left-color: #daa520;
+    border-right-color: #daa520;
   }
 
   .dex-mon.seen {
@@ -769,11 +769,12 @@
   }
 
   .dex-mon.owned {
-    border-color: #8b008b;
+    border-color: #daa520;
+    background-color: rgba(218, 165, 32, 0.2);
   }
 
   .dex-mon.selected {
-    border-color: #daa520;
+    border-color: #8b008b;
   }
 
   .mon-icon {
