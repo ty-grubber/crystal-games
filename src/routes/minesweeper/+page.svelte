@@ -87,19 +87,21 @@
   }
 
   /**
-	 * @param {{ which: any; keyCode: any; }} e
+	 * @param {{ which: any; keyCode: any; ctrlKey: boolean; }} e
 	 */
   function updateSearch(e) {
     const keyCode = e.which || e.keyCode;
-    // valid keys are letters, numbers, dash, apostrophe or period;
-    const validKeyPressed = (keyCode >= 48 && keyCode <= 90) || keyCode === 222 || keyCode === 189 || keyCode === 190;
-    if (!searchFocussed && !gridSeedFocussed && !mineSeedFocussed && validKeyPressed) {
-      searchInput.focus();
-      selectedMonIndex = -1;
-    } else if (keyCode === 27) {
-      searchInput.blur();
-      searchTerm = '';
-      selectedMonIndex = -1;
+    if (!e.ctrlKey) {
+      // valid keys are letters, numbers, dash, apostrophe or period;
+      const validKeyPressed = (keyCode >= 48 && keyCode <= 90) || keyCode === 222 || keyCode === 189 || keyCode === 190;
+      if (!searchFocussed && !gridSeedFocussed && !mineSeedFocussed && validKeyPressed) {
+        searchInput.focus();
+        selectedMonIndex = -1;
+      } else if (keyCode === 27) {
+        searchInput.blur();
+        searchTerm = '';
+        selectedMonIndex = -1;
+      }
     }
   }
 
@@ -508,7 +510,7 @@
                 searchTerm !== '' && pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
               }`}
               on:click={() => selectMon(i)}
-              on:keypress={() => selectMon(i)}
+              on:keydown={() => selectMon(i)}
               on:contextmenu|preventDefault={() => contextSelectMon(i)}
             >
               <img
