@@ -1,7 +1,6 @@
 <script>
   // TODO: add field to set number of mines
   // TODO: add field to set number of columns or mons
-  // TODO: toggle flag, then safe, then clear with right-click
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
@@ -127,6 +126,23 @@
 	 */
   function selectMon(index) {
     selectedMonIndex = index;
+  }
+
+  /**
+	 * @param {number} monIndex
+	 */
+  function contextSelectMon(monIndex) {
+    const currentStatus = statusList[monIndex];
+    if (![STATUS.EXPLODED, STATUS.MINED, STATUS.ORIGIN_EXPLODED].includes(currentStatus)) {
+      // Iterate through following chain: FLAGGED -> SAFE -> Neither
+      if (currentStatus.includes(STATUS.FLAGGED)) {
+        statusList[monIndex] = currentStatus.replace(STATUS.FLAGGED, STATUS.SAFE);
+      } else if (currentStatus.includes(STATUS.SAFE)) {
+        statusList[monIndex] = currentStatus.replace(STATUS.SAFE, '').trim();
+      } else {
+        statusList[monIndex] = currentStatus.concat(' ', STATUS.FLAGGED);
+      }
+    }
   }
 
   /**
@@ -493,6 +509,7 @@
               }`}
               on:click={() => selectMon(i)}
               on:keypress={() => selectMon(i)}
+              on:contextmenu|preventDefault={() => contextSelectMon(i)}
             >
               <img
                 class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED) ? STATUS.MINED : ''}`}
