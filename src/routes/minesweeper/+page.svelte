@@ -1,6 +1,6 @@
 <script>
-  // TODO: add field to set number of mines
-  // TODO: add field to set number of columns or mons
+  // TODO: add option to auto-mine grid when mine remaining hits 0
+  // TODO: add link to treasure rival hunt
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
@@ -14,6 +14,7 @@
   const GRID_COLUMNS = 16;
   const NUM_MINES = 40;
   const emptyMineList = [0, 0, 0, 0, 0];
+  const searchClearTimeoutAmount = 5000;
 
   let settingsDialogOpen = true;
   let seedInfoDialogOpen = false;
@@ -119,7 +120,7 @@
       searchBlurTimeout = setTimeout(() => {
         searchInput.blur();
         searchTerm = '';
-      }, 5000);
+      }, searchClearTimeoutAmount);
     }
   }
 
@@ -404,10 +405,10 @@
         bind:value={gridSeed}
         on:blur={() => gridSeedFocussed = false}
         on:focus={() => gridSeedFocussed = true}
-        label="Grid Seed:"
+        label="Grid Layout Seed:"
       />
       <Button color="secondary" on:click={onRandomizeGridSeed} variant="unelevated">
-        <Label>Randomize Grid Seed</Label>
+        <Label>Randomize Seed</Label>
       </Button>
       <br /><br />
       <TextField
@@ -415,10 +416,10 @@
         bind:value={mineSeed}
         on:blur={() => mineSeedFocussed = false}
         on:focus={() => mineSeedFocussed = true}
-        label="Mine Seed:"
+        label="Mine Layout Seed:"
       />
       <Button color="secondary" on:click={onRandomizeMineSeed} variant="unelevated">
-        <Label>Randomize Mine Seed</Label>
+        <Label>Randomize Seed</Label>
       </Button>
       <br /><br />
       <Button color="primary" on:click={onStartClick} variant="unelevated">
@@ -438,29 +439,29 @@
       <h3>Setting Up A Game</h3>
       <p>When the page initially loads, or when you start a new game, you will be presented with a dialog to input the settings for minesweeper:</p>
       <ul>
-        <li><b>Grid Seed:</b> - A string used for randomization of the Pokédex. Type one of your choice or click the Randomize Grid Seed button to have one generated for you.</li>
-        <li><b>Mine Seed:</b> - A string used for randomization of the grid for the mines. Type one of your choice or click the Randomize Mine Seed button to have one generated for you.</li>
+        <li><b>Grid Seed:</b> A string used for randomization of the Pokédex. Type one of your choice or click the Randomize Grid Seed button to have one generated for you.</li>
+        <li><b>Mine Seed:</b> A string used for randomization of the grid for the mines. Type one of your choice or click the Randomize Mine Seed button to have one generated for you.</li>
       </ul>
       <p>Once you have clicked the 'Start Game!' button, the dialog should close and before you will be a Pokédex grid along with info and actions beside it. Every game of Minesweeper starts with the last 5 squares in the bottom pre-excavated for you.</p>
 
       <h3>The Grid</h3>
       <p>The Pokédex grid displays all important information and clues about where mines are hidden in the grid. Any square that has a number or a letter overtop of the Pokémon's icon indicates that that square has been mined. That number or letter indicates the following:</p>
       <ul>
-        <li><b>Number:</b> - indicates how many mines are adjacent (including diagonals) to this square</li>
-        <li><b>M:</b> - indicates that this square contains a mine (and appropriate penalty has been applied)</li>
-        <li><b>E:</b> - (optional, see Actions below) indicates that this square exploded on its own and contained a mine (and appropriate penalty has been applied)</li>
+        <li><b>Number:</b> indicates how many mines are adjacent (including diagonals) to this square</li>
+        <li><b>M:</b> indicates that this square contains a mine (and appropriate penalty has been applied)</li>
+        <li><b>E:</b> (optional, see Actions below) indicates that this square exploded on its own and contained a mine (and appropriate penalty has been applied)</li>
       </ul>
 
       <p>Additionally, each Pokémon in the grid is colored in a way to indicate its different potential statuses:</p>
       <ul>
-        <li><b>Gold Border:</b> - indicates this Pokémon is currently selected. Actions can now be performed on its cell and you can see its full status written out above the Actions on the right. </li>
-        <li><b>Red Border:</b> - indicates this Pokémon's cell has been flagged, meaning you think there is a mine underneath. This cell will also have a light red background.</li>
-        <li><b>Green Border:</b> - indicates this Pokémon's cell is safe to be excavated (ie. you do not think there is a mine underneath it). This cell will also have a light green background.</li>
-        <li><b>Blue Border:</b> - indicates that you have seen this Pokémon during game play.</li>
-        <li><b>Purple Border:</b> - indicates that you have caught or own this Pokémon in your game's Pokédex.</li>
-        <li><b>Light Blue Background:</b> - indicates that a search is active below the grid and this Pokémon matches the search term provided.</li>
-        <li><b>Red Background:</b> - indicates that this cell has been excavated and a mine was found or the cell exploded (indicated by the letter in the cell, see above)</li>
-        <li><b>Grey-scale Background:</b> - indicates the cell has been mined, but no mine was found underneath. The darker the background the more mines that are adjacent (including diagonals) to this cell.</li>
+        <li><b>Gold Border:</b> indicates this Pokémon is currently selected. Actions can now be performed on its cell and you can see its full status written out above the Actions on the right. </li>
+        <li><b>Red Border:</b> indicates this Pokémon's cell has been flagged, meaning you think there is a mine underneath. This cell will also have a light red background.</li>
+        <li><b>Green Border:</b> indicates this Pokémon's cell is safe to be excavated (ie. you do not think there is a mine underneath it). This cell will also have a light green background.</li>
+        <li><b>Blue Border:</b> indicates that you have seen this Pokémon during game play.</li>
+        <li><b>Purple Border:</b> indicates that you have caught or own this Pokémon in your game's Pokédex.</li>
+        <li><b>Light Blue Background:</b> indicates that a search is active below the grid and this Pokémon matches the search term provided.</li>
+        <li><b>Red Background:</b> indicates that this cell has been excavated and a mine was found or the cell exploded (indicated by the letter in the cell, see above)</li>
+        <li><b>Grey-scale Background:</b> indicates the cell has been mined, but no mine was found underneath. The darker the background the more mines that are adjacent (including diagonals) to this cell.</li>
       </ul>
       <p>Some statuses of a cell can be stacked, such as Safe and Seen. In this case, the border of that Pokémon's cell will be a mix of those two status colors.</p>
 
@@ -470,13 +471,21 @@
       <h3>Actions</h3>
       <p>Once you have selected a Pokémon in the grid, various actions can be performed on that cell to add a status to that Pokémon's cell. Unless otherwise stated, once a Pokémon in the grid has been excavated or has exploded, no further actions can be performed on it. The possible actions are:</p>
       <ul>
-        <li><b>Clear Status:</b> - clear all existing statuses on the cell</li>
-        <li><b>Flag:</b> - mark the cell as flagged. This will auto-increment the number of found mines by 1</li>
-        <li><b>Safe:</b> - mark the cell as safe to be mined</li>
-        <li><b>Seen:</b> - mark the Pokémon as seen</li>
-        <li><b>Own:</b> - mark the Pokémon as owned (which makes the Pokémon's cell able to be excavated)</li>
-        <li><b>Excavate</b> - excavate the Pokémon's cell. This is only performable if the Pokémon has already been set to Owned. This action cannot be undone once performed. If you excavate a cell and a mine is underneath, the number of mines found will auto-increment by 1 and you'll incur a 15-minute penalty to your overall time.</li>
-        <li><b>Explosion</b> - explode the Pokémon's cell, which will also excavate all adjacent cells automatically, incurring penalties as required. This action cannot be undone once performed. (see optional rules for more info)</li>
+        <li><b>Clear Status:</b> clear all existing statuses on the cell</li>
+        <li><b>Flag:</b> mark the cell as flagged. This will auto-increment the number of found mines by 1</li>
+        <li><b>Safe:</b> mark the cell as safe to be mined</li>
+        <li><b>Seen:</b> mark the Pokémon as seen</li>
+        <li><b>Own:</b> mark the Pokémon as owned (which makes the Pokémon's cell able to be excavated)</li>
+        <li><b>Excavate</b> excavate the Pokémon's cell. This is only performable if the Pokémon has already been set to Owned. This action cannot be undone once performed. If you excavate a cell and a mine is underneath, the number of mines found will auto-increment by 1 and you'll incur a 15-minute penalty to your overall time.</li>
+        <li><b>Explosion</b> explode the Pokémon's cell, which will also excavate all adjacent cells automatically, incurring penalties as required. This action cannot be undone once performed. (see optional rules for more info)</li>
+      </ul>
+
+      <h3>Shortcuts</h3>
+      <p>There are a few shortcuts that can help you use this tracker faster:</p>
+      <ul>
+        <li><b>Right-click:</b> right-clicking on any cell in the grid will toggle the cell between Flagged, Safe, and Neither. If this cell has a Owned or Seen status, that status is not affected by the right-click action.</li>
+        <li><b>Typing:</b> as long as the tab is focussed, typing any key will automatically start a search in the grid. This search clears any selected pokemon and fades-out all pokemon in the grid that do not match the searched term. As well, the search clears itself after {searchClearTimeoutAmount / 1000} seconds of non-typing activity.</li>
+        <li><b>Escape Key:</b> hitting the escape key will clear any search and de-select any selected pokemon in the grid.</li>
       </ul>
 
       <h3>End Game</h3>
