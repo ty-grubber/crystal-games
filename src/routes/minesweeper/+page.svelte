@@ -486,7 +486,7 @@
       <h3>Optional Explosions</h3>
       <p>To add a bit of difficulty to your game play in Pokémon Crystal, you can implement this optional Explosions rule-set to Minesweeper.</p>
       <p>While playing Pokémon Crystal, if <b>any</b> Pokémon in the game uses the move SelfDestruct or Explosion on you, that Pokémon also explodes in your grid. When this occurs, select the Pokémon that exploded on you in the grid and click the Explosion action.</p>
-      <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded, which is indicated by a red number or E) incurs a 5-minute penalty to your overall time.</p>
+      <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded, which is indicated by a bolded number or E) incurs a 5-minute penalty to your overall time.</p>
       <p>One thing to note is that if a Pokémon has already been excavated, it cannot explode afterwards, therefore, you will not be able to select the Explosion action in this case.</p>
     </Content>
     <Actions>
@@ -721,7 +721,7 @@
   }
 
   .mine-list-value.origin-explosion {
-    color: red;
+    font-weight: bold;
   }
 
   .dex-mon.mine {
