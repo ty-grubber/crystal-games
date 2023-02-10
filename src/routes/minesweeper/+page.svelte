@@ -558,9 +558,9 @@
       </div>
       <div class="options">
         <h2>
-          Mines Found:&nbsp;
+          Mines Remaining:&nbsp;
           {#if statusList.length > 0}
-            {statusList.filter((status, index) =>
+            {NUM_MINES - statusList.filter((status, index) =>
               status.includes(STATUS.FLAGGED) ||
               ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
             )).length} / {NUM_MINES}
