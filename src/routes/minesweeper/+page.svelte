@@ -424,8 +424,11 @@
         <Label>Randomize Seed</Label>
       </Button>
       <br /><br />
-      <Button color="primary" on:click={onStartClick} variant="unelevated">
+      <Button color="primary" on:click={onStartClick} disabled={!gridSeed || !mineSeed} variant="unelevated">
         <Label>Start Game!</Label>
+      </Button>
+      <Button color="secondary" on:click={openHowToDialog} variant="raised">
+        <Label>How To Play</Label>
       </Button>
     </Content>
   </Dialog>
