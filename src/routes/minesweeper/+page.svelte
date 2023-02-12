@@ -500,8 +500,8 @@
       <h3>Optional Explosions</h3>
       <p>To add a bit of difficulty to your game play in Pokémon Crystal, you can implement this optional Explosions rule-set to Minesweeper.</p>
       <p>While playing Pokémon Crystal, if <b>any</b> Pokémon in the game uses the move SelfDestruct or Explosion on you, that Pokémon also explodes in your grid. When this occurs, select the Pokémon that exploded on you in the grid and click the Explosion action.</p>
-      <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded, which is indicated by a bolded number or E) incurs a 5-minute penalty to your overall time.</p>
-      <p>One thing to note is that if a Pokémon has already been excavated, it cannot explode afterwards, therefore, you will not be able to select the Explosion action in this case.</p>
+      <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded) incurs a 5-minute penalty to your overall time. For quick reference, any Pokémon that explodes due to SelfDestruct or Explosion will have its revealed value bolded and underlined, signifying it was the origin of an explosion.</p>
+      <p><b>Note:</b> if a Pokémon has already been excavated, it cannot explode afterwards. Therefore, you will not be able to select the Explosion action on an excavated Pokémon.</p>
     </Content>
     <Actions>
       <Button>Close</Button>
@@ -696,12 +696,13 @@
   }
 
   .dex > .dex-mon {
-    width: calc(100% / 16 - 4px);
+    background-color: #ddd;
+    border: 2px solid #ddd;
+    color: white;
+    cursor: default;
     height: calc(100% / 16 - 4px);
     position: relative;
-    border: 2px solid #ddd;
-    background-color: #ddd;
-    color: white;
+    width: calc(100% / 16 - 4px);
   }
 
   .dex.search > .dex-mon {
@@ -736,6 +737,7 @@
 
   .mine-list-value.origin-explosion {
     font-weight: bold;
+    text-decoration: underline;
   }
 
   .dex-mon.mine {
