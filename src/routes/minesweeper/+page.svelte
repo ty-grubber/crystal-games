@@ -542,7 +542,8 @@
       </ul>
 
       <h3>End Game</h3>
-      <p>When you have found the 40th mine in the grid (via excavation, explosion, or flagging), stop your timer. Your game is over and you can tally your final time. At this point, you need to excavate all un-excavated cells in the grid, even if you don't own the Pokémon of the cell. If your flagging is correct, you have nothing to worry about, but if a mine is uncovered this way, its penalty will still be applied to your final time.</p>
+      <p>When you have found the {NUM_MINES}<sup>th</sup> mine in the grid (via excavation, explosion, or flagging), a Finish Game button will appear near the top right corner of the winder. Clicking this will allow you to confirm that you are done and also allow the grid to be auto-excavated to confirm your logic for the game. If your flagging is correct, you have nothing to worry about, but if a mine is uncovered during the auto-mine process, its penalty will still be applied to your final time. For quick reference, all auto-mined cells will appear in italicized font, including any mines that may have been found.</p>
+      <p>Once the grid has been auto-mined, you will not be able to perform any action on the grid besides searching and selecting.</p>
       <p>Once all un-excavated cells have been excavated, add your timer's time to the Time Penalty indicated in the Information Panel to get your final time. If you are racing against others, whoever has the fastest time wins the race!</p>
 
       <h3>Optional Explosions</h3>
