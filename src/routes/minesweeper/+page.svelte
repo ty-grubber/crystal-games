@@ -1,5 +1,6 @@
 <script>
-  // TODO: add option to auto-mine grid when mine remaining hits 0
+  // TODO: Make floating menu and info section responsive
+  // TODO: Break down time penalties further
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
@@ -15,10 +16,13 @@
   const emptyMineList = [0, 0, 0, 0, 0];
   const searchClearTimeoutAmount = 5000;
 
+  let gameIsComplete = false;
+
   let settingsDialogOpen = true;
   let seedInfoDialogOpen = false;
   let menuDialogOpen = false;
   let howToDialogOpen = false;
+  let autoMineDialogOpen = false;
 
   let gridSeed = '';
   let mineSeed = '';
@@ -63,6 +67,7 @@
       howToDialogOpen = false;
       seedInfoDialogOpen = false;
       menuDialogOpen = false;
+      gameIsComplete = false;
     }
   }
 
@@ -76,6 +81,10 @@
 
   function openMenuDialog() {
     menuDialogOpen = true;
+  }
+
+  function openAutoMineDialog() {
+    autoMineDialogOpen = true;
   }
 
   function onRandomizeGridSeed() {
@@ -134,6 +143,10 @@
 	 * @param {number} monIndex
 	 */
   function contextSelectMon(monIndex) {
+    if (gameIsComplete) {
+      return;
+    }
+
     let currentStatus = statusList[monIndex];
 
     // Replace empty status
@@ -158,7 +171,7 @@
 	 * @param {string} status
 	 */
   function monAction(status) {
-    if (selectedMonIndex > -1) {
+    if (selectedMonIndex > -1 && !gameIsComplete) {
       let currentStatus = statusList[selectedMonIndex];
       if (currentStatus === STATUS.EMPTY) {
         currentStatus = '';
@@ -215,7 +228,7 @@
   }
 
   function clearStatus() {
-    if (selectedMonIndex > -1 && statusList[selectedMonIndex] !== STATUS.MINED) {
+    if (selectedMonIndex > -1 && !statusList[selectedMonIndex].includes(STATUS.MINED)) {
       statusList[selectedMonIndex] = STATUS.EMPTY;
       selectedMonIndex = -1;
     }
@@ -225,7 +238,7 @@
 	 * @param {number} monIndex
    * @param {string} mineStatus
 	 */
-  function mineMon(monIndex, mineStatus = STATUS.MINED) {
+  function mineMon(monIndex, mineStatus = STATUS.MINED, mineNeighborsIfZero = true) {
     if (
       mineList &&
       typeof(mineList[monIndex]) !== 'undefined' &&
@@ -236,7 +249,7 @@
       statusList[monIndex] = mineStatus;
 
       // Mine all mons around it if the mine value is 0
-      if (mineList[monIndex] === 0) {
+      if (mineNeighborsIfZero && mineList[monIndex] === 0) {
         mineMon(monIndex - GRID_COLUMNS); // mon above
         mineMon(monIndex + GRID_COLUMNS); // mon below
 
@@ -281,6 +294,21 @@
       mineMon(monIndex - GRID_COLUMNS + 1, STATUS.EXPLODED); //mon to upper right
       mineMon(monIndex + GRID_COLUMNS + 1, STATUS.EXPLODED); // mon to lower right
     }
+  }
+
+  function autoMineGrid() {
+    autoMineDialogOpen = false;
+
+    // Filter through statusList to find cells that are not flagged, excavated, exploded or origin_exploded
+    const indexesToMine = statusList.forEach((status, index) => {
+      if (![STATUS.FLAGGED, STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(status)) {
+        // Set each of these cells to new status of AUTO_MINED, but do not expand mining if a 0 is uncovered
+        mineMon(index, STATUS.AUTO_MINED, false);
+      }
+    });
+
+    // Mark game as complete so no more actions can be completed (both buttons and right-clicking)
+    gameIsComplete = true;
   }
 
   function onStartClick() {
@@ -351,6 +379,13 @@
 
     settingsDialogOpen = false;
   }
+
+  // A mine has been found if it has been flagged, or if it is an uncovered mine in the grid
+  // (whether via excavation or explosion)
+  $: minesRemaining = gameIsComplete ? 0 : NUM_MINES - statusList.filter((status, index) =>
+    status.includes(STATUS.FLAGGED) ||
+    ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
+  )).length;
 </script>
 
 <svelte:window on:keydown={updateSearch} />
@@ -373,6 +408,12 @@
       <Button color="primary" on:click={openMenuDialog} variant="raised">
         <Label>Menu</Label>
       </Button>
+      {#if minesRemaining === 0 && !gameIsComplete}
+        <br /><br />
+        <Button color="primary" on:click={openAutoMineDialog} variant="outlined">
+          <Label>Finish Game</Label>
+        </Button>
+      {/if}
     </div>
   {/if}
 
@@ -501,7 +542,8 @@
       </ul>
 
       <h3>End Game</h3>
-      <p>When you have found the 40th mine in the grid (via excavation, explosion, or flagging), stop your timer. Your game is over and you can tally your final time. At this point, you need to excavate all un-excavated cells in the grid, even if you don't own the Pokémon of the cell. If your flagging is correct, you have nothing to worry about, but if a mine is uncovered this way, its penalty will still be applied to your final time.</p>
+      <p>When you have found the {NUM_MINES}<sup>th</sup> mine in the grid (via excavation, explosion, or flagging), a Finish Game button will appear near the top right corner of the winder. Clicking this will allow you to confirm that you are done and also allow the grid to be auto-excavated to confirm your logic for the game. If your flagging is correct, you have nothing to worry about, but if a mine is uncovered during the auto-mine process, its penalty will still be applied to your final time. For quick reference, all auto-mined cells will appear in italicized font, including any mines that may have been found.</p>
+      <p>Once the grid has been auto-mined, you will not be able to perform any action on the grid besides searching and selecting.</p>
       <p>Once all un-excavated cells have been excavated, add your timer's time to the Time Penalty indicated in the Information Panel to get your final time. If you are racing against others, whoever has the fastest time wins the race!</p>
 
       <h3>Optional Explosions</h3>
@@ -515,6 +557,18 @@
     </Actions>
   </Dialog>
 
+  <Dialog bind:open={autoMineDialogOpen}>
+    <Title>Auto-mine Grid?</Title>
+    <Content>
+      <p>All mines have been flagged or uncovered. Would you like to end your game?</p>
+      <p>If yes, all grid cells that have not been excavated and are not flagged will be auto-excavated.</p>
+    </Content>
+    <Actions>
+      <Button color="primary" on:click={autoMineGrid} variant="raised">Yes (Stop Timer)</Button>
+      <Button color="primary" variant="outlined">No (Continue Timer)</Button>
+    </Actions>
+  </Dialog>
+
   {#if mineList.length > 0}
     <div class="playArea">
       <div class="grid">
@@ -522,7 +576,7 @@
           {#each monList as pokemon, i (pokemon.id)}
             <div
               class={`dex-mon ${
-                statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED)
+                statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED)
                   ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
                   : statusList[i] || ''
               } ${
@@ -535,13 +589,13 @@
               on:contextmenu|preventDefault={() => contextSelectMon(i)}
             >
               <img
-                class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED) ? STATUS.MINED : ''}`}
+                class={`mon-icon ${statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED) ? STATUS.MINED : ''}`}
                 src={`/pokedex/${pokemon.id}.png`}
                 alt={pokemon.name}
               />
-              {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED))}
+              {#if mineList.length > 0 && (statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED))}
                 <div class="mine-value-container">
-                  <span class={`mine-list-value ${statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''}`}>
+                  <span class={`mine-list-value ${statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''} ${statusList[i] === STATUS.AUTO_MINED ? 'auto-excavated' : ''}`}>
                     {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE ? EXPLOSION : mineList[i]}
                   </span>
                 </div>
@@ -581,10 +635,7 @@
         <h2>
           Mines Remaining:&nbsp;
           {#if statusList.length > 0}
-            {NUM_MINES - statusList.filter((status, index) =>
-              status.includes(STATUS.FLAGGED) ||
-              ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
-            )).length} / {NUM_MINES}
+            {minesRemaining} / {NUM_MINES}
           {/if}
         </h2>
         <h2>
@@ -592,7 +643,7 @@
           {#if statusList.length > 0}
             {statusList.reduce((acc, curr, currIndex) => {
               if (mineList[currIndex] === MINE) {
-                if (curr === STATUS.MINED) {
+                if (curr.includes(STATUS.MINED)) {
                   return acc + 15;
                 } else if (curr === STATUS.EXPLODED || curr === STATUS.ORIGIN_EXPLODED) {
                   return acc + 5;
@@ -621,65 +672,67 @@
           {/if}
         </span>
         <br /><br />
-        <Button
-          style="background-color: #fff; color: #000; border: 1px solid #000"
-          on:click={clearStatus}
-          variant="unelevated"
-        >
-          <Label>Clear Status</Label>
-        </Button>
-        <br /><br />
-        <Button
-          style="background-color: red"
-          on:click={() => monAction(STATUS.FLAGGED)}
-          variant="unelevated"
-        >
-          <Label>Flag</Label>
-        </Button>
-        <Button
-          style="background-color: #008000"
-          on:click={() => monAction(STATUS.SAFE)}
-          variant="unelevated"
-        >
-          <Label>Safe</Label>
-        </Button>
-        <br /><br />
-        <Button
-          style="background-color: blue"
-          on:click={() => monAction(STATUS.SEEN)}
-          variant="unelevated"
-        >
-          <Label>Seen</Label>
-        </Button>
-        <Button
-          style="background-color: #daa520; color: #000;"
-          on:click={() => monAction(STATUS.OWNED)}
-          variant="unelevated"
-        >
-          <Label>Own</Label>
-        </Button>
-        <br /><br />
-        {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes(STATUS.OWNED)}
+        {#if selectedMonIndex > -1 && !gameIsComplete}
           <Button
-            style="background-color: #434343"
-            on:click={() => monAction(STATUS.MINED)}
+            style="background-color: #fff; color: #000; border: 1px solid #000"
+            on:click={clearStatus}
             variant="unelevated"
           >
-            <Label>Excavate</Label>
+            <Label>Clear Status</Label>
           </Button>
-          *cannot be undone
-          <br /><br />
-        {/if}
-        {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(statusList[selectedMonIndex])}
           <br /><br />
           <Button
-            style="background-color: #880000"
-            on:click={() => explodeMon(selectedMonIndex)}
-            variant="raised"
+            style="background-color: red"
+            on:click={() => monAction(STATUS.FLAGGED)}
+            variant="unelevated"
           >
-            <Label>Explosion</Label>
+            <Label>Flag</Label>
           </Button>
-          *cannot be undone
+          <Button
+            style="background-color: #008000"
+            on:click={() => monAction(STATUS.SAFE)}
+            variant="unelevated"
+          >
+            <Label>Safe</Label>
+          </Button>
+          <br /><br />
+          <Button
+            style="background-color: blue"
+            on:click={() => monAction(STATUS.SEEN)}
+            variant="unelevated"
+          >
+            <Label>Seen</Label>
+          </Button>
+          <Button
+            style="background-color: #daa520; color: #000;"
+            on:click={() => monAction(STATUS.OWNED)}
+            variant="unelevated"
+          >
+            <Label>Own</Label>
+          </Button>
+          <br /><br />
+          {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes(STATUS.OWNED)}
+            <Button
+              style="background-color: #434343"
+              on:click={() => monAction(STATUS.MINED)}
+              variant="unelevated"
+            >
+              <Label>Excavate</Label>
+            </Button>
+            *cannot be undone
+            <br /><br />
+          {/if}
+          {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(statusList[selectedMonIndex])}
+            <br /><br />
+            <Button
+              style="background-color: #880000"
+              on:click={() => explodeMon(selectedMonIndex)}
+              variant="raised"
+            >
+              <Label>Explosion</Label>
+            </Button>
+            *cannot be undone
+          {/if}
         {/if}
       </div>
     </div>
@@ -745,6 +798,10 @@
   .mine-list-value.origin-explosion {
     font-weight: bold;
     text-decoration: underline;
+  }
+
+  .mine-list-value.auto-excavated {
+    font-style: italic;
   }
 
   .dex-mon.mine {
@@ -847,14 +904,15 @@
     width: 100%;
   }
 
-  .mon-icon.mined {
+  .mon-icon.excavated {
     opacity: 0.5;
   }
 
   .floating-menu {
     position: absolute;
-    top: 1%;
     right: 1%;
+    text-align: right;
+    top: 1%;
   }
 
   .selected-mon {
