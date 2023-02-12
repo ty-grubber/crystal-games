@@ -19,6 +19,7 @@
   let seedInfoDialogOpen = false;
   let menuDialogOpen = false;
   let howToDialogOpen = false;
+  let autoMineDialogOpen = false;
 
   let gridSeed = '';
   let mineSeed = '';
@@ -76,6 +77,10 @@
 
   function openMenuDialog() {
     menuDialogOpen = true;
+  }
+
+  function openAutoMineDialog() {
+    autoMineDialogOpen = true;
   }
 
   function onRandomizeGridSeed() {
@@ -351,6 +356,13 @@
 
     settingsDialogOpen = false;
   }
+
+  // A mine has been found if it has been flagged, or if it is an uncovered mine in the grid
+  // (whether via excavation or explosion)
+  $: minesRemaining = NUM_MINES - statusList.filter((status, index) =>
+    status.includes(STATUS.FLAGGED) ||
+    ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
+  )).length;
 </script>
 
 <svelte:window on:keydown={updateSearch} />
@@ -373,6 +385,12 @@
       <Button color="primary" on:click={openMenuDialog} variant="raised">
         <Label>Menu</Label>
       </Button>
+      {#if minesRemaining === 0}
+        <br /><br />
+        <Button color="primary" on:click={openAutoMineDialog} variant="outlined">
+          <Label>Finish Game</Label>
+        </Button>
+      {/if}
     </div>
   {/if}
 
@@ -515,6 +533,18 @@
     </Actions>
   </Dialog>
 
+  <Dialog bind:open={autoMineDialogOpen}>
+    <Title>Auto-mine Grid?</Title>
+    <Content>
+      <p>All mines have been flagged or uncovered. Would you like to end your game?</p>
+      <p>If yes, all grid cells that have not been excavated and are not flagged will be auto-mined.</p>
+    </Content>
+    <Actions>
+      <Button color="primary" variant="raised">Yes (Stop Timer)</Button>
+      <Button color="primary" variant="outlined">No (Continue Timer)</Button>
+    </Actions>
+  </Dialog>
+
   {#if mineList.length > 0}
     <div class="playArea">
       <div class="grid">
@@ -581,10 +611,7 @@
         <h2>
           Mines Remaining:&nbsp;
           {#if statusList.length > 0}
-            {NUM_MINES - statusList.filter((status, index) =>
-              status.includes(STATUS.FLAGGED) ||
-              ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
-            )).length} / {NUM_MINES}
+            {minesRemaining} / {NUM_MINES}
           {/if}
         </h2>
         <h2>
@@ -853,8 +880,9 @@
 
   .floating-menu {
     position: absolute;
-    top: 1%;
     right: 1%;
+    text-align: right;
+    top: 1%;
   }
 
   .selected-mon {
