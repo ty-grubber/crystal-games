@@ -134,15 +134,22 @@
 	 * @param {number} monIndex
 	 */
   function contextSelectMon(monIndex) {
-    const currentStatus = statusList[monIndex];
+    let currentStatus = statusList[monIndex];
+
+    // Replace empty status
+    if (currentStatus === STATUS.EMPTY) {
+      currentStatus = '';
+    }
+
     if (![STATUS.EXPLODED, STATUS.MINED, STATUS.ORIGIN_EXPLODED].includes(currentStatus)) {
       // Iterate through following chain: FLAGGED -> SAFE -> Neither
       if (currentStatus.includes(STATUS.FLAGGED)) {
         statusList[monIndex] = currentStatus.replace(STATUS.FLAGGED, STATUS.SAFE);
       } else if (currentStatus.includes(STATUS.SAFE)) {
-        statusList[monIndex] = currentStatus.replace(STATUS.SAFE, '').trim();
+        const newStatus = currentStatus.replace(STATUS.SAFE, '').trim();
+        statusList[monIndex] = newStatus !== '' ? newStatus : STATUS.EMPTY;
       } else {
-        statusList[monIndex] = currentStatus.concat(' ', STATUS.FLAGGED);
+        statusList[monIndex] = currentStatus.concat(' ', STATUS.FLAGGED).trim();
       }
     }
   }
