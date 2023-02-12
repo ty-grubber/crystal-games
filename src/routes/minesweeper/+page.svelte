@@ -1,6 +1,5 @@
 <script>
   // TODO: add option to auto-mine grid when mine remaining hits 0
-  // TODO: add link to treasure rival hunt
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
@@ -357,6 +356,9 @@
     </Button>
     <Button color="secondary" on:click={openHowToDialog} variant="raised">
       <Label>How To Play</Label>
+    </Button>
+    <Button color="secondary" href="/hunt" variant="outlined">
+      <Label>Rival Treasure Hunt</Label>
     </Button>
   {/if}
   {#if mineList.length > 0}

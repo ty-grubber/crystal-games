@@ -103,6 +103,9 @@
   <Button color="secondary" on:click={openHowToDialog} variant="raised">
     <Label>How To Play</Label>
   </Button>
+  <Button color="secondary" href="/minesweeper" variant="outlined">
+    <Label>Minesweeper</Label>
+  </Button>
 {/if}
 {#if chosenSeed}
   <div class='floating-menu'>
