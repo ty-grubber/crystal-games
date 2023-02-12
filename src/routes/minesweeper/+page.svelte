@@ -220,7 +220,7 @@
   }
 
   function clearStatus() {
-    if (selectedMonIndex > -1 && statusList[selectedMonIndex] !== STATUS.MINED) {
+    if (selectedMonIndex > -1 && !statusList[selectedMonIndex].includes(STATUS.MINED)) {
       statusList[selectedMonIndex] = STATUS.EMPTY;
       selectedMonIndex = -1;
     }
@@ -230,7 +230,7 @@
 	 * @param {number} monIndex
    * @param {string} mineStatus
 	 */
-  function mineMon(monIndex, mineStatus = STATUS.MINED) {
+  function mineMon(monIndex, mineStatus = STATUS.MINED, mineNeighborsIfZero = true) {
     if (
       mineList &&
       typeof(mineList[monIndex]) !== 'undefined' &&
@@ -241,7 +241,7 @@
       statusList[monIndex] = mineStatus;
 
       // Mine all mons around it if the mine value is 0
-      if (mineList[monIndex] === 0) {
+      if (mineNeighborsIfZero && mineList[monIndex] === 0) {
         mineMon(monIndex - GRID_COLUMNS); // mon above
         mineMon(monIndex + GRID_COLUMNS); // mon below
 
@@ -286,6 +286,20 @@
       mineMon(monIndex - GRID_COLUMNS + 1, STATUS.EXPLODED); //mon to upper right
       mineMon(monIndex + GRID_COLUMNS + 1, STATUS.EXPLODED); // mon to lower right
     }
+  }
+
+  function autoMineGrid() {
+    autoMineDialogOpen = false;
+
+    // Filter through statusList to find cells that are not flagged, excavated, exploded or origin_exploded
+    const indexesToMine = statusList.forEach((status, index) => {
+      if (![STATUS.FLAGGED, STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(status)) {
+        // Set each of these cells to new status of AUTO_MINED, but do not expand mining if a 0 is uncovered
+        mineMon(index, STATUS.AUTO_MINED, false);
+      }
+    });
+
+    // TODO: Mark game as complete so no more actions can be completed (both buttons and right-clicking)
   }
 
   function onStartClick() {
@@ -537,10 +551,10 @@
     <Title>Auto-mine Grid?</Title>
     <Content>
       <p>All mines have been flagged or uncovered. Would you like to end your game?</p>
-      <p>If yes, all grid cells that have not been excavated and are not flagged will be auto-mined.</p>
+      <p>If yes, all grid cells that have not been excavated and are not flagged will be auto-excavated.</p>
     </Content>
     <Actions>
-      <Button color="primary" variant="raised">Yes (Stop Timer)</Button>
+      <Button color="primary" on:click={autoMineGrid} variant="raised">Yes (Stop Timer)</Button>
       <Button color="primary" variant="outlined">No (Continue Timer)</Button>
     </Actions>
   </Dialog>
@@ -552,7 +566,7 @@
           {#each monList as pokemon, i (pokemon.id)}
             <div
               class={`dex-mon ${
-                statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED)
+                statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED)
                   ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
                   : statusList[i] || ''
               } ${
@@ -565,13 +579,13 @@
               on:contextmenu|preventDefault={() => contextSelectMon(i)}
             >
               <img
-                class={`mon-icon ${statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED) ? STATUS.MINED : ''}`}
+                class={`mon-icon ${statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED) ? STATUS.MINED : ''}`}
                 src={`/pokedex/${pokemon.id}.png`}
                 alt={pokemon.name}
               />
-              {#if mineList.length > 0 && (statusList[i] === STATUS.MINED || statusList[i].includes(STATUS.EXPLODED))}
+              {#if mineList.length > 0 && (statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED))}
                 <div class="mine-value-container">
-                  <span class={`mine-list-value ${statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''}`}>
+                  <span class={`mine-list-value ${statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''} ${statusList[i] === STATUS.AUTO_MINED ? 'auto-excavated' : ''}`}>
                     {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE ? EXPLOSION : mineList[i]}
                   </span>
                 </div>
@@ -619,7 +633,7 @@
           {#if statusList.length > 0}
             {statusList.reduce((acc, curr, currIndex) => {
               if (mineList[currIndex] === MINE) {
-                if (curr === STATUS.MINED) {
+                if (curr.includes(STATUS.MINED)) {
                   return acc + 15;
                 } else if (curr === STATUS.EXPLODED || curr === STATUS.ORIGIN_EXPLODED) {
                   return acc + 5;
@@ -774,6 +788,10 @@
     text-decoration: underline;
   }
 
+  .mine-list-value.auto-excavated {
+    font-style: italic;
+  }
+
   .dex-mon.mine {
     background-color: red;
     border-color: red;
@@ -874,7 +892,7 @@
     width: 100%;
   }
 
-  .mon-icon.mined {
+  .mon-icon.excavated {
     opacity: 0.5;
   }
 

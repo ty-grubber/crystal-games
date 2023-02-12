@@ -4,6 +4,7 @@ const STATUS = {
   SAFE: 'safe',
   SEEN: 'seen',
   OWNED: 'owned',
+  AUTO_MINED: 'auto_excavated',
   MINED: 'excavated',
   EXPLODED: 'exploded',
   ORIGIN_EXPLODED: 'origin_exploded',
