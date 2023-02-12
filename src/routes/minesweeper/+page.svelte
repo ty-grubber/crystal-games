@@ -1,5 +1,6 @@
 <script>
-  // TODO: add option to auto-mine grid when mine remaining hits 0
+  // TODO: Make floating menu and info section responsive
+  // TODO: Break down time penalties further
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
@@ -14,6 +15,8 @@
   const NUM_MINES = 40;
   const emptyMineList = [0, 0, 0, 0, 0];
   const searchClearTimeoutAmount = 5000;
+
+  let gameIsComplete = false;
 
   let settingsDialogOpen = true;
   let seedInfoDialogOpen = false;
@@ -64,6 +67,7 @@
       howToDialogOpen = false;
       seedInfoDialogOpen = false;
       menuDialogOpen = false;
+      gameIsComplete = false;
     }
   }
 
@@ -139,6 +143,10 @@
 	 * @param {number} monIndex
 	 */
   function contextSelectMon(monIndex) {
+    if (gameIsComplete) {
+      return;
+    }
+
     let currentStatus = statusList[monIndex];
 
     // Replace empty status
@@ -163,7 +171,7 @@
 	 * @param {string} status
 	 */
   function monAction(status) {
-    if (selectedMonIndex > -1) {
+    if (selectedMonIndex > -1 && !gameIsComplete) {
       let currentStatus = statusList[selectedMonIndex];
       if (currentStatus === STATUS.EMPTY) {
         currentStatus = '';
@@ -299,7 +307,8 @@
       }
     });
 
-    // TODO: Mark game as complete so no more actions can be completed (both buttons and right-clicking)
+    // Mark game as complete so no more actions can be completed (both buttons and right-clicking)
+    gameIsComplete = true;
   }
 
   function onStartClick() {
@@ -373,7 +382,7 @@
 
   // A mine has been found if it has been flagged, or if it is an uncovered mine in the grid
   // (whether via excavation or explosion)
-  $: minesRemaining = NUM_MINES - statusList.filter((status, index) =>
+  $: minesRemaining = gameIsComplete ? 0 : NUM_MINES - statusList.filter((status, index) =>
     status.includes(STATUS.FLAGGED) ||
     ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
   )).length;
@@ -399,7 +408,7 @@
       <Button color="primary" on:click={openMenuDialog} variant="raised">
         <Label>Menu</Label>
       </Button>
-      {#if minesRemaining === 0}
+      {#if minesRemaining === 0 && !gameIsComplete}
         <br /><br />
         <Button color="primary" on:click={openAutoMineDialog} variant="outlined">
           <Label>Finish Game</Label>
@@ -662,65 +671,67 @@
           {/if}
         </span>
         <br /><br />
-        <Button
-          style="background-color: #fff; color: #000; border: 1px solid #000"
-          on:click={clearStatus}
-          variant="unelevated"
-        >
-          <Label>Clear Status</Label>
-        </Button>
-        <br /><br />
-        <Button
-          style="background-color: red"
-          on:click={() => monAction(STATUS.FLAGGED)}
-          variant="unelevated"
-        >
-          <Label>Flag</Label>
-        </Button>
-        <Button
-          style="background-color: #008000"
-          on:click={() => monAction(STATUS.SAFE)}
-          variant="unelevated"
-        >
-          <Label>Safe</Label>
-        </Button>
-        <br /><br />
-        <Button
-          style="background-color: blue"
-          on:click={() => monAction(STATUS.SEEN)}
-          variant="unelevated"
-        >
-          <Label>Seen</Label>
-        </Button>
-        <Button
-          style="background-color: #daa520; color: #000;"
-          on:click={() => monAction(STATUS.OWNED)}
-          variant="unelevated"
-        >
-          <Label>Own</Label>
-        </Button>
-        <br /><br />
-        {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes(STATUS.OWNED)}
+        {#if selectedMonIndex > -1 && !gameIsComplete}
           <Button
-            style="background-color: #434343"
-            on:click={() => monAction(STATUS.MINED)}
+            style="background-color: #fff; color: #000; border: 1px solid #000"
+            on:click={clearStatus}
             variant="unelevated"
           >
-            <Label>Excavate</Label>
+            <Label>Clear Status</Label>
           </Button>
-          *cannot be undone
-          <br /><br />
-        {/if}
-        {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(statusList[selectedMonIndex])}
           <br /><br />
           <Button
-            style="background-color: #880000"
-            on:click={() => explodeMon(selectedMonIndex)}
-            variant="raised"
+            style="background-color: red"
+            on:click={() => monAction(STATUS.FLAGGED)}
+            variant="unelevated"
           >
-            <Label>Explosion</Label>
+            <Label>Flag</Label>
           </Button>
-          *cannot be undone
+          <Button
+            style="background-color: #008000"
+            on:click={() => monAction(STATUS.SAFE)}
+            variant="unelevated"
+          >
+            <Label>Safe</Label>
+          </Button>
+          <br /><br />
+          <Button
+            style="background-color: blue"
+            on:click={() => monAction(STATUS.SEEN)}
+            variant="unelevated"
+          >
+            <Label>Seen</Label>
+          </Button>
+          <Button
+            style="background-color: #daa520; color: #000;"
+            on:click={() => monAction(STATUS.OWNED)}
+            variant="unelevated"
+          >
+            <Label>Own</Label>
+          </Button>
+          <br /><br />
+          {#if statusList && selectedMonIndex > -1 && statusList[selectedMonIndex].includes(STATUS.OWNED)}
+            <Button
+              style="background-color: #434343"
+              on:click={() => monAction(STATUS.MINED)}
+              variant="unelevated"
+            >
+              <Label>Excavate</Label>
+            </Button>
+            *cannot be undone
+            <br /><br />
+          {/if}
+          {#if statusList && selectedMonIndex > -1 && ![STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(statusList[selectedMonIndex])}
+            <br /><br />
+            <Button
+              style="background-color: #880000"
+              on:click={() => explodeMon(selectedMonIndex)}
+              variant="raised"
+            >
+              <Label>Explosion</Label>
+            </Button>
+            *cannot be undone
+          {/if}
         {/if}
       </div>
     </div>
