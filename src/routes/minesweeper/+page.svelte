@@ -133,13 +133,6 @@
   }
 
   /**
-	 * @param {number} index
-	 */
-  function selectMon(index) {
-    selectedMonIndex = index;
-  }
-
-  /**
 	 * @param {number} monIndex
 	 */
   function contextSelectMon(monIndex) {
@@ -154,7 +147,8 @@
       currentStatus = '';
     }
 
-    if (![STATUS.EXPLODED, STATUS.MINED, STATUS.ORIGIN_EXPLODED].includes(currentStatus)) {
+    // as long as the current status is not mined or exploded we can toggle
+    if (!currentStatus.includes(STATUS.EXPLODED) && !currentStatus.includes(STATUS.MINED)) {
       // Iterate through following chain: FLAGGED -> SAFE -> Neither
       if (currentStatus.includes(STATUS.FLAGGED)) {
         statusList[monIndex] = currentStatus.replace(STATUS.FLAGGED, STATUS.SAFE);
@@ -165,6 +159,13 @@
         statusList[monIndex] = currentStatus.concat(' ', STATUS.FLAGGED).trim();
       }
     }
+  }
+
+  /**
+   * @param {number} index
+   */
+  function selectMon(index) {
+     selectedMonIndex = index;
   }
 
   /**
@@ -299,9 +300,9 @@
   function autoMineGrid() {
     autoMineDialogOpen = false;
 
-    // Filter through statusList to find cells that are not flagged, excavated, exploded or origin_exploded
+    // Filter through statusList to find cells that are not flagged, excavated, or exploded
     const indexesToMine = statusList.forEach((status, index) => {
-      if (![STATUS.FLAGGED, STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(status)) {
+      if (!status.includes(STATUS.FLAGGED) && !status.includes(STATUS.MINED) && !status.includes(STATUS.EXPLODED)) {
         // Set each of these cells to new status of AUTO_MINED, but do not expand mining if a 0 is uncovered
         mineMon(index, STATUS.AUTO_MINED, false);
       }
