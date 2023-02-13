@@ -299,9 +299,9 @@
   function autoMineGrid() {
     autoMineDialogOpen = false;
 
-    // Filter through statusList to find cells that are not flagged, excavated, exploded or origin_exploded
+    // Filter through statusList to find cells that are not flagged, excavated, or exploded
     const indexesToMine = statusList.forEach((status, index) => {
-      if (![STATUS.FLAGGED, STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(status)) {
+      if (!status.includes(STATUS.FLAGGED) && !status.includes(STATUS.MINED) && !status.includes(STATUS.EXPLODED)) {
         // Set each of these cells to new status of AUTO_MINED, but do not expand mining if a 0 is uncovered
         mineMon(index, STATUS.AUTO_MINED, false);
       }
