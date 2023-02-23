@@ -646,12 +646,6 @@
         </div>
       </div>
       <div class="options">
-        <h2>
-          Mines Remaining:&nbsp;
-          {#if statusList.length > 0}
-            {minesRemaining} / {NUM_MINES}
-          {/if}
-        </h2>
         <Accordion disabled={statusList.length <= 0}>
           <Panel bind:open={timePenaltyOpen}>
             <Header>
@@ -669,6 +663,12 @@
             </AccContent>
           </Panel>
         </Accordion>
+        <h2>
+          Mines Remaining:&nbsp;
+          {#if statusList.length > 0}
+            {minesRemaining} / {NUM_MINES}
+          {/if}
+        </h2>
         <h2>Actions</h2>
         <span class="selected-mon">
           <b>Selected Mon:</b>
@@ -929,6 +929,7 @@
 
   .time-penalty-title {
     font-size: 24px;
+    color: darkred;
   }
 
   .selected-mon {
