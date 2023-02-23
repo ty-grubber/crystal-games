@@ -3,7 +3,7 @@
 </script>
 
 <div class="page">
-  <h1>Pokémon Crystal Game Trackers</h1>
+  <h1>Pokémon Crystal Randomizer Games</h1>
   <div class="game-cell">
     <Button color="primary" href="/hunt" variant="raised">
       <Label>Rival Treasure Hunt</Label>
