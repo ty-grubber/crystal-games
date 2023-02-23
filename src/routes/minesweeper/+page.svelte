@@ -1,7 +1,7 @@
 <script>
   // TODO: Make floating menu and info section responsive
-  // TODO: Break down time penalties further
   import short from 'short-uuid';
+  import Accordion, { Panel, Header, Content as AccContent } from '@smui-extra/accordion';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import TextField from '@smui/textfield';
@@ -11,6 +11,8 @@
 	import { EXPLOSION, MINE, STATUS } from '../../constants/minesweeper';
 	import Tooltip, { Wrapper } from '@smui/tooltip';
 
+  const EXCAVATED_MINE_PENALTY = 15;
+  const EXPLODED_MINE_PENALTY = 5;
   const GRID_COLUMNS = 16;
   const NUM_MINES = 40;
   const emptyMineList = [0, 0, 0, 0, 0];
@@ -53,6 +55,8 @@
   let gridSeedFocussed = false;
   let mineSeedFocussed = false;
   let selectedMonIndex = -1;
+
+  let timePenaltyOpen = false;
 
   function handleStartNewGame() {
     if (!gridSeed || !mineSeed || confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
@@ -529,7 +533,7 @@
       <p>Some statuses of a cell can be stacked, such as Safe and Seen. In this case, the border of that Pokémon's cell will be a mix of those two status colors.</p>
 
       <h3>Information Panel</h3>
-      <p>This information panel provides a quick look at how you are doing in the game. It will list how many mines you have found (via excavation, explosion, flagging), what your current time penalty is (due to mine excavations (15 minutes each) and explosions (5 minutes each)), the currently selected Pokémon in the grid and the current status of the selected Pokémon (there could be more than one).</p>
+      <p>This information panel provides a quick look at how you are doing in the game. It will list how many mines you have found (via excavation, explosion, flagging), what your current time penalty is (due to mine excavations ({EXCAVATED_MINE_PENALTY} minutes each) and explosions ({EXPLODED_MINE_PENALTY} minutes each)), the currently selected Pokémon in the grid and the current status of the selected Pokémon (there could be more than one).</p>
 
       <h3>Actions</h3>
       <p>Once you have selected a Pokémon in the grid, various actions can be performed on that cell to add a status to that Pokémon's cell. Unless otherwise stated, once a Pokémon in the grid has been excavated or has exploded, no further actions can be performed on it. The possible actions are:</p>
@@ -539,7 +543,7 @@
         <li><b>Safe:</b> mark the cell as safe to be mined</li>
         <li><b>Seen:</b> mark the Pokémon as seen</li>
         <li><b>Own:</b> mark the Pokémon as owned (which makes the Pokémon's cell able to be excavated)</li>
-        <li><b>Excavate</b> excavate the Pokémon's cell. This is only performable if the Pokémon has already been set to Owned. This action cannot be undone once performed. If you excavate a cell and a mine is underneath, the number of mines found will auto-increment by 1 and you'll incur a 15-minute penalty to your overall time.</li>
+        <li><b>Excavate</b> excavate the Pokémon's cell. This is only performable if the Pokémon has already been set to Owned. This action cannot be undone once performed. If you excavate a cell and a mine is underneath, the number of mines found will auto-increment by 1 and you'll incur a {EXCAVATED_MINE_PENALTY}-minute penalty to your overall time.</li>
         <li><b>Explosion</b> explode the Pokémon's cell, which will also excavate all adjacent cells automatically, incurring penalties as required. This action cannot be undone once performed. (see optional rules for more info)</li>
       </ul>
 
@@ -648,25 +652,23 @@
             {minesRemaining} / {NUM_MINES}
           {/if}
         </h2>
-        <h2>
-          Time Penalty:&nbsp;
-          {#if statusList.length > 0}
-            {statusList.reduce((acc, curr, currIndex) => {
-              if (mineList[currIndex] === MINE) {
-                if (curr.includes(STATUS.MINED)) {
-                  return acc + 15;
-                } else if (curr === STATUS.EXPLODED || curr === STATUS.ORIGIN_EXPLODED) {
-                  return acc + 5;
-                }
-              } else {
-                if (curr === STATUS.ORIGIN_EXPLODED) {
-                  return acc + 5;
-                }
-              }
-              return acc;
-            }, 0)}:00
-          {/if}
-        </h2>
+        <Accordion disabled={statusList.length <= 0}>
+          <Panel bind:open={timePenaltyOpen}>
+            <Header>
+              <b class="time-penalty-title">
+                Time Penalty:&nbsp;
+                {#if statusList.length > 0}
+                  {(minesExcavated * EXCAVATED_MINE_PENALTY) + (minesExploded * EXPLODED_MINE_PENALTY)}:00
+                {/if}
+              </b>
+            </Header>
+            <AccContent>
+              Mines&nbsp;Excavated&nbsp;({minesExcavated})&nbsp;=&nbsp;{minesExcavated * EXCAVATED_MINE_PENALTY}:00&nbsp;penalty
+              <br /><br />
+              Mines Exploded&nbsp;({minesExploded})&nbsp;=&nbsp;{minesExploded * EXPLODED_MINE_PENALTY}:00&nbsp;penalty
+            </AccContent>
+          </Panel>
+        </Accordion>
         <h2>Actions</h2>
         <span class="selected-mon">
           <b>Selected Mon:</b>
@@ -923,6 +925,10 @@
     right: 1%;
     text-align: right;
     top: 1%;
+  }
+
+  .time-penalty-title {
+    font-size: 24px;
   }
 
   .selected-mon {
