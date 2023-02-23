@@ -387,6 +387,15 @@
     status.includes(STATUS.FLAGGED) ||
     ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
   )).length;
+
+  $: minesExcavated = statusList.filter((status, index) =>
+    status.includes(STATUS.MINED) && mineList[index] === MINE
+  ).length;
+
+  $: minesExploded = statusList.filter((status, index) =>
+    status === STATUS.ORIGIN_EXPLODED ||
+    mineList[index] === MINE && (status === STATUS.EXPLODED || status === STATUS.ORIGIN_EXPLODED)
+  ).length;
 </script>
 
 <svelte:window on:keydown={updateSearch} />
