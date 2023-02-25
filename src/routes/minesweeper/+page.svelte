@@ -1,7 +1,6 @@
 <script>
   // TODO: Make floating menu and info section responsive
   import short from 'short-uuid';
-  import Accordion, { Panel, Header, Content as AccContent } from '@smui-extra/accordion';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import TextField from '@smui/textfield';
@@ -649,23 +648,17 @@
         </div>
       </div>
       <div class="options">
-        <Accordion disabled={statusList.length <= 0}>
-          <Panel bind:open={timePenaltyOpen}>
-            <Header>
-              <b class="time-penalty-title">
-                Time Penalty:&nbsp;
-                {#if statusList.length > 0}
-                  {(minesExcavated * EXCAVATED_MINE_PENALTY) + (minesExploded * EXPLODED_MINE_PENALTY)}:00
-                {/if}
-              </b>
-            </Header>
-            <AccContent>
-              Mines&nbsp;Excavated&nbsp;({minesExcavated})&nbsp;=&nbsp;{minesExcavated * EXCAVATED_MINE_PENALTY}:00&nbsp;penalty
-              <br /><br />
-              Mines Exploded&nbsp;({minesExploded})&nbsp;=&nbsp;{minesExploded * EXPLODED_MINE_PENALTY}:00&nbsp;penalty
-            </AccContent>
-          </Panel>
-        </Accordion>
+        <h2 class="time-penalty-title">
+          Total Time Penalty:&nbsp;
+          {#if statusList.length > 0}
+            {(minesExcavated * EXCAVATED_MINE_PENALTY) + (minesExploded * EXPLODED_MINE_PENALTY)}:00
+          {/if}
+        </h2>
+        <p class="penalty-breakdown">
+          &rarr;Mines Excavated ({minesExcavated}) = {minesExcavated * EXCAVATED_MINE_PENALTY}:00 penalty
+          <br />
+          &rarr;Mines Exploded ({minesExploded}) = {minesExploded * EXPLODED_MINE_PENALTY}:00 penalty
+        </p>
         <h2>
           Mines Remaining:&nbsp;
           {#if statusList.length > 0}
@@ -911,6 +904,11 @@
   .time-penalty-title {
     font-size: 24px;
     color: darkred;
+  }
+
+  .penalty-breakdown {
+    font-size: 18px;
+    padding-left: 1rem;
   }
 
   .selected-mon {
