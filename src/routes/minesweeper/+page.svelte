@@ -538,7 +538,7 @@
         <li><b>Red Border & Light Red Background:</b> indicates this Pokémon's cell has been flagged, meaning you think there is a mine underneath. This cell will also have a light red background.</li>
         <li><b>Green Border & Light Green Background:</b> indicates this Pokémon's cell is safe to be excavated (ie. you do not think there is a mine underneath it). This cell will also have a light green background.</li>
         <li><b>Blue Dot:</b> indicates that you have seen this Pokémon during game play.</li>
-        <li><b>Gold Dot:</b> indicates that you have caught or own this Pokémon in your game's Pokédex.</li>
+        <li><b>Yellow Dot:</b> indicates that you have caught or own this Pokémon in your game's Pokédex.</li>
         <li><b>Light Blue Background:</b> indicates that a search is active below the grid and this Pokémon matches the search term provided.</li>
         <li><b>Red Background:</b> indicates that this cell has been excavated and a mine was found or the cell exploded (indicated by the letter in the cell, see above)</li>
         <li><b>Grey-scale Background:</b> indicates the cell has been mined, but no mine was found underneath. The darker the background the more mines that are adjacent (including diagonals) to this cell.</li>
@@ -552,11 +552,11 @@
       <p>Once you have selected a Pokémon in the grid, various actions can be performed on that cell to add a status to that Pokémon's cell. Unless otherwise stated, once a Pokémon in the grid has been excavated or has exploded, no further actions can be performed on it. The possible actions are:</p>
       <ul>
         <li><b>Clear Status:</b> clear all existing statuses on the cell</li>
-        <li><b>Flag:</b> mark the cell as flagged. This will auto-increment the number of found mines by 1</li>
+        <li><b>Flag:</b> mark the cell as flagged. This will auto-decrement the number of remaining mines by 1</li>
         <li><b>Safe:</b> mark the cell as safe to be mined</li>
         <li><b>Seen:</b> mark the Pokémon as seen</li>
         <li><b>Own:</b> mark the Pokémon as owned (which makes the Pokémon's cell able to be excavated)</li>
-        <li><b>Excavate</b> excavate the Pokémon's cell. This is only performable if the Pokémon has already been set to Owned. This action cannot be undone once performed. If you excavate a cell and a mine is underneath, the number of mines found will auto-increment by 1 and you'll incur a {EXCAVATED_MINE_PENALTY}-minute penalty to your overall time.</li>
+        <li><b>Excavate</b> excavate the Pokémon's cell. This is only performable if the Pokémon has already been set to Owned. This action cannot be undone once performed. If you excavate a cell and a mine is underneath, the number of mines remaining will auto-decrement by 1 and you'll incur a {EXCAVATED_MINE_PENALTY}-minute penalty to your overall time.</li>
         <li><b>Explosion</b> explode the Pokémon's cell, which will also excavate all adjacent cells automatically, incurring penalties as required. This action cannot be undone once performed. (see optional rules for more info)</li>
       </ul>
 
@@ -564,6 +564,7 @@
       <p>There are a few shortcuts that can help you use this tracker faster:</p>
       <ul>
         <li><b>Right-click:</b> right-clicking on any cell in the grid will toggle the cell between Flagged, Safe, and Neither. If this cell has a Owned or Seen status, that status is not affected by the right-click action.</li>
+        <li><b>Middle-click:</b> middle-clicking on any cell in the grid will toggle the cell between Seen, Owned, and Neither. If this cell has a Flagged or Safe status, that status is not affected by the middle-click action.</li>
         <li><b>Typing:</b> as long as the tab is focussed, typing any key will automatically start a search in the grid. This search clears any selected pokemon and fades-out all pokemon in the grid that do not match the searched term. As well, the search clears itself after {searchClearTimeoutAmount / 1000} seconds of non-typing activity.</li>
         <li><b>Escape Key:</b> hitting the escape key will clear any search and de-select any selected pokemon in the grid.</li>
       </ul>
@@ -575,7 +576,7 @@
 
       <h3>Optional Explosions</h3>
       <p>To add a bit of difficulty to your game play in Pokémon Crystal, you can implement this optional Explosions rule-set to Minesweeper.</p>
-      <p>While playing Pokémon Crystal, if <b>any</b> Pokémon in the game uses the move SelfDestruct or Explosion on you, that Pokémon also explodes in your grid. When this occurs, select the Pokémon that exploded on you in the grid and click the Explosion action.</p>
+      <p>While playing Pokémon Crystal, if <b>any</b> Pokémon in the game uses the move SelfDestruct or Explosion on you, that Pokémon also explodes in your grid (feel free to house-rule some other moves, too, like Egg Bomb or Present). When this occurs, select the Pokémon that exploded on you in the grid and click the Explosion action.</p>
       <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded) incurs a 5-minute penalty to your overall time. For quick reference, any Pokémon that explodes due to SelfDestruct or Explosion will have its revealed value bolded and underlined, signifying it was the origin of an explosion.</p>
       <p><b>Note:</b> if a Pokémon has already been excavated, it cannot explode afterwards. Therefore, you will not be able to select the Explosion action on an excavated Pokémon.</p>
     </Content>
@@ -727,7 +728,7 @@
             <Label>Seen</Label>
           </Button>
           <Button
-            style="background-color: #daa520; color: #000;"
+            style="background-color: yellow; border: 1px solid #000; color: #000;"
             on:click={() => monAction(STATUS.OWNED)}
             variant="unelevated"
           >
@@ -874,7 +875,7 @@
   .dex-mon.owned > div.dot,
   .dex-mon.seen > div.dot {
     position: absolute;
-    background-color: #daa520;
+    background-color: yellow;
     border: 1px solid black;
     border-radius: 6px;
     width: 10px;
