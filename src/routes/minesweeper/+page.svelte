@@ -860,7 +860,8 @@
   .dex-mon.seen > div.dot {
     position: absolute;
     background-color: #daa520;
-    border-radius: 5px;
+    border: 1px solid black;
+    border-radius: 6px;
     width: 10px;
     height: 10px;
     top: 5px;
