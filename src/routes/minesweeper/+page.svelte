@@ -1,7 +1,6 @@
 <script>
   // TODO: Make floating menu and info section responsive
   import short from 'short-uuid';
-  import Accordion, { Panel, Header, Content as AccContent } from '@smui-extra/accordion';
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import TextField from '@smui/textfield';
@@ -521,16 +520,16 @@
 
       <p>Additionally, each Pokémon in the grid is colored in a way to indicate its different potential statuses:</p>
       <ul>
-        <li><b>Gold Border:</b> indicates this Pokémon is currently selected. Actions can now be performed on its cell and you can see its full status written out above the Actions on the right. </li>
-        <li><b>Red Border:</b> indicates this Pokémon's cell has been flagged, meaning you think there is a mine underneath. This cell will also have a light red background.</li>
-        <li><b>Green Border:</b> indicates this Pokémon's cell is safe to be excavated (ie. you do not think there is a mine underneath it). This cell will also have a light green background.</li>
-        <li><b>Blue Border:</b> indicates that you have seen this Pokémon during game play.</li>
-        <li><b>Purple Border:</b> indicates that you have caught or own this Pokémon in your game's Pokédex.</li>
+        <li><b>Purple Border:</b> indicates this Pokémon is currently selected. Actions can now be performed on its cell and you can see its full status written out above the Actions on the right. </li>
+        <li><b>Red Border & Light Red Background:</b> indicates this Pokémon's cell has been flagged, meaning you think there is a mine underneath. This cell will also have a light red background.</li>
+        <li><b>Green Border & Light Green Background:</b> indicates this Pokémon's cell is safe to be excavated (ie. you do not think there is a mine underneath it). This cell will also have a light green background.</li>
+        <li><b>Blue Dot:</b> indicates that you have seen this Pokémon during game play.</li>
+        <li><b>Gold Dot:</b> indicates that you have caught or own this Pokémon in your game's Pokédex.</li>
         <li><b>Light Blue Background:</b> indicates that a search is active below the grid and this Pokémon matches the search term provided.</li>
         <li><b>Red Background:</b> indicates that this cell has been excavated and a mine was found or the cell exploded (indicated by the letter in the cell, see above)</li>
         <li><b>Grey-scale Background:</b> indicates the cell has been mined, but no mine was found underneath. The darker the background the more mines that are adjacent (including diagonals) to this cell.</li>
       </ul>
-      <p>Some statuses of a cell can be stacked, such as Safe and Seen. In this case, the border of that Pokémon's cell will be a mix of those two status colors.</p>
+      <p>Some statuses of a cell can be stacked, such as Safe and Seen. In this case, you will see both the green border and background of the Pokémon, as well as the blue dot.</p>
 
       <h3>Information Panel</h3>
       <p>This information panel provides a quick look at how you are doing in the game. It will list how many mines you have found (via excavation, explosion, flagging), what your current time penalty is (due to mine excavations ({EXCAVATED_MINE_PENALTY} minutes each) and explosions ({EXPLODED_MINE_PENALTY} minutes each)), the currently selected Pokémon in the grid and the current status of the selected Pokémon (there could be more than one).</p>
@@ -602,6 +601,9 @@
               on:keydown={() => selectMon(i)}
               on:contextmenu|preventDefault={() => contextSelectMon(i)}
             >
+              {#if statusList[i].includes(STATUS.SEEN) || statusList[i].includes(STATUS.OWNED)}
+                <div class="dot">&nbsp;</div>
+              {/if}
               <img
                 class={`mon-icon ${statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED) ? STATUS.MINED : ''}`}
                 src={`/pokedex/${pokemon.id}.png`}
@@ -610,7 +612,7 @@
               {#if mineList.length > 0 && (statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED))}
                 <div class="mine-value-container">
                   <span class={`mine-list-value ${statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''} ${statusList[i] === STATUS.AUTO_MINED ? 'auto-excavated' : ''}`}>
-                    {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE ? EXPLOSION : mineList[i]}
+                    {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE ? EXPLOSION : (mineList[i] || '')}
                   </span>
                 </div>
               {/if}
@@ -618,19 +620,19 @@
           {/each}
           {#if mineList.length > 0}
             <div class={`dex-mon empty safe${mineList[mineList.length - 5]}`}>
-              {mineList[mineList.length - 5]}
+              {mineList[mineList.length - 5] || ''}
             </div>
             <div class={`dex-mon empty safe${mineList[mineList.length - 4]}`}>
-              {mineList[mineList.length - 4]}
+              {mineList[mineList.length - 4] || ''}
             </div>
             <div class={`dex-mon empty safe${mineList[mineList.length - 3]}`}>
-              {mineList[mineList.length - 3]}
+              {mineList[mineList.length - 3] || ''}
             </div>
             <div class={`dex-mon empty safe${mineList[mineList.length - 2]}`}>
-              {mineList[mineList.length - 2]}
+              {mineList[mineList.length - 2] || ''}
             </div>
             <div class={`dex-mon empty safe${mineList[mineList.length - 1]}`}>
-              {mineList[mineList.length - 1]}
+              {mineList[mineList.length - 1] || ''}
             </div>
           {/if}
           <TextField
@@ -646,23 +648,17 @@
         </div>
       </div>
       <div class="options">
-        <Accordion disabled={statusList.length <= 0}>
-          <Panel bind:open={timePenaltyOpen}>
-            <Header>
-              <b class="time-penalty-title">
-                Time Penalty:&nbsp;
-                {#if statusList.length > 0}
-                  {(minesExcavated * EXCAVATED_MINE_PENALTY) + (minesExploded * EXPLODED_MINE_PENALTY)}:00
-                {/if}
-              </b>
-            </Header>
-            <AccContent>
-              Mines&nbsp;Excavated&nbsp;({minesExcavated})&nbsp;=&nbsp;{minesExcavated * EXCAVATED_MINE_PENALTY}:00&nbsp;penalty
-              <br /><br />
-              Mines Exploded&nbsp;({minesExploded})&nbsp;=&nbsp;{minesExploded * EXPLODED_MINE_PENALTY}:00&nbsp;penalty
-            </AccContent>
-          </Panel>
-        </Accordion>
+        <h2 class="time-penalty-title">
+          Total Time Penalty:&nbsp;
+          {#if statusList.length > 0}
+            {(minesExcavated * EXCAVATED_MINE_PENALTY) + (minesExploded * EXPLODED_MINE_PENALTY)}:00
+          {/if}
+        </h2>
+        <p class="penalty-breakdown">
+          &rarr;Mines Excavated ({minesExcavated}) = {minesExcavated * EXCAVATED_MINE_PENALTY}:00 penalty
+          <br />
+          &rarr;Mines Exploded ({minesExploded}) = {minesExploded * EXPLODED_MINE_PENALTY}:00 penalty
+        </p>
         <h2>
           Mines Remaining:&nbsp;
           {#if statusList.length > 0}
@@ -684,7 +680,7 @@
           {/if}
         </span>
         <br /><br />
-        {#if selectedMonIndex > -1 && !gameIsComplete}
+        {#if selectedMonIndex > -1 && !gameIsComplete && !statusList[selectedMonIndex].includes(STATUS.MINED)}
           <Button
             style="background-color: #fff; color: #000; border: 1px solid #000"
             on:click={clearStatus}
@@ -860,9 +856,20 @@
     border-color: #000;
   }
 
-  .dex-mon.owned {
-    border-color: #daa520;
-    background-color: rgba(218, 165, 32, 0.2);
+  .dex-mon.owned > div.dot,
+  .dex-mon.seen > div.dot {
+    position: absolute;
+    background-color: #daa520;
+    border: 1px solid black;
+    border-radius: 6px;
+    width: 10px;
+    height: 10px;
+    top: 5px;
+    left: 5px;
+  }
+
+  .dex-mon.seen > div.dot {
+    background-color: blue;
   }
 
   .dex-mon.flagged {
@@ -870,41 +877,9 @@
     background-color: rgba(255, 0, 0, 0.2);
   }
 
-  .dex-mon.flagged.seen {
-    border-top-color: red;
-    border-bottom-color: red;
-    border-left-color: blue;
-    border-right-color: blue;
-  }
-
-  .dex-mon.flagged.owned {
-    border-top-color: red;
-    border-bottom-color: red;
-    border-left-color: #daa520;
-    border-right-color: #daa520;
-  }
-
   .dex-mon.safe {
     border-color: #008000;
     background-color: rgba(0, 127, 0, 0.2);
-  }
-
-  .dex-mon.safe.seen {
-    border-top-color: #008000;
-    border-bottom-color: #008000;
-    border-left-color: blue;
-    border-right-color: blue;
-  }
-
-  .dex-mon.safe.owned {
-    border-top-color: #008000;
-    border-bottom-color: #008000;
-    border-left-color: #daa520;
-    border-right-color: #daa520;
-  }
-
-  .dex-mon.seen {
-    border-color: blue;
   }
 
   .dex-mon.selected,
@@ -930,6 +905,11 @@
   .time-penalty-title {
     font-size: 24px;
     color: darkred;
+  }
+
+  .penalty-breakdown {
+    font-size: 18px;
+    padding-left: 1rem;
   }
 
   .selected-mon {
