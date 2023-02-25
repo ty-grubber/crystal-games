@@ -651,16 +651,29 @@
               {mineList[mineList.length - 1] || ''}
             </div>
           {/if}
-          <TextField
-            variant="outlined"
-            bind:value={searchTerm}
-            bind:this={searchInput}
-            on:blur={() => searchFocussed = false}
-            on:focus={() => searchFocussed = true}
-            on:keydown={searchKeyDown}
-            label="Dex Search"
-            style={'margin-top: 1rem'}
-          />
+          <div class="below-grid">
+            <div>
+              <TextField
+                variant="outlined"
+                bind:value={searchTerm}
+                bind:this={searchInput}
+                on:blur={() => searchFocussed = false}
+                on:focus={() => searchFocussed = true}
+                on:keydown={searchKeyDown}
+                label="Dex Search"
+                style={'margin-top: 1rem'}
+              />
+            </div>
+            <div>
+              <p style="margin-left: 1.5rem;">
+                <b style="text-decoration: underline;">Shortcuts:</b><br />
+                <b>Right-Click:</b> Toggle Flagged/Safe status<br />
+                <b>Middle-Click:</b> Toggle Seen/Owned status<br />
+                <b>Typing:</b> Initiate grid search<br />
+                <b>ESC: </b> Clear search and selected mon<br />
+              </p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="options">
@@ -764,7 +777,7 @@
 </div>
 
 <style>
-  .playArea {
+  .playArea, .below-grid {
     display: inline-flex;
   }
 
