@@ -687,7 +687,7 @@
           {/if}
         </span>
         <br /><br />
-        {#if selectedMonIndex > -1 && !gameIsComplete}
+        {#if selectedMonIndex > -1 && !gameIsComplete && !statusList[selectedMonIndex].includes(STATUS.MINED)}
           <Button
             style="background-color: #fff; color: #000; border: 1px solid #000"
             on:click={clearStatus}
