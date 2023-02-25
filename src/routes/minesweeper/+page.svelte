@@ -610,7 +610,7 @@
               {#if mineList.length > 0 && (statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED))}
                 <div class="mine-value-container">
                   <span class={`mine-list-value ${statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''} ${statusList[i] === STATUS.AUTO_MINED ? 'auto-excavated' : ''}`}>
-                    {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE ? EXPLOSION : mineList[i]}
+                    {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE ? EXPLOSION : (mineList[i] || '')}
                   </span>
                 </div>
               {/if}
@@ -618,19 +618,19 @@
           {/each}
           {#if mineList.length > 0}
             <div class={`dex-mon empty safe${mineList[mineList.length - 5]}`}>
-              {mineList[mineList.length - 5]}
+              {mineList[mineList.length - 5] || ''}
             </div>
             <div class={`dex-mon empty safe${mineList[mineList.length - 4]}`}>
-              {mineList[mineList.length - 4]}
+              {mineList[mineList.length - 4] || ''}
             </div>
             <div class={`dex-mon empty safe${mineList[mineList.length - 3]}`}>
-              {mineList[mineList.length - 3]}
+              {mineList[mineList.length - 3] || ''}
             </div>
             <div class={`dex-mon empty safe${mineList[mineList.length - 2]}`}>
-              {mineList[mineList.length - 2]}
+              {mineList[mineList.length - 2] || ''}
             </div>
             <div class={`dex-mon empty safe${mineList[mineList.length - 1]}`}>
-              {mineList[mineList.length - 1]}
+              {mineList[mineList.length - 1] || ''}
             </div>
           {/if}
           <TextField
