@@ -8,7 +8,6 @@
 	import { randomizeArray } from '$lib/randomize';
 	import { convertTo2DArray, flatten2DArray } from '$lib/arrayConversion';
 	import { EXPLOSION, MINE, STATUS } from '../../constants/minesweeper';
-	import Tooltip, { Wrapper } from '@smui/tooltip';
 
   const EXCAVATED_MINE_PENALTY = 15;
   const EXPLODED_MINE_PENALTY = 5;
@@ -137,12 +136,9 @@
 
   /**
 	 * @param {number} monIndex
+	 * @param {string[]} stateArray
 	 */
-  function contextSelectMon(monIndex) {
-    if (gameIsComplete) {
-      return;
-    }
-
+  function toggleStatusStates(monIndex, stateArray) {
     let currentStatus = statusList[monIndex];
 
     // Replace empty status
@@ -152,15 +148,36 @@
 
     // as long as the current status is not mined or exploded we can toggle
     if (!currentStatus.includes(STATUS.EXPLODED) && !currentStatus.includes(STATUS.MINED)) {
-      // Iterate through following chain: FLAGGED -> SAFE -> Neither
-      if (currentStatus.includes(STATUS.FLAGGED)) {
-        statusList[monIndex] = currentStatus.replace(STATUS.FLAGGED, STATUS.SAFE);
-      } else if (currentStatus.includes(STATUS.SAFE)) {
-        const newStatus = currentStatus.replace(STATUS.SAFE, '').trim();
+      // Iterate through following chain: [0] -> [1] -> Neither
+      if (currentStatus.includes(stateArray[0])) {
+        statusList[monIndex] = currentStatus.replace(stateArray[0], stateArray[1]);
+      } else if (currentStatus.includes(stateArray[1])) {
+        const newStatus = currentStatus.replace(stateArray[1], '').trim();
         statusList[monIndex] = newStatus !== '' ? newStatus : STATUS.EMPTY;
       } else {
-        statusList[monIndex] = currentStatus.concat(' ', STATUS.FLAGGED).trim();
+        statusList[monIndex] = currentStatus.concat(' ', stateArray[0]).trim();
       }
+    }
+  }
+
+  /**
+	 * @param {number} monIndex
+	 */
+  function contextSelectMon(monIndex) {
+    // Toggle status state if game is still ongoing
+    if (!gameIsComplete) {
+      toggleStatusStates(monIndex, [STATUS.FLAGGED, STATUS.SAFE]);
+    }
+  }
+
+  /**
+	 * @param {number} monIndex
+	 * @param {MouseEvent & { currentTarget: EventTarget & HTMLDivElement; }} event
+	 */
+   function auxSelectMon(monIndex, event) {
+    // Toggle status state if game is still ongoing and we received a middle click
+    if (!gameIsComplete && (event.which === 2 || event.button === 1)) {
+      toggleStatusStates(monIndex, [STATUS.SEEN, STATUS.OWNED]);
     }
   }
 
@@ -437,12 +454,9 @@
         <Label>How To Play</Label>
       </Button>
       <br /><br />
-      <Wrapper>
-        <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
-          <Label>Seed Info</Label>
-        </Button>
-        <Tooltip xPos="start">Click to see full seed info</Tooltip>
-      </Wrapper>
+      <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
+        <Label>Seed Info</Label>
+      </Button>
       <br /><br />
       <Button color="primary" on:click={handleStartNewGame} variant="raised">
         <Label>Start New Game</Label>
@@ -599,6 +613,7 @@
               }`}
               on:click={() => selectMon(i)}
               on:keydown={() => selectMon(i)}
+              on:auxclick|preventDefault={(e) => auxSelectMon(i, e)}
               on:contextmenu|preventDefault={() => contextSelectMon(i)}
             >
               {#if statusList[i].includes(STATUS.SEEN) || statusList[i].includes(STATUS.OWNED)}
