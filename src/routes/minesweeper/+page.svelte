@@ -4,10 +4,11 @@
   import Button, { Label } from '@smui/button';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import TextField from '@smui/textfield';
-  import { NATIONAL_DEX } from '../../constants/pokedex';
-	import { randomizeArray } from '$lib/randomize';
 	import { convertTo2DArray, flatten2DArray } from '$lib/arrayConversion';
+  import { clickOutside } from '$lib/clickOutside';
+	import { randomizeArray } from '$lib/randomize';
 	import { EXPLOSION, MINE, STATUS } from '../../constants/minesweeper';
+  import { NATIONAL_DEX } from '../../constants/pokedex';
 
   const EXCAVATED_MINE_PENALTY = 15;
   const EXPLODED_MINE_PENALTY = 5;
@@ -95,6 +96,10 @@
 
   function onRandomizeMineSeed() {
     mineSeed = short.generate().substring(0, 12).toUpperCase();
+  }
+
+  function handleOutsideDexClick() {
+    selectedMonIndex = -1;
   }
 
   /**
@@ -600,7 +605,7 @@
   {#if mineList.length > 0}
     <div class="playArea">
       <div class="grid">
-        <div class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
+        <div use:clickOutside on:click_outside={handleOutsideDexClick} class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
           {#each monList as pokemon, i (pokemon.id)}
             <div
               class={`dex-mon ${
@@ -651,28 +656,28 @@
               {mineList[mineList.length - 1] || ''}
             </div>
           {/if}
-          <div class="below-grid">
-            <div>
-              <TextField
-                variant="outlined"
-                bind:value={searchTerm}
-                bind:this={searchInput}
-                on:blur={() => searchFocussed = false}
-                on:focus={() => searchFocussed = true}
-                on:keydown={searchKeyDown}
-                label="Dex Search"
-                style={'margin-top: 1rem'}
-              />
-            </div>
-            <div>
-              <p style="margin-left: 1.5rem;">
-                <b style="text-decoration: underline;">Shortcuts:</b><br />
-                <b>Right-Click:</b> Toggle Flagged/Safe status<br />
-                <b>Middle-Click:</b> Toggle Seen/Owned status<br />
-                <b>Typing:</b> Initiate grid search<br />
-                <b>ESC: </b> Clear search and selected mon<br />
-              </p>
-            </div>
+        </div>
+        <div class="below-grid">
+          <div>
+            <TextField
+              variant="outlined"
+              bind:value={searchTerm}
+              bind:this={searchInput}
+              on:blur={() => searchFocussed = false}
+              on:focus={() => searchFocussed = true}
+              on:keydown={searchKeyDown}
+              label="Dex Search"
+              style={'margin-top: 1rem'}
+            />
+          </div>
+          <div>
+            <p style="margin-left: 1.5rem;">
+              <b style="text-decoration: underline;">Shortcuts:</b><br />
+              <b>Right-Click:</b> Toggle Flagged/Safe status<br />
+              <b>Middle-Click:</b> Toggle Seen/Owned status<br />
+              <b>Typing:</b> Initiate grid search<br />
+              <b>ESC: </b> Clear search and selected mon<br />
+            </p>
           </div>
         </div>
       </div>
