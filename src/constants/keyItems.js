@@ -19,7 +19,7 @@ const KEY_ITEMS = [
   { id: 'escape_rope', name: 'Escape Rope', points: 5, vanillaRegion: 2 },
   { id: 'pokedex', name: 'Pokedex', points: 3, vanillaRegion: 1 },
   { id: 'unown_dex', name: 'Unown Dex', points: 3, vanillaRegion: 3 },
-  { id: 'bicycle', name: 'Bicycle', points: 3, vanillaRegion: 1 },
+  { id: 'bicycle', name: 'Bicycle', points: 3, vanillaRegion: 1 }, // assume we start with bike
   { id: 'town_map', name: 'Map Card', points: 3, vanillaRegion: 1 },
   { id: 'blue_card', name: 'Blue Card', points: 3, vanillaRegion: 5 },
   { id: 'coin_case', name: 'Coin Case', points: 3, vanillaRegion: 5 },

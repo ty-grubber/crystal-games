@@ -9,7 +9,7 @@
   let spoilerExtracted = false;
 
   /**
-	 * @type {{ regionId: number; points: number; items: string[]; }[]}
+	 * @type {{ regionId: number; points: number; items: any[]; }[]}
 	 */
   let regionPoints;
 
@@ -54,10 +54,21 @@
           <Row>
             <Cell>{rp.regionId}</Cell>
             <Cell>{rp.points}</Cell>
-            <Cell>{rp.items.join(', ')}</Cell>
+            <Cell>
+              {#each rp.items as item (item.id)}
+                <img src={`/keyItems/${item.id}.png`} alt={item.name} title={item.name} />
+              {/each}
+            </Cell>
           </Row>
         {/each}
       </Body>
     </DataTable>
   {/if}
 </div>
+
+<style>
+  img {
+    height: 32px;
+    width: 32px;
+  }
+</style>

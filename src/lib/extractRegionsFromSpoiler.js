@@ -54,7 +54,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedRegionId);
     regionPointsArray[matchedRPAIndex].points += item.points;
     // @ts-ignore
-    regionPointsArray[matchedRPAIndex].items.push(item.name);
+    regionPointsArray[matchedRPAIndex].items.push({ id: item.id, name: item.name });
   });
 
   return regionPointsArray;
