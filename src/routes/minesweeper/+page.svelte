@@ -434,8 +434,8 @@
     <Button color="secondary" on:click={openHowToDialog} variant="raised">
       <Label>How To Play</Label>
     </Button>
-    <Button color="secondary" href="/hunt" variant="outlined">
-      <Label>Rival Treasure Hunt</Label>
+    <Button color="secondary" href="/" variant="outlined">
+      <Label>Games Home</Label>
     </Button>
   {/if}
   {#if mineList.length > 0}

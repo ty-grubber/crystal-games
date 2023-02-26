@@ -16,6 +16,12 @@
     </Button>
     <p>Clear the minefield by using logic and catching Pokémon!</p>
   </div>
+  <div class="game-cell">
+    <Button color="primary" href="/points" variant="raised">
+      <Label>Points Hint Tracker</Label>
+    </Button>
+    <p>Streamline your randomizer by using a point location hint system!</p>
+  </div>
 </div>
 
 <style>
