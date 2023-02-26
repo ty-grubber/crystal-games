@@ -126,7 +126,7 @@
           <Head>
             <Row>
               <Cell>Region #</Cell>
-              <Cell>Total Points</Cell>
+              <Cell>Points Left</Cell>
               <Cell>Items Found</Cell>
               {#if showSolution}
                 <Cell>Solution</Cell>
@@ -136,8 +136,10 @@
           <Body>
             {#each regionPoints as rp, i (rp.regionId)}
               <Row>
-                  <Cell>{rp.regionId}</Cell>
-                  <Cell>{rp.points}</Cell>
+                  <Cell style="text-align: center; font-size: 24px;"><b>{rp.regionId}<b></b></Cell>
+                  <Cell style="text-align: center; font-size: 20px;">
+                    {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
+                  </Cell>
                   <Cell style="white-space: normal;">
                     <ul
                       class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
