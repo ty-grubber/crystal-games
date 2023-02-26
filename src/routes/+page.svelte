@@ -16,6 +16,7 @@
     </Button>
     <p>Clear the minefield by using logic and catching Pokémon!</p>
   </div>
+  <!-- TODO: Link to Points Tracker -->
 </div>
 
 <style>
