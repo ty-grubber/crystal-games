@@ -1,6 +1,6 @@
 const REGIONS = [
   { id: 1, name: 'Starting Area', locations: ['Elm', 'Pokegear', 'Cherrygrove', 'Mr. Pokemon', 'Map Card', 'Mystic Water', 'Oak'], routes: [29, 30, 31] },
-  { id: 2, name: 'Violet', locations: ['Violet', 'Sprout Tower', 'Rock Smash', 'Falkner', 'Miracle Seed', 'Old Rod'], routes: [32, 36] },
+  { id: 2, name: 'Violet', locations: ['Violet City', 'Violet Mart', 'Sprout Tower', 'Rock Smash Guy', 'Falkner', 'Miracle Seed', 'Old Rod'], routes: [32, 36] },
   { id: 3, name: 'Alph Ruins', locations: ['Ruins of Alph', 'Union Cave'], routes: [] },
   { id: 4, name: 'Azalea', locations: ['Azalea', 'Ilex', 'Slowpoke Well', 'Kurt', 'Bugsy', 'Charcoal', 'Headbutt', 'King\'s Rock'], routes: [33] },
   { id: 5, name: 'Goldenrod', locations: ['Goldenrod', 'National Park', 'Underground', 'Radio', 'Bike Shop', 'Buena', 'Department Store Basement', 'Flower Shop', 'Kenya', 'Bug Catching', 'Soft Sand', 'Sweet Scent', 'Whitney'], routes: [34, 35] },

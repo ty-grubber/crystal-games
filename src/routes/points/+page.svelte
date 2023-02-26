@@ -1,16 +1,28 @@
 <script>
+  import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
-
 
   /**
 	 * @type {File}
 	 */
   let spoilerFile;
   let spoilerExtracted = false;
-  let regionPoints = [];
 
-  $: if (spoilerFile && !spoilerExtracted) {
-    regionPoints = extractRegionsFromSpoiler(spoilerFile);
+  /**
+	 * @type {{ regionId: number; points: number; items: string[]; }[]}
+	 */
+  let regionPoints;
+
+  /**
+	 * @param {any} e
+	 */
+  async function handleSpoilerFileChange(e) {
+    const file = e.target.files[0];
+    if (file == null)
+        return; // If user cancels file selection
+
+    const spoilerText = await file.text();
+    regionPoints = extractRegionsFromSpoiler(spoilerText);
   }
 </script>
 
@@ -19,10 +31,33 @@
 
   <p>Under construction!</p>
 
-  <label for="many">Upload multiple files of any type:</label>
+  <label for="many">Upload spoiler file (.txt):</label>
   <input
-    bind:value={spoilerFile}
     id="spoiler"
+    accept=".txt"
     type="file"
+    on:change={handleSpoilerFileChange}
   />
+
+  {#if regionPoints?.length > 0}
+    <h2>Location Spoilers</h2>
+    <DataTable>
+      <Head>
+        <Row>
+          <Cell>Region #</Cell>
+          <Cell>Total Points</Cell>
+          <Cell>Items Here</Cell>
+        </Row>
+      </Head>
+      <Body>
+        {#each regionPoints as rp (rp.regionId)}
+          <Row>
+            <Cell>{rp.regionId}</Cell>
+            <Cell>{rp.points}</Cell>
+            <Cell>{rp.items.join(', ')}</Cell>
+          </Row>
+        {/each}
+      </Body>
+    </DataTable>
+  {/if}
 </div>

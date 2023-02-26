@@ -3,7 +3,7 @@ const KEY_ITEMS = [
   { id: 'radio_card', name: 'Radio Card', points: 7, vanillaRegion: 5 },
   { id: 'expn_card', name: 'Expansion Card', points: 7, vanillaRegion: 14 },
   { id: 'squirtbottle', name: 'Squirtbottle', points: 7, vanillaRegion: 2 },
-  { id: 'secretpotion', name: 'Secret Potion', points: 7, vanillaRegion: 8 },
+  { id: 'secretpotion', name: 'Secret Potion', points: 5, vanillaRegion: 8 },
   { id: 'card_key', name: 'Card Key', points: 5, vanillaRegion: 5 },
   { id: 'ss_ticket', name: 'S S Ticket', points: 7, vanillaRegion: 1 },
   { id: 'pass', name: 'Pass', points: 7, vanillaRegion: 13 },
