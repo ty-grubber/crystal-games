@@ -109,20 +109,21 @@
 <div class="page">
   <h1>Pokémon Crystal Points Tracker</h1>
 
-  <label for="many">Upload spoiler file (.txt):</label>
+  <label for="spoiler">Upload spoiler file (.txt):</label>
   <input
     id="spoiler"
     accept=".txt"
     type="file"
     on:change={handleSpoilerFileChange}
+    style="margin-right: 1rem;"
   />
+  <!-- Add How To Play dialog -->
+  <Button color="secondary" href="/" variant="outlined">
+    <Label>Games Home</Label>
+  </Button>
   <br /><br />
 
   {#if regionPoints?.length > 0}
-    <Button color="primary" variant="raised" on:click={handleShowSolution}>
-      <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
-    </Button>
-    <br /><br />
     <div class="grid-area">
       <div class="points-table">
         <DataTable>
@@ -172,6 +173,10 @@
             {/each}
           </Body>
         </DataTable>
+        <br /><br />
+        <Button color="primary" variant="raised" on:click={handleShowSolution}>
+          <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
+        </Button>
       </div>
       <div class="available-items">
         <DataTable style="width: 350px; margin-left: 3rem;">
