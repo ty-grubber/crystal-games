@@ -1,6 +1,7 @@
 <script>
 // @ts-nocheck
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
+  import Button, { Label } from '@smui/button';
   import { flip } from 'svelte/animate';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import { KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
@@ -9,34 +10,7 @@
   const availableItemsPointCellStyles = "width: 65px !important; padding: 5px; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 10px 0; width: 300px; white-space: normal;"
 
-  /**
-	 * @type {File}
-	 */
-  let spoilerFile;
-  let spoilerExtracted = false;
-
-  /**
-	 * @type {{ regionId: number; points: number; items: any[]; }[]}
-	 */
-  let regionPoints;
-
-  /**
-	 * @param {any} e
-	 */
-  async function handleSpoilerFileChange(e) {
-    const file = e.target.files[0];
-    if (file == null)
-        return; // If user cancels file selection
-
-    const spoilerText = await file.text();
-    regionPoints = extractRegionsFromSpoiler(spoilerText);
-  }
-
-  /**
-	 * @type {null | string}
-	 */
-  let hoveringOverBasket;
-  let baskets = [
+  const defaultBaskets = [
     { type: 'region', name: '1', items: []},
     { type: 'region', name: '2', items: []},
     { type: 'region', name: '3', items: []},
@@ -57,7 +31,35 @@
     { type: 'item', name: '7', items: KEY_ITEMS_7PTS},
     { type: 'item', name: '5', items: KEY_ITEMS_5PTS},
     { type: 'item', name: '3', items: KEY_ITEMS_3PTS},
-  ]
+  ];
+
+  /**
+	 * @type {{ regionId: number; points: number; items: any[]; }[]}
+	 */
+  let regionPoints;
+
+  /**
+   * @type {null | string}
+   */
+  let hoveringOverBasket;
+  let baskets = defaultBaskets;
+  let showSolution = false;
+
+  /**
+	 * @param {any} e
+	 */
+  async function handleSpoilerFileChange(e) {
+    const file = e.target.files[0];
+    if (file != null) {
+      const spoilerText = await file.text();
+      regionPoints = extractRegionsFromSpoiler(spoilerText);
+      baskets = defaultBaskets;
+    }
+  }
+
+  function handleShowSolution() {
+    showSolution = !showSolution;
+  }
 
 	/**
 	 * @param {DragEvent & { currentTarget: EventTarget & HTMLLIElement; }} event
@@ -84,6 +86,8 @@
 
       let targetBasket = baskets[basketIndex];
       const itemGettingDragged = baskets[origItemLocation.basketIndex].items[origItemLocation.itemIndex];
+
+      // Ensure items get dropped into correct available item basket
       if (targetBasket.type === 'item') {
         // Check if item is going into correct item basket and update target basket
         if (itemGettingDragged.points.toString() !== targetBasket.name) {
@@ -91,8 +95,7 @@
         }
       }
 
-      // Remove the item from one basket.
-      // Splice returns an array of the deleted elements, just one in this case.
+      // Remove the item from the original basket.
       const [item] = baskets[origItemLocation.basketIndex].items.splice(origItemLocation.itemIndex, 1);
 
       // Add the item to the drop target basket.
@@ -106,8 +109,6 @@
 
 <div class="page">
   <h1>Pokémon Crystal Points Tracker</h1>
-
-  <p>Under construction!</p>
 
   <label for="many">Upload spoiler file (.txt):</label>
   <input
@@ -126,8 +127,10 @@
             <Row>
               <Cell>Region #</Cell>
               <Cell>Total Points</Cell>
-              <Cell>Items Here</Cell>
-              <Cell>Solution</Cell>
+              <Cell>Items Found</Cell>
+              {#if showSolution}
+                <Cell>Solution</Cell>
+              {/if}
             </Row>
           </Head>
           <Body>
@@ -135,7 +138,7 @@
               <Row>
                   <Cell>{rp.regionId}</Cell>
                   <Cell>{rp.points}</Cell>
-                  <Cell>
+                  <Cell style="white-space: normal;">
                     <ul
                       class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
                       on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
@@ -153,11 +156,13 @@
                       {/each}
                     </ul>
                   </Cell>
-                  <Cell>
-                    {#each rp.items as item (item.id)}
-                      <img src={`/keyItems/${item.id}.png`} alt={item.name} title={item.name} />
-                    {/each}
-                  </Cell>
+                  {#if showSolution}
+                    <Cell>
+                      {#each rp.items as item (item.id)}
+                        <img src={`/keyItems/${item.id}.png`} alt={item.name} title={item.name} />
+                      {/each}
+                    </Cell>
+                  {/if}
               </Row>
             {/each}
           </Body>
@@ -193,6 +198,10 @@
         </DataTable>
       </div>
     </div>
+    <br /><br />
+    <Button color="primary" variant="raised" on:click={handleShowSolution}>
+      <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
+    </Button>
   {/if}
 </div>
 
@@ -214,6 +223,10 @@
     min-height: 32px;
     padding: 4px 0 0;
 	}
+
+  .points-table ul {
+    width: 200px;
+  }
 
   img {
     height: 32px;
