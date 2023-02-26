@@ -2,7 +2,6 @@
 // @ts-nocheck
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import Button, { Label } from '@smui/button';
-  import { flip } from 'svelte/animate';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import { KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
 	import REGIONS from '../../constants/regions';
@@ -120,12 +119,16 @@
   <br /><br />
 
   {#if regionPoints?.length > 0}
+    <Button color="primary" variant="raised" on:click={handleShowSolution}>
+      <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
+    </Button>
+    <br /><br />
     <div class="grid-area">
       <div class="points-table">
         <DataTable>
           <Head>
             <Row>
-              <Cell>Region #</Cell>
+              <Cell>Region</Cell>
               <Cell>Points Left</Cell>
               <Cell>Items Found</Cell>
               {#if showSolution}
@@ -136,7 +139,7 @@
           <Body>
             {#each regionPoints as rp, i (rp.regionId)}
               <Row>
-                  <Cell style="text-align: center; font-size: 24px;"><b>{rp.regionId}<b></b></Cell>
+                  <Cell style="font-size: 18px;"><b>{rp.regionId} - {rp.name}<b></b></Cell>
                   <Cell style="text-align: center; font-size: 20px;">
                     {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
                   </Cell>
@@ -153,7 +156,7 @@
                           draggable={true}
                           on:dragstart={event => dragStart(event, i, itemIndex)}
                         >
-                          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={item.name} />
+                          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
                         </li>
                       {/each}
                     </ul>
@@ -161,7 +164,7 @@
                   {#if showSolution}
                     <Cell>
                       {#each rp.items as item (item.id)}
-                        <img src={`/keyItems/${item.id}.png`} alt={item.name} title={item.name} />
+                        <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
                       {/each}
                     </Cell>
                   {/if}
@@ -189,7 +192,7 @@
                         draggable={true}
                         on:dragstart={event => dragStart(event, REGIONS.length + basketIndex, itemIndex)}
                       >
-                        <img src={`/keyItems/${item.id}.png`} alt={item.name} title={item.name} />
+                        <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
                       </li>
                     {/each}
                   </ul>
@@ -198,12 +201,18 @@
             {/each}
           </Body>
         </DataTable>
+        <br /><br />
+        <h2>Region List</h2>
+        <ol>
+          {#each REGIONS as region (region.id)}
+            <li>
+              <b>{region.id}:</b> {region.description}
+            </li>
+            <br />
+          {/each}
+        </ol>
       </div>
     </div>
-    <br /><br />
-    <Button color="primary" variant="raised" on:click={handleShowSolution}>
-      <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
-    </Button>
   {/if}
 </div>
 
@@ -233,5 +242,13 @@
   img {
     height: 32px;
     width: 32px;
+  }
+
+  .available-items h2 {
+    margin-left: 3rem;
+  }
+
+  .available-items ol {
+    padding-left: 4rem;
   }
 </style>

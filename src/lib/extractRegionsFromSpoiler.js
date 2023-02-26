@@ -5,7 +5,7 @@ import REGIONS from '../constants/regions';
  * @param {string} spoilerFileText
  */
 function extractRegionsFromSpoiler(spoilerFileText) {
-  const regionPointsArray = REGIONS.map(region => ({ regionId: region.id, points: 0, items: [] }));
+  const regionPointsArray = REGIONS.map(region => ({ regionId: region.id, name: region.name, points: 0, items: [] }));
 
   const spoilerLines = spoilerFileText.split('\r\n');
   const solutionStartIndex = spoilerLines.findIndex(line => line.includes('Solution:'));
@@ -54,7 +54,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedRegionId);
     regionPointsArray[matchedRPAIndex].points += item.points;
     // @ts-ignore
-    regionPointsArray[matchedRPAIndex].items.push({ id: item.id, name: item.name });
+    regionPointsArray[matchedRPAIndex].items.push({ id: item.id, name: item.name, points: item.points });
   });
 
   return regionPointsArray;
