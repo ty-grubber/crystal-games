@@ -4,34 +4,11 @@
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Button, { Label } from '@smui/button';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
-	import { KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
 	import REGIONS from '../../constants/regions';
+	import { KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
 
   const availableItemsPointCellStyles = "width: 65px !important; padding: 5px; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 10px 0; width: 300px; white-space: normal;"
-
-  const defaultBaskets = [
-    { type: 'region', name: '1', items: []},
-    { type: 'region', name: '2', items: []},
-    { type: 'region', name: '3', items: []},
-    { type: 'region', name: '4', items: []},
-    { type: 'region', name: '5', items: []},
-    { type: 'region', name: '6', items: []},
-    { type: 'region', name: '7', items: []},
-    { type: 'region', name: '8', items: []},
-    { type: 'region', name: '9', items: []},
-    { type: 'region', name: '10', items: []},
-    { type: 'region', name: '11', items: []},
-    { type: 'region', name: '12', items: []},
-    { type: 'region', name: '13', items: []},
-    { type: 'region', name: '14', items: []},
-    { type: 'region', name: '15', items: []},
-    { type: 'region', name: '16', items: []},
-    { type: 'item', name: '9', items: KEY_ITEMS_9PTS},
-    { type: 'item', name: '7', items: KEY_ITEMS_7PTS},
-    { type: 'item', name: '5', items: KEY_ITEMS_5PTS},
-    { type: 'item', name: '3', items: KEY_ITEMS_3PTS},
-  ];
 
   /**
 	 * @type {{ regionId: number; points: number; items: any[]; }[]}
@@ -42,7 +19,7 @@
    * @type {null | string}
    */
   let hoveringOverBasket;
-  let baskets = defaultBaskets;
+  let baskets = [];
   let showSolution = false;
   let howToDialogOpen = false;
 
@@ -52,9 +29,43 @@
   async function handleSpoilerFileChange(e) {
     const file = e.target.files[0];
     if (file != null) {
+      const newBaskets = [
+        { type: 'region', name: '1', items: []},
+        { type: 'region', name: '2', items: []},
+        { type: 'region', name: '3', items: []},
+        { type: 'region', name: '4', items: []},
+        { type: 'region', name: '5', items: []},
+        { type: 'region', name: '6', items: []},
+        { type: 'region', name: '7', items: []},
+        { type: 'region', name: '8', items: []},
+        { type: 'region', name: '9', items: []},
+        { type: 'region', name: '10', items: []},
+        { type: 'region', name: '11', items: []},
+        { type: 'region', name: '12', items: []},
+        { type: 'region', name: '13', items: []},
+        { type: 'region', name: '14', items: []},
+        { type: 'region', name: '15', items: []},
+        { type: 'region', name: '16', items: []},
+        { type: 'item', name: '9', items: KEY_ITEMS_9PTS},
+        { type: 'item', name: '7', items: KEY_ITEMS_7PTS},
+        { type: 'item', name: '5', items: KEY_ITEMS_5PTS},
+        { type: 'item', name: '3', items: KEY_ITEMS_3PTS},
+      ];
       const spoilerText = await file.text();
-      regionPoints = extractRegionsFromSpoiler(spoilerText);
-      baskets = defaultBaskets;
+      const extraction = extractRegionsFromSpoiler(spoilerText);
+      regionPoints = extraction.regionPointsArray;
+
+      // Check if we have extra items to add to the starting buckets
+      if (extraction.extraItems.length > 0) {
+        extraction.extraItems.forEach(item => {
+          const extraItemBasket = newBaskets.find(basket => basket.type === 'item' && basket.name === item.points.toString());
+          // Place extra item beside its duplicate in the basket
+          const placementIndex = extraItemBasket.items.findIndex(defaultItem => defaultItem.id === item.id);
+          extraItemBasket.items.splice(placementIndex, 0, item);
+        });
+      }
+
+      baskets = newBaskets;
     }
   }
 
@@ -202,7 +213,7 @@
                       on:drop={event => drop(event, i)}
                       ondragover="return false;"
                     >
-                      {#each baskets[i].items as item, itemIndex (item)}
+                      {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
                         <li
                           draggable={true}
                           on:dragstart={event => dragStart(event, i, itemIndex)}
@@ -214,7 +225,7 @@
                   </Cell>
                   {#if showSolution}
                     <Cell>
-                      {#each rp.items as item (item.id)}
+                      {#each rp.items as item, itemIndex (`${item.id}_${itemIndex}`)}
                         <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
                       {/each}
                     </Cell>
@@ -242,7 +253,7 @@
                     on:drop={event => drop(event, REGIONS.length + basketIndex)}
                     ondragover="return false;"
                   >
-                    {#each basket.items as item, itemIndex (item)}
+                    {#each basket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
                       <li
                         draggable={true}
                         on:dragstart={event => dragStart(event, REGIONS.length + basketIndex, itemIndex)}
