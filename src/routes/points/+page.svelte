@@ -46,10 +46,10 @@
         { type: 'region', name: '14', items: []},
         { type: 'region', name: '15', items: []},
         { type: 'region', name: '16', items: []},
-        { type: 'item', name: '9', items: KEY_ITEMS_9PTS},
-        { type: 'item', name: '7', items: KEY_ITEMS_7PTS},
-        { type: 'item', name: '5', items: KEY_ITEMS_5PTS},
-        { type: 'item', name: '3', items: KEY_ITEMS_3PTS},
+        { type: 'item', name: '9', items: KEY_ITEMS_9PTS.map(item => item)}, // use mapping so we don't overwrite array
+        { type: 'item', name: '7', items: KEY_ITEMS_7PTS.map(item => item)},
+        { type: 'item', name: '5', items: KEY_ITEMS_5PTS.map(item => item)},
+        { type: 'item', name: '3', items: KEY_ITEMS_3PTS.map(item => item)},
       ];
       const spoilerText = await file.text();
       const extraction = extractRegionsFromSpoiler(spoilerText);
