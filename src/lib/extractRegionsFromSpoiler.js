@@ -49,7 +49,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
         const [location] = itemSpoilerLines[i].split(':');
         matchedRegionIds.push(REGIONS.find(region => (
           region.locations.filter(l => location.includes(l)).length > 0 ||
-          region.routes.filter(r => location.includes(r.toString())).length > 0
+          region.routes.filter(r => location.includes(`Route ${r.toString()} `)).length > 0
         ))?.id);
       }
 
