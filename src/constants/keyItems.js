@@ -31,7 +31,6 @@ export const KEY_ITEMS_7PTS = [
   { id: 'hm05', name: 'Flash', points: 7, vanillaRegion: 2 },
   { id: 'hm06', name: 'Whirlpool', points: 7, vanillaRegion: 10 },
   { id: 'hm07', name: 'Waterfall', points: 7, vanillaRegion: 11 },
-  { id: 'tm08', name: 'Rock Smash', points: 7, vanillaRegion: 2 },
 ];
 
 export const KEY_ITEMS_5PTS = [
@@ -45,7 +44,7 @@ export const KEY_ITEMS_5PTS = [
   { id: 'red_scale', name: 'Red Scale', points: 5, vanillaRegion: 10 },
   { id: 'mystery_egg', name: 'Mystery Egg', points: 5, vanillaRegion: 1 },
   { id: 'water_stone', name: 'Water Stone', points: 5, vanillaRegion: 5 },
-  { id: 'escape_rope', name: 'Escape Rope', points: 5, vanillaRegion: 2 },
+  { id: 'tm08', name: 'Rock Smash', points: 5, vanillaRegion: 2 },
 ];
 
 export const KEY_ITEMS_3PTS = [
@@ -60,6 +59,7 @@ export const KEY_ITEMS_3PTS = [
   { id: 'old_rod', name: 'Old Rod', points: 3, vanillaRegion: 2 },
   { id: 'good_rod', name: 'Good Rod', points: 3, vanillaRegion: 7 },
   { id: 'super_rod', name: 'Super Rod', points: 3, vanillaRegion: 14 },
+  { id: 'tm28', name: 'TM Dig', points: 3, vanillaRegion: 5 },
 ];
 
 export default KEY_ITEMS_9PTS.concat(KEY_ITEMS_7PTS, KEY_ITEMS_5PTS, KEY_ITEMS_3PTS);

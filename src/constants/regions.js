@@ -5,7 +5,7 @@ const REGIONS = [
   { id: 4, name: 'Azalea', locations: ['Azalea', 'Ilex', 'Slowpoke Well', 'Kurt', 'Bugsy', 'Charcoal', 'Headbutt', 'King\'s Rock'], routes: [33], description: 'Azalea, Ilex + Rt 33' },
   { id: 5, name: 'Goldenrod', locations: ['Goldenrod', 'National Park', 'Underground', 'Radio', 'Bike Shop', 'Buena', 'Department Store Basement', 'Flower Shop', 'Kenya', 'Bug Catching', 'Soft Sand', 'Sweet Scent', 'Whitney'], routes: [34, 35], description: 'Goldenrod, National Park + Rts 34, 35' },
   { id: 6, name: 'Ecruteak', locations: ['Ecruteak', 'Tin Tower', 'Burned Tower', 'Dance Theatre', 'Itemfinder', 'Morty', 'Rainbow Wing'], routes: [37], description: 'Ecruteak + Rt 37' },
-  { id: 7, name: 'Olivine', locations: ['Olivine', 'SS Aqua', 'Good Rod Guru', 'Lighthouse', 'Jasmine'], routes: [38, 39, 40], description: 'Olivine + Rts 39, 40' },
+  { id: 7, name: 'Olivine', locations: ['Olivine', 'SS Aqua', 'Good Rod Guru', 'Lighthouse', 'Jasmine'], routes: [38, 39, 40], description: 'Olivine + Rts 38-40' },
   { id: 8, name: 'Cianwood', locations: ['Cianwood', 'Whirl Islands', 'Chuck', 'Secret Potion'], routes: [41], description: 'Cianwood, Whirl Islands + Rt 41' },
   { id: 9, name: 'Mt. Mortar', locations: ['Mt Mortar'], routes: [42], description: 'Mt. Mortar + Rt 42' },
   { id: 10, name: 'Mahogany', locations: ['Mahogany', 'Lake of Rage', 'Rocket Base', 'Pryce', 'Red Scale'], routes: [43], description: 'Mahogany, Lake of Rage + Rt 43' },
