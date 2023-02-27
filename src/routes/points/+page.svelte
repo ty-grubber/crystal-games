@@ -53,8 +53,21 @@
     const file = e.target.files[0];
     if (file != null) {
       const spoilerText = await file.text();
-      regionPoints = extractRegionsFromSpoiler(spoilerText);
-      baskets = defaultBaskets;
+      const extraction = extractRegionsFromSpoiler(spoilerText);
+      regionPoints = extraction.regionPointsArray;
+
+      // Check if we have extra items to add to the starting buckets
+      if (extraction.extraItems.length === 0) {
+        baskets = defaultBaskets;
+      } else {
+        extraction.extraItems.forEach(item => {
+          const extraItemBasket = defaultBaskets.find(basket => basket.type === 'item' && basket.name === item.points.toString());
+          // Place extra item beside its duplicate in the basket
+          const placementIndex = extraItemBasket.items.findIndex(defaultItem => defaultItem.id === item.id);
+          extraItemBasket.items.splice(placementIndex, 0, item);
+        });
+        baskets = defaultBaskets;
+      }
     }
   }
 
@@ -202,7 +215,7 @@
                       on:drop={event => drop(event, i)}
                       ondragover="return false;"
                     >
-                      {#each baskets[i].items as item, itemIndex (item)}
+                      {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
                         <li
                           draggable={true}
                           on:dragstart={event => dragStart(event, i, itemIndex)}
@@ -214,7 +227,7 @@
                   </Cell>
                   {#if showSolution}
                     <Cell>
-                      {#each rp.items as item (item.id)}
+                      {#each rp.items as item, itemIndex (`${item.id}_${itemIndex}`)}
                         <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
                       {/each}
                     </Cell>
@@ -242,7 +255,7 @@
                     on:drop={event => drop(event, REGIONS.length + basketIndex)}
                     ondragover="return false;"
                   >
-                    {#each basket.items as item, itemIndex (item)}
+                    {#each basket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
                       <li
                         draggable={true}
                         on:dragstart={event => dragStart(event, REGIONS.length + basketIndex, itemIndex)}
