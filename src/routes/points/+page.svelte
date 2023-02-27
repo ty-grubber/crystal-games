@@ -149,11 +149,11 @@
         The Points Hint Tracker is a different way to play your Pokémon Crystal Randomizer as it gives you hints as to where Key Items are located in your ROM. This tracker handles any logic settings, including Shopsanity and Nightmare modes, but it does assume that your goal is to beat Red.
       </p>
 
-      <p>In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer v7.1.13. The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. Each key item has been assigned a point value based on its usefulness to defeating Red:</p>
+      <p>In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer v7.1.13. The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:</p>
       <ul>
         <li><b>9 Points:</b> Badges</li>
-        <li><b>7 Points:</b> HMs, Rock Smash, and PokéGear Items (excluding Map Card)</li>
-        <li><b>5 Points:</b> Any other Key Item that unlocks additional checks, like Escape Rope or Basement Key</li>
+        <li><b>7 Points:</b> HMs and PokéGear Items (excluding Map Card)</li>
+        <li><b>5 Points:</b> Any other Key Item that unlocks additional checks, like Escape Rope, Rock Smash, or Basement Key</li>
         <li><b>3 Points:</b> Useless Key Items that don't provide checks, like Silver Wing, Blue Card, or Rods</li>
       </ul>
 
