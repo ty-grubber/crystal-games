@@ -220,6 +220,7 @@
                     >
                       {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
                         <li
+                          class="draggableIcon"
                           draggable={true}
                           on:dragstart={event => dragStart(event, i, itemIndex)}
                         >
@@ -239,7 +240,24 @@
             {/each}
           </Body>
         </DataTable>
-        <br /><br />
+        <br />
+        <b>Points Remaining Cheat Sheet:</b>
+        <ol start="6" type="1" class="points-cheat-sheet">
+          <li>3+3</li>
+          <li>7</li>
+          <li>3+5</li>
+          <li>3*3 or 9</li>
+          <li>5+5 or 3+7</li>
+          <li>3+3+5</li>
+          <li>3*4 | 3+9 | 5+7</li>
+          <li>3+3+7 | 3+5+5</li>
+          <li>3+3+3+5 | 5+9 | 7+7</li>
+          <li>3*5 | 3+3+9 | 3+5+7 | 5*3</li>
+          <li>3+3+3+7 | 3+3+5+5 | 7+9</li>
+          <li>3+3+3+3+5 | 3+5+9 | 3+7+7 | or 5+5+7</li>
+          <li>3*6 | 3+3+3+9 | 3+5+5+5 | 3+3+5+7 | 9+9</li>
+          <li>3+3+3+3+7 | 3+3+3+5+5 | 3+7+9 | 5+5+9 | 5+7+7</li>
+        </ol>
         <Button color="primary" variant="raised" on:click={handleShowSolution}>
           <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
         </Button>
@@ -260,6 +278,7 @@
                   >
                     {#each basket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
                       <li
+                        class="draggableIcon"
                         draggable={true}
                         on:dragstart={event => dragStart(event, REGIONS.length + basketIndex, itemIndex)}
                       >
@@ -310,7 +329,7 @@
   .hovering {
 		background-color: lightgrey;
 	}
-	.grid-area li {
+	.grid-area li.draggableIcon {
 		cursor: grab;
 		display: inline-block;
 	}
@@ -329,6 +348,19 @@
     height: 32px;
     width: 32px;
   }
+
+  .points-cheat-sheet {
+    columns: 2;
+    -webkit-columns: 2;
+    -moz-columns: 2;
+    margin-top: 8px;
+    max-width: 450px;
+  }
+
+  .points-cheat-sheet > li::marker {
+    font-weight: bold;
+  }
+
 
   .references {
     padding-left: 3rem;
