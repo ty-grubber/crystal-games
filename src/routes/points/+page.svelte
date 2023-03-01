@@ -22,6 +22,7 @@
   let baskets = [];
   let showSolution = false;
   let howToDialogOpen = false;
+  let mapSelected = 'johto';
 
   /**
 	 * @param {any} e
@@ -268,15 +269,30 @@
           </Body>
         </DataTable>
         <br /><br />
-        <h2>Region List</h2>
-        <ol>
-          {#each REGIONS as region (region.id)}
-            <li>
-              <b>{region.id}:</b> {region.description}
-            </li>
-            <br />
-          {/each}
-        </ol>
+        <div class="references">
+          <Button color="primary" on:click={() => mapSelected = 'johto'} style={`text-decoration: ${mapSelected === 'johto' ? 'underline' : 'none'}`}>
+            <Label>Johto</Label>
+          </Button>
+          <Button color="primary" on:click={() => mapSelected = 'kanto'} style={`text-decoration: ${mapSelected === 'kanto' ? 'underline' : 'none'}`}>
+            <Label>Kanto</Label>
+          </Button>
+          <Button color="primary" on:click={() => mapSelected = 'text'} style={`text-decoration: ${mapSelected === 'text' ? 'underline' : 'none'}`}>
+            <Label>Text</Label>
+          </Button>
+          <br />
+          {#if mapSelected === 'text'}
+            <ol>
+              {#each REGIONS as region (region.id)}
+                <li>
+                  <b>{region.id}:</b> {region.description}
+                </li>
+                <br />
+              {/each}
+            </ol>
+          {:else}
+            <img src={`/maps/${mapSelected}-points-region-map.png`} alt={`Points region map of ${mapSelected}`} />
+          {/if}
+        </div>
       </div>
     </div>
   {/if}
@@ -310,11 +326,17 @@
     width: 32px;
   }
 
-  .available-items h2 {
-    margin-left: 3rem;
+  .references {
+    padding-left: 3rem;
   }
 
-  .available-items ol {
-    padding-left: 4rem;
+  .references ol {
+    margin-top: 0;
+    padding-left: 0;
+  }
+
+  .references img {
+    height: auto;
+    width: 375px;
   }
 </style>
