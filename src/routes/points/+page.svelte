@@ -125,9 +125,13 @@
 </script>
 
 <div class="page">
-  <h1>Pokémon Crystal Points Tracker (for Item Randomizer v7.1.13)</h1>
+  {#if !regionPoints}
+    <h1>Pokémon Crystal Points Tracker (for Item Randomizer v7.1.13)</h1>
+  {/if}
 
-  <label for="spoiler">Upload spoiler file (.txt):</label>
+  <label for="spoiler">
+    {!regionPoints ? 'Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
+  </label>
   <input
     id="spoiler"
     accept=".txt"
