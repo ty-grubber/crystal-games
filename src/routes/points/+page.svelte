@@ -10,6 +10,17 @@
   const availableItemsPointCellStyles = "width: 65px !important; padding: 5px; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 10px 0; width: 300px; white-space: normal;"
 
+  const regionColors = [
+    '#000000',
+    '#e69f00',
+    '#56b4e9',
+    '#f0e442',
+    '#009e73',
+    '#0072b2',
+    '#d55e00',
+    '#cc79a7',
+  ];
+
   /**
 	 * @type {{ regionId: number; points: number; items: any[]; }[]}
 	 */
@@ -22,6 +33,7 @@
   let baskets = [];
   let showSolution = false;
   let howToDialogOpen = false;
+  let mapSelected = 'johto';
 
   /**
 	 * @param {any} e
@@ -124,9 +136,13 @@
 </script>
 
 <div class="page">
-  <h1>Pokémon Crystal Points Tracker (for Item Randomizer v7.1.13)</h1>
+  {#if !regionPoints}
+    <h1>Pokémon Crystal Points Tracker (for Item Randomizer v7.1.13)</h1>
+  {/if}
 
-  <label for="spoiler">Upload spoiler file (.txt):</label>
+  <label for="spoiler">
+    {!regionPoints ? 'Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
+  </label>
   <input
     id="spoiler"
     accept=".txt"
@@ -201,7 +217,9 @@
           <Body>
             {#each regionPoints as rp, i (rp.regionId)}
               <Row>
-                  <Cell style="font-size: 18px;"><b>{rp.regionId} - {rp.name}<b></b></Cell>
+                  <Cell style={`font-size: 16px; font-weight: bold`}>
+                    <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
+                  </Cell>
                   <Cell style="text-align: center; font-size: 20px;">
                     {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
                   </Cell>
@@ -215,6 +233,7 @@
                     >
                       {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
                         <li
+                          class="draggableIcon"
                           draggable={true}
                           on:dragstart={event => dragStart(event, i, itemIndex)}
                         >
@@ -234,7 +253,24 @@
             {/each}
           </Body>
         </DataTable>
-        <br /><br />
+        <br />
+        <b>Points Remaining Cheat Sheet:</b>
+        <ol start="6" type="1" class="points-cheat-sheet">
+          <li>3+3</li>
+          <li>7</li>
+          <li>3+5</li>
+          <li>3*3 or 9</li>
+          <li>5+5 or 3+7</li>
+          <li>3+3+5</li>
+          <li>3*4 | 3+9 | 5+7</li>
+          <li>3+3+7 | 3+5+5</li>
+          <li>3+3+3+5 | 5+9 | 7+7</li>
+          <li>3*5 | 3+3+9 | 3+5+7 | 5*3</li>
+          <li>3+3+3+7 | 3+3+5+5 | 7+9</li>
+          <li>3+3+3+3+5 | 3+5+9 | 3+7+7 | or 5+5+7</li>
+          <li>3*6 | 3+3+3+9 | 3+5+5+5 | 3+3+5+7 | 9+9</li>
+          <li>3+3+3+3+7 | 3+3+3+5+5 | 3+7+9 | 5+5+9 | 5+7+7</li>
+        </ol>
         <Button color="primary" variant="raised" on:click={handleShowSolution}>
           <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
         </Button>
@@ -255,6 +291,7 @@
                   >
                     {#each basket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
                       <li
+                        class="draggableIcon"
                         draggable={true}
                         on:dragstart={event => dragStart(event, REGIONS.length + basketIndex, itemIndex)}
                       >
@@ -268,15 +305,30 @@
           </Body>
         </DataTable>
         <br /><br />
-        <h2>Region List</h2>
-        <ol>
-          {#each REGIONS as region (region.id)}
-            <li>
-              <b>{region.id}:</b> {region.description}
-            </li>
-            <br />
-          {/each}
-        </ol>
+        <div class="references">
+          <Button color="primary" on:click={() => mapSelected = 'johto'} style={`text-decoration: ${mapSelected === 'johto' ? 'underline' : 'none'}`}>
+            <Label>Johto</Label>
+          </Button>
+          <Button color="primary" on:click={() => mapSelected = 'kanto'} style={`text-decoration: ${mapSelected === 'kanto' ? 'underline' : 'none'}`}>
+            <Label>Kanto</Label>
+          </Button>
+          <Button color="primary" on:click={() => mapSelected = 'text'} style={`text-decoration: ${mapSelected === 'text' ? 'underline' : 'none'}`}>
+            <Label>Text</Label>
+          </Button>
+          <br />
+          {#if mapSelected === 'text'}
+            <ol>
+              {#each REGIONS as region (region.id)}
+                <li>
+                  <b>{region.id}:</b> {region.description}
+                </li>
+                <br />
+              {/each}
+            </ol>
+          {:else}
+            <img src={`/maps/${mapSelected}-points-region-map.png`} alt={`Points region map of ${mapSelected}`} />
+          {/if}
+        </div>
       </div>
     </div>
   {/if}
@@ -290,7 +342,7 @@
   .hovering {
 		background-color: lightgrey;
 	}
-	.grid-area li {
+	.grid-area li.draggableIcon {
 		cursor: grab;
 		display: inline-block;
 	}
@@ -310,11 +362,30 @@
     width: 32px;
   }
 
-  .available-items h2 {
-    margin-left: 3rem;
+  .points-cheat-sheet {
+    columns: 2;
+    -webkit-columns: 2;
+    -moz-columns: 2;
+    margin-top: 8px;
+    max-width: 450px;
   }
 
-  .available-items ol {
-    padding-left: 4rem;
+  .points-cheat-sheet > li::marker {
+    font-weight: bold;
+  }
+
+
+  .references {
+    padding-left: 3rem;
+  }
+
+  .references ol {
+    margin-top: 0;
+    padding-left: 0;
+  }
+
+  .references img {
+    height: auto;
+    width: 375px;
   }
 </style>
