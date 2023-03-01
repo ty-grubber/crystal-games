@@ -10,6 +10,17 @@
   const availableItemsPointCellStyles = "width: 65px !important; padding: 5px; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 10px 0; width: 300px; white-space: normal;"
 
+  const regionColors = [
+    '#000000',
+    '#e69f00',
+    '#56b4e9',
+    '#f0e442',
+    '#009e73',
+    '#0072b2',
+    '#d55e00',
+    '#cc79a7',
+  ];
+
   /**
 	 * @type {{ regionId: number; points: number; items: any[]; }[]}
 	 */
@@ -206,7 +217,9 @@
           <Body>
             {#each regionPoints as rp, i (rp.regionId)}
               <Row>
-                  <Cell style="font-size: 18px;"><b>{rp.regionId} - {rp.name}<b></b></Cell>
+                  <Cell style={`font-size: 16px; font-weight: bold`}>
+                    <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
+                  </Cell>
                   <Cell style="text-align: center; font-size: 20px;">
                     {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
                   </Cell>
