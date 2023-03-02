@@ -253,24 +253,7 @@
             {/each}
           </Body>
         </DataTable>
-        <br />
-        <b>Points Remaining Cheat Sheet:</b>
-        <ol start="6" type="1" class="points-cheat-sheet">
-          <li>3+3</li>
-          <li>7</li>
-          <li>3+5</li>
-          <li>3*3 or 9</li>
-          <li>5+5 or 3+7</li>
-          <li>3+3+5</li>
-          <li>3*4 | 3+9 | 5+7</li>
-          <li>3+3+7 | 3+5+5</li>
-          <li>3+3+3+5 | 5+9 | 7+7</li>
-          <li>3*5 | 3+3+9 | 3+5+7 | 5*3</li>
-          <li>3+3+3+7 | 3+3+5+5 | 7+9</li>
-          <li>3+3+3+3+5 | 3+5+9 | 3+7+7 | or 5+5+7</li>
-          <li>3*6 | 3+3+3+9 | 3+5+5+5 | 3+3+5+7 | 9+9</li>
-          <li>3+3+3+3+7 | 3+3+3+5+5 | 3+7+9 | 5+5+9 | 5+7+7</li>
-        </ol>
+        <br /><br />
         <Button color="primary" variant="raised" on:click={handleShowSolution}>
           <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
         </Button>
@@ -306,24 +289,43 @@
         </DataTable>
         <br /><br />
         <div class="references">
+          <b style="font-size:18px;">References</b>
+          <br />
           <Button color="primary" on:click={() => mapSelected = 'johto'} style={`text-decoration: ${mapSelected === 'johto' ? 'underline' : 'none'}`}>
-            <Label>Johto</Label>
+            <Label>Johto Map</Label>
           </Button>
           <Button color="primary" on:click={() => mapSelected = 'kanto'} style={`text-decoration: ${mapSelected === 'kanto' ? 'underline' : 'none'}`}>
-            <Label>Kanto</Label>
+            <Label>Kanto Map</Label>
           </Button>
           <Button color="primary" on:click={() => mapSelected = 'text'} style={`text-decoration: ${mapSelected === 'text' ? 'underline' : 'none'}`}>
-            <Label>Text</Label>
+            <Label>Text Regions</Label>
+          </Button>
+          <Button color="primary" on:click={() => mapSelected = 'points'} style={`text-decoration: ${mapSelected === 'points' ? 'underline' : 'none'}`}>
+            <Label>Point Sums</Label>
           </Button>
           <br />
           {#if mapSelected === 'text'}
-            <ol>
+            <ol start="1" type="1">
               {#each REGIONS as region (region.id)}
-                <li>
-                  <b>{region.id}:</b> {region.description}
-                </li>
-                <br />
+                <li>{region.description}</li>
               {/each}
+            </ol>
+          {:else if mapSelected === 'points'}
+            <ol start="6" type="1" class="points-cheat-sheet">
+              <li>= 3+3</li>
+              <li>= 7</li>
+              <li>= 3+5</li>
+              <li>= 3*3 | 9</li>
+              <li>= 5+5 | 3+7</li>
+              <li>= 3+3+5</li>
+              <li>= 3*4 | 3+9 | 5+7</li>
+              <li>= 3+3+7 | 3+5+5</li>
+              <li>= 3+3+3+5 | 5+9 | 7+7</li>
+              <li>= 3*5 | 3+3+9 | 3+5+7 | 5*3</li>
+              <li>= 3+3+3+7 | 3+3+5+5 | 7+9</li>
+              <li>= 3+3+3+3+5 | 3+5+9 | 3+7+7 | or 5+5+7</li>
+              <li>= 3*6 | 3+3+3+9 | 3+5+5+5 | 3+3+5+7 | 9+9</li>
+              <li>= 3+3+3+3+7 | 3+3+3+5+5 | 3+7+9 | 5+5+9 | 5+7+7</li>
             </ol>
           {:else}
             <img src={`/maps/${mapSelected}-points-region-map.png`} alt={`Points region map of ${mapSelected}`} />
@@ -363,14 +365,11 @@
   }
 
   .points-cheat-sheet {
-    columns: 2;
-    -webkit-columns: 2;
-    -moz-columns: 2;
     margin-top: 8px;
     max-width: 450px;
   }
 
-  .points-cheat-sheet > li::marker {
+  ol > li::marker {
     font-weight: bold;
   }
 
