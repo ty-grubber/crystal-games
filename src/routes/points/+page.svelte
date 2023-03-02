@@ -5,7 +5,7 @@
   import Button, { Label } from '@smui/button';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
-	import { KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
+	import { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
 
   const availableItemsPointCellStyles = "width: 65px !important; padding: 5px; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 10px 0; width: 300px; white-space: normal;"
@@ -41,6 +41,26 @@
   async function handleSpoilerFileChange(e) {
     const file = e.target.files[0];
     if (file != null) {
+      const spoilerText = await file.text();
+
+      const extraction = extractRegionsFromSpoiler(spoilerText);
+      regionPoints = extraction.regionPointsArray;
+
+      const fivePointItems = KEY_ITEMS_5PTS.map(item => item);
+      const threePointItems = KEY_ITEMS_3PTS.map(item => item);
+      if (extraction.blueCardImportant) {
+        fivePointItems.push({ ...BLUE_CARD_KEY_ITEM, points: 5 });
+      } else {
+        threePointItems.push(BLUE_CARD_KEY_ITEM);
+      }
+
+      if (extraction.coinCaseImportant) {
+        fivePointItems.push({ ...COIN_CASE_KEY_ITEM, points: 5 });
+      } else {
+        threePointItems.push(COIN_CASE_KEY_ITEM);
+      }
+
+      // Make our starting baskets
       const newBaskets = [
         { type: 'region', name: '1', items: []},
         { type: 'region', name: '2', items: []},
@@ -60,12 +80,9 @@
         { type: 'region', name: '16', items: []},
         { type: 'item', name: '9', items: KEY_ITEMS_9PTS.map(item => item)}, // use mapping so we don't overwrite array
         { type: 'item', name: '7', items: KEY_ITEMS_7PTS.map(item => item)},
-        { type: 'item', name: '5', items: KEY_ITEMS_5PTS.map(item => item)},
-        { type: 'item', name: '3', items: KEY_ITEMS_3PTS.map(item => item)},
+        { type: 'item', name: '5', items: fivePointItems},
+        { type: 'item', name: '3', items: threePointItems},
       ];
-      const spoilerText = await file.text();
-      const extraction = extractRegionsFromSpoiler(spoilerText);
-      regionPoints = extraction.regionPointsArray;
 
       // Check if we have extra items to add to the starting buckets
       if (extraction.extraItems.length > 0) {

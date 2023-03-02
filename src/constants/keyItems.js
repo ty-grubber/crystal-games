@@ -53,8 +53,6 @@ export const KEY_ITEMS_3PTS = [
   { id: 'unown_dex', name: 'Unown Dex', points: 3, vanillaRegion: 3 },
   { id: 'bicycle', name: 'Bicycle', points: 3, vanillaRegion: 1 }, // assume we start with bike
   { id: 'town_map', name: 'Map Card', points: 3, vanillaRegion: 1 },
-  { id: 'blue_card', name: 'Blue Card', points: 3, vanillaRegion: 5 },
-  { id: 'coin_case', name: 'Coin Case', points: 3, vanillaRegion: 5 },
   { id: 'itemfinder', name: 'Itemfinder', points: 3, vanillaRegion: 6 },
   { id: 'old_rod', name: 'Old Rod', points: 3, vanillaRegion: 2 },
   { id: 'good_rod', name: 'Good Rod', points: 3, vanillaRegion: 7 },
@@ -62,4 +60,8 @@ export const KEY_ITEMS_3PTS = [
   { id: 'tm28', name: 'TM Dig', points: 3, vanillaRegion: 5 },
 ];
 
-export default KEY_ITEMS_9PTS.concat(KEY_ITEMS_7PTS, KEY_ITEMS_5PTS, KEY_ITEMS_3PTS);
+// Split these out in case someone has turned on Buena or Game Corner Items
+export const BLUE_CARD_KEY_ITEM = { id: 'blue_card', name: 'Blue Card', points: 3, vanillaRegion: 5 };
+export const COIN_CASE_KEY_ITEM = { id: 'coin_case', name: 'Coin Case', points: 3, vanillaRegion: 5 };
+
+export default KEY_ITEMS_9PTS.concat(KEY_ITEMS_7PTS, KEY_ITEMS_5PTS, KEY_ITEMS_3PTS, [BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM]);
