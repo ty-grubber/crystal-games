@@ -154,7 +154,7 @@
 
 <div class="page">
   {#if !regionPoints}
-    <h1>Pokémon Crystal Points Tracker (for Item Randomizer v7.1.13)</h1>
+    <h1>Pokémon Crystal Points Tracker</h1>
   {/if}
 
   <label for="spoiler">
@@ -179,16 +179,22 @@
     <Title id="howToTitle">How To Use The Points Hint Tracker</Title>
     <Content id="howToContent">
       <p>
-        The Points Hint Tracker is a different way to play your Pokémon Crystal Randomizer as it gives you hints as to where Key Items are located in your ROM. This tracker handles any logic settings, including Shopsanity and Nightmare modes, but it does assume that your goal is to beat Red.
+        The Points Hint Tracker is a different way to play your Pokémon Crystal Randomizer as it gives you hints as to where Key Items are located in your ROM. This tracker handles any logic settings, including Shopsanity (with Buena and Game Corner) and Nightmare modes, but it does assume that your goal is to beat Red.
+      </p>
+      <p>
+        This tracker works for use with most versions of the Item Randomizer and has been tested to work on v7.1.15.
       </p>
 
-      <p>In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer v7.1.13. The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:</p>
+      <h3>Tracker Layout</h3>
+      <p>In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer. The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:</p>
       <ul>
         <li><b>9 Points:</b> Badges</li>
         <li><b>7 Points:</b> HMs and PokéGear Items (excluding Map Card)</li>
         <li><b>5 Points:</b> Any other Key Item that unlocks additional checks, like Escape Rope, Rock Smash, or Basement Key</li>
-        <li><b>3 Points:</b> Useless Key Items that don't provide checks, like Silver Wing, Blue Card, or Rods</li>
+        <li><b>3 Points:</b> Useless Key Items that don't provide checks, like Silver Wing, Blue Card*, or Rods</li>
       </ul>
+
+      <p><b>*</b>Both Blue Card and Coin Case get upgraded to 5-point items if the appropriate Modifiers have been turned on (namely, Buena Items and Game Corner respectively)</p>
 
       <p>
         Once the upload is complete, a table will appear with each row being a region where a key item could be placed in the ROM. Beside the name of each region is the total number of points of Key Items contained in that region, as well as an empty space for you to put found items in.
@@ -196,6 +202,8 @@
       <p>
         As well, a table containing the remaining available Key Items will be located on the right including the point value of each Key Item. Underneath this table you will find a more descriptive list of all the locations in Pokémon Crystal and what region number they have been placed in. If a city is listed in a region, then any subareas within that city are also included in that region. For example, Tin Tower is located in Ecruteak City, so item locations in Tin Tower are a part of Region #6.
       </p>
+
+      <h3>Using The Tracker</h3>
       <p>
         As you play your ROM, you can note the region where you found a Key Item by dragging the item's icon from the items table on the right into the appropriate region slot on the table on the left. For example, if you found the Boulder Badge in Cherrygrove Mart, drag the Boulder Badge icon from the 9 row of the right items table into Region #1's row on the table on the left.
         <br />
@@ -205,6 +213,8 @@
       <p>
         If you are unsure what item an icon represents, simply hover your mouse over the icon and a tooltip should display with the item's name and how many points it is worth.
       </p>
+
+      <h3>Additional Info</h3>
       <p>
         At any time, you can peek the solution of the tracker by clicking the Show Solution button underneath the Region table. This will cause an extra column to display in the Region table showing which region each Key Item can be found in. <b>Note: </b> if you have progressive Rods turned on, the Rod icons might be in different Regions in the solution compared to where you found them, but they're all worth the same number of points anyway.
       </p>
@@ -398,6 +408,7 @@
   .references ol {
     margin-top: 0;
     padding-left: 0;
+    line-height: 1.35;
   }
 
   .references img {
