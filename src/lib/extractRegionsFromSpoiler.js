@@ -1,4 +1,4 @@
-import KEY_ITEMS from '../constants/keyItems';
+import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM } from '../constants/keyItems';
 import REGIONS from '../constants/regions';
 
 /**
@@ -14,11 +14,17 @@ function extractRegionsFromSpoiler(spoilerFileText) {
   const spoilerLines = spoilerFileText.split('\r\n');
   const solutionStartIndex = spoilerLines.findIndex(line => line.includes('Solution:'));
   const solutionEndIndex = spoilerLines.findIndex(line => line.includes('Useless Stuff:'));
+  const modifierStartIndex = spoilerLines.findIndex(line => line.includes('Modifiers:'));
+  const modifierEndIndex = spoilerLines.findIndex(line => line.includes('RNG Seed:'));
+  const modifierLines = `${spoilerLines.slice(modifierStartIndex, modifierEndIndex).join('')}`;
   const solutionLines = `${spoilerLines.slice(solutionStartIndex, solutionEndIndex).join(';')};`;
   const uselessStuffLines = `${spoilerLines.slice(
     solutionEndIndex,
     spoilerLines.findIndex(line => line.includes('Xtra Stuff:')),
   ).join(';')};`;
+
+  const blueCardImportant = modifierLines.includes('Buena Items');
+  const coinCaseImportant = modifierLines.includes('Game Corner');
 
   KEY_ITEMS.forEach(item => {
     /**
@@ -64,17 +70,27 @@ function extractRegionsFromSpoiler(spoilerFileText) {
       matchedRegionIds.push(item.vanillaRegion);
     }
 
+    // Prep for dumping the item into its region by checking if we need to upgrade it
+    const shouldUpgradeBlueCard = item.name === BLUE_CARD_KEY_ITEM.name && blueCardImportant;
+    const shouldUpgradeCoinCase = item.name === COIN_CASE_KEY_ITEM.name && coinCaseImportant;
+    const shouldUpgradeItem = shouldUpgradeBlueCard || shouldUpgradeCoinCase;
+
     matchedRegionIds.forEach(matchedId => {
       const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedId);
-      regionPointsArray[matchedRPAIndex].points += item.points;
-      // @ts-ignore
-      regionPointsArray[matchedRPAIndex].items.push({ id: item.id, name: item.name, points: item.points });
+      regionPointsArray[matchedRPAIndex].points += item.points + (shouldUpgradeItem ? 2 : 0);
+
+      regionPointsArray[matchedRPAIndex].items.push(
+        // @ts-ignore
+        { id: item.id, name: item.name, points: item.points + (shouldUpgradeItem ? 2 : 0) },
+      );
     });
   });
 
   return {
     regionPointsArray,
     extraItems,
+    blueCardImportant,
+    coinCaseImportant,
   };
 }
 
