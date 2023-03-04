@@ -677,7 +677,7 @@
             />
             <br />
             <p class="credits">
-              Pokémon sprites courtesy of <a href="https://veekun.com/dex/downloads" rel="noreferrer" target="_blank">veekun.com</a>.<br />
+              Pokémon sprites courtesy of <a href="https://www.serebii.net" rel="noreferrer" target="_blank">serebii.net</a>.<br />
             </p>
           </div>
           <div>
