@@ -98,8 +98,13 @@
     mineSeed = short.generate().substring(0, 12).toUpperCase();
   }
 
-  function handleOutsideDexClick() {
-    selectedMonIndex = -1;
+  /**
+	 * @param {{ explicitOriginalTarget: { parentElement: { tagName: string; }; }; }} e
+	 */
+  function handleOutsideDexClick(e) {
+    if (e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button') {
+      selectedMonIndex = -1;
+    }
   }
 
   /**
