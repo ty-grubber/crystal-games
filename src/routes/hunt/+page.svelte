@@ -95,6 +95,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Pokémon Crystal Rival & Treasure Hunt</title>
+</svelte:head>
+
 {#if !chosenSeed}
   <h1>Pokémon Crystal Rival & Treasure Hunt</h1>
   <Button color="primary" on:click={handleStartNewGame} variant="raised">

@@ -424,6 +424,9 @@
 </script>
 
 <svelte:window on:keydown={updateSearch} />
+<svelte:head>
+  <title>Pokémon Crystal Minesweeper</title>
+</svelte:head>
 
 <div class="page">
   {#if mineList.length === 0}

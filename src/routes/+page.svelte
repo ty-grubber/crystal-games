@@ -2,6 +2,10 @@
   import Button, { Label } from '@smui/button';
 </script>
 
+<svelte:head>
+  <title>Pokémon Crystal Randomizer Games Home</title>
+</svelte:head>
+
 <div class="page">
   <h1>Pokémon Crystal Randomizer Games</h1>
   <div class="game-cell">

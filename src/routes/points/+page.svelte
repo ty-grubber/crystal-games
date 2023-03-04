@@ -152,6 +152,10 @@
 	}
 </script>
 
+<svelte:head>
+  <title>Pokémon Crystal Points Hint Tracker</title>
+</svelte:head>
+
 <div class="page">
   {#if !regionPoints}
     <h1>Pokémon Crystal Points Tracker</h1>
