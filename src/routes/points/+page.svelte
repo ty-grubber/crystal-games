@@ -5,7 +5,7 @@
   import Button, { Label } from '@smui/button';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
-	import { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
+	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
 
   const availableItemsPointCellStyles = "width: 65px !important; padding: 5px; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 10px 0; width: 300px; white-space: normal;"
@@ -152,6 +152,15 @@
 	}
 </script>
 
+<svelte:head>
+  <title>Pokémon Crystal Points Hint Tracker</title>
+  {#each KEY_ITEMS as keyItem}
+    <link rel="preload" as="image" href={`/keyItems/${keyItem.id}.png`} />
+  {/each}
+  <link rel="preload" as="image" href="/maps/johto-points-region-map.png" />
+  <link rel="preload" as="image" href="/maps/kanto-points-region-map.png" />
+</svelte:head>
+
 <div class="page">
   {#if !regionPoints}
     <h1>Pokémon Crystal Points Tracker</h1>
@@ -284,6 +293,11 @@
         <Button color="primary" variant="raised" on:click={handleShowSolution}>
           <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
         </Button>
+        <br /><br />
+        <p class="credits">
+          Key Item images sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a>.<br />
+          The beautiful region map images courtesy of myself and Google Drawings.
+        </p>
       </div>
       <div class="available-items">
         <DataTable style="width: 350px; margin-left: 3rem;">
@@ -414,5 +428,9 @@
   .references img {
     height: auto;
     width: 375px;
+  }
+
+  .credits {
+    font-size: 12px;
   }
 </style>

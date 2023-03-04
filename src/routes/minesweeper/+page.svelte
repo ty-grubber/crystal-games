@@ -424,6 +424,12 @@
 </script>
 
 <svelte:window on:keydown={updateSearch} />
+<svelte:head>
+  <title>Pokémon Crystal Minesweeper</title>
+  {#each NATIONAL_DEX as poke}
+    <link rel="preload" as="image" href={`/pokedex/${poke.id}.png`} />
+  {/each}
+</svelte:head>
 
 <div class="page">
   {#if mineList.length === 0}
@@ -669,6 +675,10 @@
               label="Dex Search"
               style={'margin-top: 1rem'}
             />
+            <br />
+            <p class="credits">
+              Pokémon sprites courtesy of <a href="https://veekun.com/dex/downloads" rel="noreferrer" target="_blank">veekun.com</a>.<br />
+            </p>
           </div>
           <div>
             <p style="margin-left: 1.5rem;">
@@ -948,5 +958,9 @@
 
   .selected-mon {
     font-size: 1.2rem;
+  }
+
+  .credits {
+    font-size: 12px;
   }
 </style>
