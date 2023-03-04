@@ -26,6 +26,12 @@
     </Button>
     <p>Streamline your randomizer by using a point location hint system!</p>
   </div>
+  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+  <b>Credits:</b>
+  <p class="credits">
+    Designed & created by tigertygr28 (TyGr) & Kovolta<br />
+    Like these games? We make board games, too! Check out <a href="https://www.thegamecrafter.com/designers/dastardly-fun-entertainment" target="_blank" rel="noreferrer">our games on TheGameCrafter</a>
+  </p>
 </div>
 
 <style>
@@ -41,6 +47,10 @@
 
   .game-cell > p {
     margin-left: 1rem;
+  }
+
+  .credits {
+    font-size: 14px;
   }
 </style>
 
