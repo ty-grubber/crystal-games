@@ -426,6 +426,9 @@
 <svelte:window on:keydown={updateSearch} />
 <svelte:head>
   <title>Pokémon Crystal Minesweeper</title>
+  {#each NATIONAL_DEX as poke}
+    <link rel="preload" as="image" href={`/pokedex/${poke.id}.png`} />
+  {/each}
 </svelte:head>
 
 <div class="page">
