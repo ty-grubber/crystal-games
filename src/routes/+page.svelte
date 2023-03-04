@@ -26,7 +26,7 @@
     </Button>
     <p>Streamline your randomizer by using a point location hint system!</p>
   </div>
-  <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+  <br /><br /><br />
   <b>Credits:</b>
   <p class="credits">
     Designed & created by tigertygr28 (TyGr) & Kovolta<br />
