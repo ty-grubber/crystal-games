@@ -823,7 +823,7 @@
   }
 
   .dex.search > .dex-mon {
-    opacity: 0.3;
+    opacity: 0.35;
   }
 
   .dex.search > .dex-mon.matched {
@@ -941,7 +941,7 @@
   }
 
   .mon-icon.excavated {
-    opacity: 0.5;
+    opacity: 0.25;
   }
 
   .floating-menu {
