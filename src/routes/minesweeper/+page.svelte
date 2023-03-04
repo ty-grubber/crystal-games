@@ -675,6 +675,10 @@
               label="Dex Search"
               style={'margin-top: 1rem'}
             />
+            <br />
+            <p class="credits">
+              Pokémon sprites courtesy of <a href="https://veekun.com/dex/downloads" rel="noreferrer" target="_blank">veekun.com</a>.<br />
+            </p>
           </div>
           <div>
             <p style="margin-left: 1.5rem;">
@@ -954,5 +958,9 @@
 
   .selected-mon {
     font-size: 1.2rem;
+  }
+
+  .credits {
+    font-size: 12px;
   }
 </style>

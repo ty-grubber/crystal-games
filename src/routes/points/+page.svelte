@@ -293,6 +293,11 @@
         <Button color="primary" variant="raised" on:click={handleShowSolution}>
           <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
         </Button>
+        <br /><br />
+        <p class="credits">
+          Key Item images sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a>.<br />
+          The beautiful region map images courtesy of myself and Google Drawings.
+        </p>
       </div>
       <div class="available-items">
         <DataTable style="width: 350px; margin-left: 3rem;">
@@ -423,5 +428,9 @@
   .references img {
     height: auto;
     width: 375px;
+  }
+
+  .credits {
+    font-size: 12px;
   }
 </style>
