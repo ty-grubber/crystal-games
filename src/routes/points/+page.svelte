@@ -296,7 +296,7 @@
         <br /><br />
         <p class="credits">
           Key Item images sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a>.<br />
-          The beautiful region map images courtesy of myself and Google Drawings.
+          Region map images created by Kovolta.
         </p>
       </div>
       <div class="available-items">
@@ -426,8 +426,8 @@
   }
 
   .references img {
-    height: auto;
-    width: 375px;
+    height: 350px;
+    width: auto;
   }
 
   .credits {
