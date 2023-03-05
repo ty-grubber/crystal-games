@@ -295,7 +295,7 @@
         </Button>
         <br /><br />
         <p class="credits">
-          Key Item images sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a>.<br />
+          Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
           Region map images created by Kovolta.
         </p>
       </div>
