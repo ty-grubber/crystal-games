@@ -102,7 +102,7 @@ const TREASURES = [
     description: 'Collect the item behind the Cut Tree connected to the dock on Route 12.',
     hintOpts: [
       'Sometimes the best treasures are just found lying on the ground.',
-      'You will need to cut down some obstacles in your way to find the treasure you seek.',
+      'You will need to cut down some obstacles to find the treasure you seek.',
     ]
   },
   {
@@ -125,7 +125,7 @@ const TREASURES = [
     id: 16,
     description: 'Read the sign beside Snorlax in Vermillion City.',
     hintOpts: [
-      'New friends are always something to treasure.',
+      'Treasures can be found with the right equipment.',
       'You\'ll need your reading glasses to find this treasure.',
     ]
   },
@@ -141,7 +141,7 @@ const TREASURES = [
     id: 18,
     description: 'Receive the gift from the Roar Guy on Route 32.',
     hintOpts: [
-      'You will need to cut down some obstacles in your way to find the treasure you seek.',
+      'You will need to cut down some obstacles to find the treasure you seek.',
       'Sometimes treasure is just given to us willingly.',
     ]
   },
@@ -166,7 +166,7 @@ const TREASURES = [
     description: 'Collect all 3 Apricorns on Route 42.',
     hintOpts: [
       'You can find treasure by reaping some fruity rewards.',
-      'You will need to cut down some obstacles in your way to find the treasure you seek.',
+      'You will need to cut down some obstacles to find the treasure you seek.',
     ]
   },
   {
@@ -187,7 +187,7 @@ const TREASURES = [
   },
   {
     id: 24,
-    description: 'Heal Moomoo.',
+    description: 'Receive the item from healing Moomoo.',
     hintOpts: [
       'The reward of helping someone in need is all the treasure you need.',
       'You can find treasure by reaping some fruity rewards.',
@@ -235,7 +235,7 @@ const TREASURES = [
   },
   {
     id: 30,
-    description: 'Collect the item behind the Strength Boulder in the Burned Tower.',
+    description: 'Collect the item behind the Strength boulder in the Burned Tower.',
     hintOpts: [
       'With great strength comes great treasure.',
       'A treasure is reborn from the ashes.',
@@ -275,7 +275,7 @@ const TREASURES = [
   },
   {
     id: 35,
-    description: 'Catch a pokemon in the grass south of Pallet Town.',
+    description: 'Catch a Pokémon in the grass south of Pallet Town.',
     hintOpts: [
       'New friends are always something to treasure.',
       'Search the tall grass to find some treasure.',
@@ -283,10 +283,34 @@ const TREASURES = [
   },
   {
     id: 36,
-    description: 'Ride the waterfall up in Whirl Islands',
+    description: 'Ride the waterfall up in Whirl Islands.',
     hintOpts: [
       'Sometimes you need a bright light to find treasure.',
       'You\'ll need to hang ten to find some treasures.',
+    ]
+  },
+  {
+    id: 37,
+    description: 'Buy an item from the Goldenrod Game Corner.',
+    hintOpts: [
+      'Treasures can be found with the right equipment.',
+      'Some treasures can only be bought.'
+    ]
+  },
+  {
+    id: 38,
+    description: 'Ride the train from Goldenrod to Saffron',
+    hintOpts: [
+      'You\'ll need to go for a ride to find this treasure.',
+      'Treasures can be found with the right equipment.',
+    ]
+  },
+  {
+    id: 39,
+    description: 'Fish up a Pokémon on the 2nd floor of Mt. Mortar.',
+    hintOpts: [
+      'Treasures can be found with the right equipment.',
+      'New friends are always something to treasure.',
     ]
   }
 ];
