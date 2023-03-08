@@ -331,7 +331,12 @@
                           on:click={(e) => handleFoundItemClick(e, item, i)}
                           on:keypress={(e) => handleFoundItemClick(e, item, i)}
                         >
-                          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
+                          <img
+                            class:selected={selectedFoundItem?.id === item.id}
+                            src={`/keyItems/${item.id}.png`}
+                            alt={item.name}
+                            title={`${item.name} - ${item.points}`}
+                          />
                         </li>
                       {/each}
                     </ul>
@@ -385,7 +390,12 @@
                         on:click={() => handleAvailableItemClick(item, REGIONS.length + basketIndex)}
                         on:keypress={() => handleAvailableItemClick(item, REGIONS.length + basketIndex)}
                       >
-                        <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
+                        <img
+                          class:selected={selectedAvailableItem?.id === item.id}
+                          src={`/keyItems/${item.id}.png`}
+                          alt={item.name}
+                          title={`${item.name} - ${item.points}`}
+                        />
                       </li>
                     {/each}
                   </ul>
@@ -463,7 +473,7 @@
 	}
   .grid-area ul {
     margin: 0;
-    max-width: 260px;
+    max-width: 280px;
     min-height: 32px;
     padding: 4px 0 0;
 	}
@@ -473,8 +483,13 @@
   }
 
   img {
+    border: 1px solid transparent;
     height: 32px;
     width: 32px;
+  }
+
+  img.selected {
+    border-color: black;
   }
 
   .points-cheat-sheet {
