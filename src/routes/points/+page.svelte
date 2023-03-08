@@ -6,6 +6,7 @@
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
 	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
+	import { stop_propagation } from 'svelte/internal';
 
   const availableItemsPointCellStyles = "width: 65px !important; padding: 5px; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 10px 0; width: 300px; white-space: normal;"
@@ -34,6 +35,8 @@
   let showSolution = false;
   let howToDialogOpen = false;
   let mapSelected = 'johto';
+  let selectedAvailableItem = {};
+  let selectedFoundItem = {};
 
   /**
 	 * @param {any} e
@@ -148,8 +151,53 @@
       baskets = baskets;
 
       hoveringOverBasket = null;
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
     }
 	}
+
+  function handleAvailableItemClick(item, currBasketIndex) {
+    selectedAvailableItem = {
+      ...item,
+      currBasketIndex,
+    };
+    selectedFoundItem = {};
+  }
+
+  function handleFoundItemClick(event, item, currBasketIndex) {
+    event.stopPropagation();
+    selectedAvailableItem = {};
+    selectedFoundItem = {
+      ...item,
+      currBasketIndex,
+    };
+  }
+
+  function setSelectedItemIntoBasket(basketIndex) {
+    let targetBasket = baskets[basketIndex];
+    const itemGettingPlaced = selectedAvailableItem.points ? selectedAvailableItem : selectedFoundItem;
+
+    if (itemGettingPlaced.points) {
+      // Ensure items get dropped into correct available item basket
+      if (targetBasket.type === 'item') {
+        // Check if item is going into correct item basket and update target basket
+        if (itemGettingPlaced.points.toString() !== targetBasket.name) {
+          targetBasket = baskets.find(basket => basket.type === 'item' && basket.name === itemGettingPlaced.points.toString());
+        }
+      }
+
+      // Remove the item from the original basket.
+      const draggedItemIndexInBasket = baskets[itemGettingPlaced.currBasketIndex].items.findIndex(item => item.id === itemGettingPlaced.id);
+      const [freedItem] = baskets[itemGettingPlaced.currBasketIndex].items.splice(draggedItemIndexInBasket, 1);
+
+      // Add the item to the drop target basket.
+      targetBasket.items.push(freedItem);
+      baskets = baskets;
+    }
+
+    selectedAvailableItem = {};
+    selectedFoundItem = {};
+  }
 </script>
 
 <svelte:head>
@@ -261,10 +309,18 @@
                   </Cell>
                   <Cell style="white-space: normal;">
                     <ul
-                      class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
+                      class:hovering={
+                        (hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`)
+                      }
+                      class:dumpable={
+                        (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
+                        (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
+                      }
                       on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
                       on:dragleave={() => hoveringOverBasket = null}
                       on:drop={event => drop(event, i)}
+                      on:click={() => setSelectedItemIntoBasket(i)}
+                      on:keypress={() => setSelectedItemIntoBasket(i)}
                       ondragover="return false;"
                     >
                       {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
@@ -272,6 +328,8 @@
                           class="draggableIcon"
                           draggable={true}
                           on:dragstart={event => dragStart(event, i, itemIndex)}
+                          on:click={(e) => handleFoundItemClick(e, item, i)}
+                          on:keypress={(e) => handleFoundItemClick(e, item, i)}
                         >
                           <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
                         </li>
@@ -304,7 +362,13 @@
           <Body>
             {#each baskets.filter(basket => basket.type === 'item') as basket, basketIndex (basket)}
               <Row>
-                <Cell style={availableItemsPointCellStyles}>{basket.name}</Cell>
+                <Cell
+                  style={availableItemsPointCellStyles.concat(selectedFoundItem.points?.toString() === basket.name ? ' background-color: lightgreen; cursor: pointer;' : '')}
+                  on:click={() => setSelectedItemIntoBasket(REGIONS.length + basketIndex)}
+                  on:keypress={() => setSelectedItemIntoBasket(REGIONS.length + basketIndex)}
+                >
+                  {basket.name}
+                </Cell>
                 <Cell style={availableItemsItemCellStyles}>
                   <ul
                     class:hovering={hoveringOverBasket === `${basket.type}_${basket.name}`}
@@ -318,6 +382,8 @@
                         class="draggableIcon"
                         draggable={true}
                         on:dragstart={event => dragStart(event, REGIONS.length + basketIndex, itemIndex)}
+                        on:click={() => handleAvailableItemClick(item, REGIONS.length + basketIndex)}
+                        on:keypress={() => handleAvailableItemClick(item, REGIONS.length + basketIndex)}
                       >
                         <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
                       </li>
@@ -382,9 +448,15 @@
     display: inline-flex;
   }
 
-  .hovering {
-		background-color: lightgrey;
+  .hovering,
+  .dumpable {
+		background-color: lightgreen;
 	}
+
+  .dumpable {
+    cursor: pointer;
+  }
+
 	.grid-area li.draggableIcon {
 		cursor: grab;
 		display: inline-block;
