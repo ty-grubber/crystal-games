@@ -9,8 +9,8 @@
 	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
 	import { stop_propagation } from 'svelte/internal';
 
-  const availableItemsPointCellStyles = "width: 65px !important; padding: 5px; text-align: center; font-size: 24px;";
-  const availableItemsItemCellStyles = "padding: 10px 0; width: 300px; white-space: normal;"
+  const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
+  const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
 
   const regionColors = [
     '#000000',
@@ -377,7 +377,7 @@
         <DataTable style="width: 350px; margin-left: 3rem;">
           <Body>
             {#each baskets.filter(basket => basket.type === 'item') as basket, basketIndex (basket)}
-              <Row>
+              <Row style="height: 85px !important;">
                 <Cell
                   style={availableItemsPointCellStyles.concat(selectedFoundItem.points?.toString() === basket.name ? ' background-color: lightgreen; cursor: pointer;' : '')}
                   on:click={() => setSelectedItemIntoBasket(REGIONS.length + basketIndex)}
