@@ -3,6 +3,7 @@
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Button, { Label } from '@smui/button';
+  import { clickOutside } from '$lib/clickOutside';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
 	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
@@ -156,7 +157,8 @@
     }
 	}
 
-  function handleAvailableItemClick(item, currBasketIndex) {
+  function handleAvailableItemClick(event, item, currBasketIndex) {
+    event.stopPropagation();
     selectedAvailableItem = {
       ...item,
       currBasketIndex,
@@ -197,6 +199,13 @@
 
     selectedAvailableItem = {};
     selectedFoundItem = {};
+  }
+
+  function handleOutsideRegionTableClick(e) {
+    if (e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' && !['3', '5', '7', '9'].find(value => value === e.explicitOriginalTarget.innerHTML)) {
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
+    }
   }
 </script>
 
@@ -286,72 +295,74 @@
 
   {#if regionPoints?.length > 0}
     <div class="grid-area">
-      <div class="points-table">
-        <DataTable>
-          <Head>
-            <Row>
-              <Cell>Region</Cell>
-              <Cell>Points Left</Cell>
-              <Cell>Items Found</Cell>
-              {#if showSolution}
-                <Cell>Solution</Cell>
-              {/if}
-            </Row>
-          </Head>
-          <Body>
-            {#each regionPoints as rp, i (rp.regionId)}
+      <div class="region-section">
+        <div use:clickOutside on:click_outside={handleOutsideRegionTableClick}>
+          <DataTable>
+            <Head>
               <Row>
-                  <Cell style={`font-size: 16px; font-weight: bold`}>
-                    <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
-                  </Cell>
-                  <Cell style="text-align: center; font-size: 20px;">
-                    {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
-                  </Cell>
-                  <Cell style="white-space: normal;">
-                    <ul
-                      class:hovering={
-                        (hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`)
-                      }
-                      class:dumpable={
-                        (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
-                        (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
-                      }
-                      on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
-                      on:dragleave={() => hoveringOverBasket = null}
-                      on:drop={event => drop(event, i)}
-                      on:click={() => setSelectedItemIntoBasket(i)}
-                      on:keypress={() => setSelectedItemIntoBasket(i)}
-                      ondragover="return false;"
-                    >
-                      {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
-                        <li
-                          class="draggableIcon"
-                          draggable={true}
-                          on:dragstart={event => dragStart(event, i, itemIndex)}
-                          on:click={(e) => handleFoundItemClick(e, item, i)}
-                          on:keypress={(e) => handleFoundItemClick(e, item, i)}
-                        >
-                          <img
-                            class:selected={selectedFoundItem?.id === item.id}
-                            src={`/keyItems/${item.id}.png`}
-                            alt={item.name}
-                            title={`${item.name} - ${item.points}`}
-                          />
-                        </li>
-                      {/each}
-                    </ul>
-                  </Cell>
-                  {#if showSolution}
-                    <Cell>
-                      {#each rp.items as item, itemIndex (`${item.id}_${itemIndex}`)}
-                        <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
-                      {/each}
-                    </Cell>
-                  {/if}
+                <Cell>Region</Cell>
+                <Cell>Points Left</Cell>
+                <Cell>Items Found</Cell>
+                {#if showSolution}
+                  <Cell>Solution</Cell>
+                {/if}
               </Row>
-            {/each}
-          </Body>
-        </DataTable>
+            </Head>
+            <Body>
+              {#each regionPoints as rp, i (rp.regionId)}
+                <Row>
+                    <Cell style={`font-size: 16px; font-weight: bold`}>
+                      <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
+                    </Cell>
+                    <Cell style="text-align: center; font-size: 20px;">
+                      {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
+                    </Cell>
+                    <Cell style="white-space: normal;">
+                      <ul
+                        class:hovering={
+                          (hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`)
+                        }
+                        class:dumpable={
+                          (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
+                          (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
+                        }
+                        on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
+                        on:dragleave={() => hoveringOverBasket = null}
+                        on:drop={event => drop(event, i)}
+                        on:click={() => setSelectedItemIntoBasket(i)}
+                        on:keypress={() => setSelectedItemIntoBasket(i)}
+                        ondragover="return false;"
+                      >
+                        {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+                          <li
+                            class="draggableIcon"
+                            draggable={true}
+                            on:dragstart={event => dragStart(event, i, itemIndex)}
+                            on:click={(e) => handleFoundItemClick(e, item, i)}
+                            on:keypress={(e) => handleFoundItemClick(e, item, i)}
+                          >
+                            <img
+                              class:selected={selectedFoundItem?.id === item.id}
+                              src={`/keyItems/${item.id}.png`}
+                              alt={item.name}
+                              title={`${item.name} - ${item.points}`}
+                            />
+                          </li>
+                        {/each}
+                      </ul>
+                    </Cell>
+                    {#if showSolution}
+                      <Cell>
+                        {#each rp.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+                          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
+                        {/each}
+                      </Cell>
+                    {/if}
+                </Row>
+              {/each}
+            </Body>
+          </DataTable>
+        </div>
         <br /><br />
         <Button color="primary" variant="raised" on:click={handleShowSolution}>
           <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
@@ -387,8 +398,8 @@
                         class="draggableIcon"
                         draggable={true}
                         on:dragstart={event => dragStart(event, REGIONS.length + basketIndex, itemIndex)}
-                        on:click={() => handleAvailableItemClick(item, REGIONS.length + basketIndex)}
-                        on:keypress={() => handleAvailableItemClick(item, REGIONS.length + basketIndex)}
+                        on:click={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex)}
+                        on:keypress={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex)}
                       >
                         <img
                           class:selected={selectedAvailableItem?.id === item.id}
@@ -478,7 +489,7 @@
     padding: 4px 0 0;
 	}
 
-  .points-table ul {
+  .region-section ul {
     width: 200px;
   }
 
