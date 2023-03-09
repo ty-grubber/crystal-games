@@ -3,12 +3,13 @@
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Button, { Label } from '@smui/button';
+  import { clickOutside } from '$lib/clickOutside';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
 	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
 
-  const availableItemsPointCellStyles = "width: 65px !important; padding: 5px; text-align: center; font-size: 24px;";
-  const availableItemsItemCellStyles = "padding: 10px 0; width: 300px; white-space: normal;"
+  const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
+  const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
 
   const regionColors = [
     '#000000',
@@ -34,6 +35,8 @@
   let showSolution = false;
   let howToDialogOpen = false;
   let mapSelected = 'johto';
+  let selectedAvailableItem = {};
+  let selectedFoundItem = {};
 
   /**
 	 * @param {any} e
@@ -148,8 +151,61 @@
       baskets = baskets;
 
       hoveringOverBasket = null;
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
     }
 	}
+
+  function handleAvailableItemClick(event, item, currBasketIndex) {
+    event.stopPropagation();
+    selectedAvailableItem = {
+      ...item,
+      currBasketIndex,
+    };
+    selectedFoundItem = {};
+  }
+
+  function handleFoundItemClick(event, item, currBasketIndex) {
+    event.stopPropagation();
+    selectedAvailableItem = {};
+    selectedFoundItem = {
+      ...item,
+      currBasketIndex,
+    };
+  }
+
+  function setSelectedItemIntoBasket(basketIndex) {
+    let targetBasket = baskets[basketIndex];
+    const itemGettingPlaced = selectedAvailableItem.points ? selectedAvailableItem : selectedFoundItem;
+
+    if (itemGettingPlaced.points) {
+      // Ensure items get dropped into correct available item basket
+      if (targetBasket.type === 'item') {
+        // Check if item is going into correct item basket and update target basket
+        if (itemGettingPlaced.points.toString() !== targetBasket.name) {
+          targetBasket = baskets.find(basket => basket.type === 'item' && basket.name === itemGettingPlaced.points.toString());
+        }
+      }
+
+      // Remove the item from the original basket.
+      const draggedItemIndexInBasket = baskets[itemGettingPlaced.currBasketIndex].items.findIndex(item => item.id === itemGettingPlaced.id);
+      const [freedItem] = baskets[itemGettingPlaced.currBasketIndex].items.splice(draggedItemIndexInBasket, 1);
+
+      // Add the item to the drop target basket.
+      targetBasket.items.push(freedItem);
+      baskets = baskets;
+    }
+
+    selectedAvailableItem = {};
+    selectedFoundItem = {};
+  }
+
+  function handleOutsideRegionTableClick(e) {
+    if (e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' && !['3', '5', '7', '9'].find(value => value === e.explicitOriginalTarget.innerHTML)) {
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
+    }
+  }
 </script>
 
 <svelte:head>
@@ -238,57 +294,74 @@
 
   {#if regionPoints?.length > 0}
     <div class="grid-area">
-      <div class="points-table">
-        <DataTable>
-          <Head>
-            <Row>
-              <Cell>Region</Cell>
-              <Cell>Points Left</Cell>
-              <Cell>Items Found</Cell>
-              {#if showSolution}
-                <Cell>Solution</Cell>
-              {/if}
-            </Row>
-          </Head>
-          <Body>
-            {#each regionPoints as rp, i (rp.regionId)}
+      <div class="region-section">
+        <div use:clickOutside on:click_outside={handleOutsideRegionTableClick}>
+          <DataTable>
+            <Head>
               <Row>
-                  <Cell style={`font-size: 16px; font-weight: bold`}>
-                    <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
-                  </Cell>
-                  <Cell style="text-align: center; font-size: 20px;">
-                    {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
-                  </Cell>
-                  <Cell style="white-space: normal;">
-                    <ul
-                      class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
-                      on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
-                      on:dragleave={() => hoveringOverBasket = null}
-                      on:drop={event => drop(event, i)}
-                      ondragover="return false;"
-                    >
-                      {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
-                        <li
-                          class="draggableIcon"
-                          draggable={true}
-                          on:dragstart={event => dragStart(event, i, itemIndex)}
-                        >
-                          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
-                        </li>
-                      {/each}
-                    </ul>
-                  </Cell>
-                  {#if showSolution}
-                    <Cell>
-                      {#each rp.items as item, itemIndex (`${item.id}_${itemIndex}`)}
-                        <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
-                      {/each}
-                    </Cell>
-                  {/if}
+                <Cell>Region</Cell>
+                <Cell>Points Left</Cell>
+                <Cell>Items Found</Cell>
+                {#if showSolution}
+                  <Cell>Solution</Cell>
+                {/if}
               </Row>
-            {/each}
-          </Body>
-        </DataTable>
+            </Head>
+            <Body>
+              {#each regionPoints as rp, i (rp.regionId)}
+                <Row>
+                    <Cell style={`font-size: 16px; font-weight: bold`}>
+                      <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
+                    </Cell>
+                    <Cell style="text-align: center; font-size: 20px;">
+                      {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
+                    </Cell>
+                    <Cell style="white-space: normal;">
+                      <ul
+                        class:hovering={
+                          (hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`)
+                        }
+                        class:dumpable={
+                          (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
+                          (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
+                        }
+                        on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
+                        on:dragleave={() => hoveringOverBasket = null}
+                        on:drop={event => drop(event, i)}
+                        on:click={() => setSelectedItemIntoBasket(i)}
+                        on:keypress={() => setSelectedItemIntoBasket(i)}
+                        ondragover="return false;"
+                      >
+                        {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+                          <li
+                            class="draggableIcon"
+                            draggable={true}
+                            on:dragstart={event => dragStart(event, i, itemIndex)}
+                            on:click={(e) => handleFoundItemClick(e, item, i)}
+                            on:keypress={(e) => handleFoundItemClick(e, item, i)}
+                          >
+                            <img
+                              class:selected={selectedFoundItem?.id === item.id}
+                              src={`/keyItems/${item.id}.png`}
+                              alt={item.name}
+                              title={`${item.name} - ${item.points}`}
+                            />
+                          </li>
+                        {/each}
+                      </ul>
+                    </Cell>
+                    {#if showSolution}
+                      <Cell>
+                        {#each rp.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+                          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
+                        {/each}
+                      </Cell>
+                    {/if}
+                </Row>
+              {/each}
+            </Body>
+          </DataTable>
+        </div>
         <br /><br />
         <Button color="primary" variant="raised" on:click={handleShowSolution}>
           <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
@@ -303,8 +376,14 @@
         <DataTable style="width: 350px; margin-left: 3rem;">
           <Body>
             {#each baskets.filter(basket => basket.type === 'item') as basket, basketIndex (basket)}
-              <Row>
-                <Cell style={availableItemsPointCellStyles}>{basket.name}</Cell>
+              <Row style="height: 85px !important;">
+                <Cell
+                  style={availableItemsPointCellStyles.concat(selectedFoundItem.points?.toString() === basket.name ? ' background-color: lightgreen; cursor: pointer;' : '')}
+                  on:click={() => setSelectedItemIntoBasket(REGIONS.length + basketIndex)}
+                  on:keypress={() => setSelectedItemIntoBasket(REGIONS.length + basketIndex)}
+                >
+                  {basket.name}
+                </Cell>
                 <Cell style={availableItemsItemCellStyles}>
                   <ul
                     class:hovering={hoveringOverBasket === `${basket.type}_${basket.name}`}
@@ -318,8 +397,15 @@
                         class="draggableIcon"
                         draggable={true}
                         on:dragstart={event => dragStart(event, REGIONS.length + basketIndex, itemIndex)}
+                        on:click={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex)}
+                        on:keypress={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex)}
                       >
-                        <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
+                        <img
+                          class:selected={selectedAvailableItem?.id === item.id}
+                          src={`/keyItems/${item.id}.png`}
+                          alt={item.name}
+                          title={`${item.name} - ${item.points}`}
+                        />
                       </li>
                     {/each}
                   </ul>
@@ -382,27 +468,43 @@
     display: inline-flex;
   }
 
-  .hovering {
-		background-color: lightgrey;
+  .hovering,
+  .dumpable {
+		background-color: lightgreen;
 	}
+
+  .dumpable {
+    cursor: pointer;
+  }
+
 	.grid-area li.draggableIcon {
 		cursor: grab;
 		display: inline-block;
 	}
   .grid-area ul {
-    margin: 0;
-    max-width: 260px;
-    min-height: 32px;
+    margin: 0 0 -2px;
+    max-width: 280px;
+    min-height: 36px;
     padding: 4px 0 0;
 	}
 
-  .points-table ul {
-    width: 200px;
+  .region-section ul {
+    width: 210px;
   }
 
   img {
+    border: 1px solid transparent;
     height: 32px;
     width: 32px;
+  }
+
+  .region-section img {
+    height: 28px;
+    width: 28px;
+  }
+
+  img.selected {
+    border-color: black;
   }
 
   .points-cheat-sheet {
