@@ -483,20 +483,25 @@
 		display: inline-block;
 	}
   .grid-area ul {
-    margin: 0;
+    margin: 0 0 -2px;
     max-width: 280px;
-    min-height: 32px;
+    min-height: 36px;
     padding: 4px 0 0;
 	}
 
   .region-section ul {
-    width: 200px;
+    width: 210px;
   }
 
   img {
     border: 1px solid transparent;
     height: 32px;
     width: 32px;
+  }
+
+  .region-section img {
+    height: 28px;
+    width: 28px;
   }
 
   img.selected {
