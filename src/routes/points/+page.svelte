@@ -276,12 +276,28 @@
       </p>
 
       <p>
+        Instead of dragging, you can also click items in any list to move them to a different list. Clicking an item will bring up a black border around the clicked item. As well, any logical slot that item can be placed will highlight in green. Clicking a green section will place the selected item in that slot. To deselect a selected item, click anywhere outside the region table or the available item table.
+      </p>
+
+      <p>
         If you are unsure what item an icon represents, simply hover your mouse over the icon and a tooltip should display with the item's name and how many points it is worth.
       </p>
 
+      <h3>References</h3>
+      <p>
+        Underneath the available items table is a small section containing various references that can help you use this tracker effectively:
+      </p>
+      <ul>
+        <li><b>Johto Map:</b> A map of Johto displaying the boundaries of the Johto regions. (1-12)</li>
+        <li><b>Kanto Map:</b> A map of Kanto displaying the boundaries of the Kanto regions. (13-16)</li>
+        <li><b>Text Regions:</b> A list of all the regions and the major locations contained within them, including routes and dungeons.</li>
+        <li><b>Point Sums:</b> A list of various Points Left amounts and what combinations of Key Item points it would take to add up to that number. For instance, you can achieve 13 points with 3+3+7 or 3+5+5.</li>
+      </ul>
+
       <h3>Additional Info</h3>
       <p>
-        At any time, you can peek the solution of the tracker by clicking the Show Solution button underneath the Region table. This will cause an extra column to display in the Region table showing which region each Key Item can be found in. <b>Note: </b> if you have progressive Rods turned on, the Rod icons might be in different Regions in the solution compared to where you found them, but they're all worth the same number of points anyway.
+        At any time, you can peek the solution of the tracker by clicking the Show Solution button underneath the Region table. This will cause an extra column to display in the Region table showing which region each Key Item can be found in. These key items in the solution are listed in descending points order. <br />
+        <b>Note: </b> if you have progressive Rods turned on, the Rod icons might be in different Regions in the solution compared to where you found them, but they're all worth the same number of points anyway.
       </p>
       <p>
         To start a new game, simply upload a new spoiler file and the tables will reset.
@@ -300,7 +316,7 @@
             <Head>
               <Row>
                 <Cell>Region</Cell>
-                <Cell>Points Left</Cell>
+                <Cell>Pts Left</Cell>
                 <Cell>Items Found</Cell>
                 {#if showSolution}
                   <Cell>Solution</Cell>
@@ -353,7 +369,7 @@
                     {#if showSolution}
                       <Cell>
                         {#each rp.items as item, itemIndex (`${item.id}_${itemIndex}`)}
-                          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
+                          <img class="solution-item" src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
                         {/each}
                       </Cell>
                     {/if}
@@ -505,6 +521,11 @@
 
   img.selected {
     border-color: black;
+  }
+
+  img.solution-item {
+    padding-top: 4px;
+    margin-bottom: -2px;
   }
 
   .points-cheat-sheet {
