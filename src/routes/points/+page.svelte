@@ -300,7 +300,7 @@
             <Head>
               <Row>
                 <Cell>Region</Cell>
-                <Cell>Points Left</Cell>
+                <Cell>Pts Left</Cell>
                 <Cell>Items Found</Cell>
                 {#if showSolution}
                   <Cell>Solution</Cell>
@@ -353,7 +353,7 @@
                     {#if showSolution}
                       <Cell>
                         {#each rp.items as item, itemIndex (`${item.id}_${itemIndex}`)}
-                          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
+                          <img class="solution-item" src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} />
                         {/each}
                       </Cell>
                     {/if}
@@ -505,6 +505,10 @@
 
   img.selected {
     border-color: black;
+  }
+
+  img.solution-item {
+    padding-top: 4px;
   }
 
   .points-cheat-sheet {
