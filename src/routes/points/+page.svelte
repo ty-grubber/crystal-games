@@ -525,6 +525,7 @@
 
   img.solution-item {
     padding-top: 4px;
+    margin-bottom: -2px;
   }
 
   .points-cheat-sheet {
