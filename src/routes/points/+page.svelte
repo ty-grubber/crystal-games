@@ -98,6 +98,7 @@
       }
 
       baskets = newBaskets;
+      showSolution = false;
     }
   }
 
@@ -210,6 +211,7 @@
 
 <svelte:head>
   <title>Pokémon Crystal Points Hint Tracker</title>
+  <meta property="description" content="Streamline your randomizer by using a key item region point hint system!" />
   {#each KEY_ITEMS as keyItem}
     <link rel="preload" as="image" href={`/keyItems/${keyItem.id}.png`} />
   {/each}
@@ -484,12 +486,12 @@
     display: inline-flex;
   }
 
-  .hovering,
-  .dumpable {
-		background-color: lightgreen;
+  .hovering {
+		background-color: lightgrey;
 	}
 
   .dumpable {
+		background-color: lightgreen;
     cursor: pointer;
   }
 
@@ -505,7 +507,7 @@
 	}
 
   .region-section ul {
-    width: 210px;
+    width: 240px;
   }
 
   img {
