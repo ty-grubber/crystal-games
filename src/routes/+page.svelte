@@ -4,6 +4,7 @@
 
 <svelte:head>
   <title>Pokémon Crystal Randomizer Games Home</title>
+  <meta property="description" content="A collection of additional games you can play with your Pokémon Crystal randomizer seed!" />
 </svelte:head>
 
 <div class="page">
@@ -24,7 +25,7 @@
     <Button color="primary" href="/points" variant="raised">
       <Label>Points Hint Tracker</Label>
     </Button>
-    <p>Streamline your randomizer by using a point location hint system!</p>
+    <p>Streamline your randomizer by using a key item region point hint system!</p>
   </div>
   <br /><br /><br />
   <b>Credits:</b>

@@ -97,6 +97,7 @@
 
 <svelte:head>
   <title>Pokémon Crystal Rival & Treasure Hunt</title>
+  <meta property="description" content="Race to find hidden treasures and defeat rivals around Johto and Kanto!" />
 </svelte:head>
 
 {#if !chosenSeed}
