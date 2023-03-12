@@ -98,6 +98,7 @@
       }
 
       baskets = newBaskets;
+      showSolution = false;
     }
   }
 
@@ -485,12 +486,12 @@
     display: inline-flex;
   }
 
-  .hovering,
-  .dumpable {
-		background-color: lightgreen;
+  .hovering {
+		background-color: lightgrey;
 	}
 
   .dumpable {
+		background-color: lightgreen;
     cursor: pointer;
   }
 
@@ -506,7 +507,7 @@
 	}
 
   .region-section ul {
-    width: 210px;
+    width: 240px;
   }
 
   img {
