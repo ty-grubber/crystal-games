@@ -18,7 +18,6 @@
 		"@smui/data-table": "^7.0.0-beta.0",
 		"@smui/dialog": "^7.0.0-beta.0",
 		"@smui/textfield": "^7.0.0-beta.0",
-		"@smui/tooltip": "^7.0.0-beta.0",
 		"@sveltejs/adapter-auto": "next",
 		"@sveltejs/kit": "next",
 		"eslint": "^8.16.0",
