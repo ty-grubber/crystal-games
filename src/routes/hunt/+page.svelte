@@ -1,7 +1,6 @@
 <script>
   import Button, { Label } from '@smui/button';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
-  import Tooltip, { Wrapper } from '@smui/tooltip';
   import SeedGeneratorForm from '../../components/SeedGenerator/Form.svelte';
   import Layout from '../../components/Tracker/Layout.svelte';
   import RIVALS from '../../constants/rivals';
@@ -126,12 +125,9 @@
       <Label>How To Play</Label>
     </Button>
     <br /><br />
-    <Wrapper>
-      <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
-        <Label>Seed Info</Label>
-      </Button>
-      <Tooltip xPos="start">Click to see full seed info</Tooltip>
-    </Wrapper>
+    <Button color="primary" on:click={openSeedInfoDialog} variant="outlined">
+      <Label>Seed Info</Label>
+    </Button>
     <br /><br />
     <Button color="primary" on:click={handleStartNewGame} variant="raised">
       <Label>Start New Game</Label>

@@ -1,6 +1,5 @@
 <script>
   import { randomizeArray } from '$lib/randomize';
-  import Checkbox from '@smui/checkbox';
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import seedrandom from 'seedrandom';
 
@@ -100,14 +99,16 @@
       <Body>
         {#each formattedLocations as location, i (location.id)}
           <Row style={location.found && 'background-color: #ebfbe9;'}>
-            <Cell>{location.description}</Cell>
+            <Cell style="width: 300px; white-space: normal; height: 42px;">{location.description}</Cell>
             <Cell style="text-align: center">
-              <Checkbox
+              <input
+                type="checkbox"
+                class="checkbox"
                 on:click={() => handleCheckboxClick(i)}
-                valueKey={location.id}
+                value={location.found}
               />
             </Cell>
-            <Cell style="width: 350px; white-space: normal;">
+            <Cell style="width: 275px; white-space: normal;">
               <span class={`${!location.found ? 'hidden' : ''}`}>
                 <span class={`${(location.result === TREASURE_STR && location.found) ? 'gold' : ''}`}>
                   {location.found ? location.result : 'Location not found'}
@@ -140,9 +141,11 @@
             <Cell>{rival.location}</Cell>
             <Cell>{rival.name}{#if rival.missable}{@html '<span style="color: red;">*</span>'}{/if}</Cell>
             <Cell style="text-align: center">
-              <Checkbox
+              <input
+                type="checkbox"
+                class="checkbox"
                 on:click={() => handleRivalDefeated(rival.id)}
-                valueKey={rival.name}
+                value={defeated.includes(rival.id)}
               />
             </Cell>
           </Row>
@@ -163,6 +166,7 @@
     color: goldenrod;
     font-weight: bold;
     font-size: 1.25rem;
+    line-height: 1.25;
   }
 
   .gold.heading {
@@ -175,6 +179,14 @@
 
   .missable {
     color: red;
+  }
+
+  .checkbox {
+    accent-color: #155c10;
+    border: 2px solid black;
+    height: 18px;
+    width: 18px;
+    margin: 5px;
   }
 
   h2 {
