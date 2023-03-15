@@ -11,7 +11,7 @@ const TREASURES = [
   },
   {
     id: 2,
-    description: 'Collect the hidden item in the water on Cycling Road',
+    description: 'Collect the hidden item in the water on Cycling Road.',
     hintOpts: [
       'You\'ll need to go for a ride to find this treasure.',
       'Some treasures aren\'t immediately obvious.',
@@ -131,7 +131,7 @@ const TREASURES = [
   },
   {
     id: 17,
-    description: 'Pickup the hidden item on Route 45',
+    description: 'Pickup the hidden item on Route 45.',
     hintOpts: [
       'Some treasures aren\'t immediately obvious.',
       'Search the tall grass to find some treasure.',
@@ -299,7 +299,7 @@ const TREASURES = [
   },
   {
     id: 38,
-    description: 'Ride the train from Goldenrod to Saffron',
+    description: 'Ride the train from Goldenrod to Saffron.',
     hintOpts: [
       'You\'ll need to go for a ride to find this treasure.',
       'Treasures can be found with the right equipment.',

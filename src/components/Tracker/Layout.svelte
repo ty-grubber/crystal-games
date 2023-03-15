@@ -99,7 +99,7 @@
       <Body>
         {#each formattedLocations as location, i (location.id)}
           <Row style={location.found && 'background-color: #ebfbe9;'}>
-            <Cell>{location.description}</Cell>
+            <Cell style="width: 350px; white-space: normal; height: 42px;">{location.description}</Cell>
             <Cell style="text-align: center">
               <input
                 type="checkbox"
@@ -108,7 +108,7 @@
                 value={location.found}
               />
             </Cell>
-            <Cell style="width: 350px; white-space: normal;">
+            <Cell style="width: 300px; white-space: normal;">
               <span class={`${!location.found ? 'hidden' : ''}`}>
                 <span class={`${(location.result === TREASURE_STR && location.found) ? 'gold' : ''}`}>
                   {location.found ? location.result : 'Location not found'}
