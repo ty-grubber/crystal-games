@@ -37,7 +37,7 @@ const TREASURES = [
     id: 5,
     description: 'Rescue DJ Mary.',
     hintOpts: [
-      'The reward of helping someone in need is all the treasure you need.',
+      'The reward of helping someone is all the treasure you need.',
       'Treasure is the reward for success on the battlefield.',
     ]
   },
@@ -102,7 +102,7 @@ const TREASURES = [
     description: 'Collect the item behind the Cut Tree connected to the dock on Route 12.',
     hintOpts: [
       'Sometimes the best treasures are just found lying on the ground.',
-      'You will need to cut down some obstacles to find the treasure you seek.',
+      'You will need to cut some obstacles to find the treasure you seek.',
     ]
   },
   {
@@ -141,7 +141,7 @@ const TREASURES = [
     id: 18,
     description: 'Receive the gift from the Roar Guy on Route 32.',
     hintOpts: [
-      'You will need to cut down some obstacles to find the treasure you seek.',
+      'You will need to cut some obstacles to find the treasure you seek.',
       'Sometimes treasure is just given to us willingly.',
     ]
   },
@@ -166,7 +166,7 @@ const TREASURES = [
     description: 'Collect all 3 Apricorns on Route 42.',
     hintOpts: [
       'You can find treasure by reaping some fruity rewards.',
-      'You will need to cut down some obstacles to find the treasure you seek.',
+      'You will need to cut some obstacles to find the treasure you seek.',
     ]
   },
   {
@@ -189,7 +189,7 @@ const TREASURES = [
     id: 24,
     description: 'Receive the item from healing Moomoo.',
     hintOpts: [
-      'The reward of helping someone in need is all the treasure you need.',
+      'The reward of helping someone is all the treasure you need.',
       'You can find treasure by reaping some fruity rewards.',
     ]
   },
@@ -221,7 +221,7 @@ const TREASURES = [
     id: 28,
     description: 'Heal Amphy.',
     hintOpts: [
-      'The reward of helping someone in need is all the treasure you need.',
+      'The reward of helping someone is all the treasure you need.',
       'Not all treasure is found outside.',
     ]
   },
