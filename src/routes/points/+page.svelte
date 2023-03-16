@@ -7,6 +7,7 @@
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
 	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
+	import { randomizeArray } from '$lib/randomize';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
@@ -32,7 +33,9 @@
    */
   let hoveringOverBasket;
   let baskets = [];
+  let regionRevealOrder = [];
   let showSolution = false;
+  let revealRegionPoints = false;
   let howToDialogOpen = false;
   let mapSelected = 'johto';
   let selectedAvailableItem = {};
@@ -98,12 +101,18 @@
       }
 
       baskets = newBaskets;
+      regionRevealOrder = randomizeArray(REGIONS.map(region => region.id), file.name);
+      revealRegionPoints = false;
       showSolution = false;
     }
   }
 
   function handleShowSolution() {
     showSolution = !showSolution;
+  }
+
+  function toggleRevealAllRegions() {
+    revealRegionPoints = !revealRegionPoints;
   }
 
   function openHowToDialog() {
@@ -332,7 +341,7 @@
                       <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
                     </Cell>
                     <Cell style="text-align: center; font-size: 20px;">
-                      {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
+                      {revealRegionPoints ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0) : '??'}
                     </Cell>
                     <Cell style="white-space: normal;">
                       <ul
@@ -381,7 +390,11 @@
           </DataTable>
         </div>
         <br /><br />
-        <Button color="primary" variant="raised" on:click={handleShowSolution}>
+        <Button color="primary" variant="raised" on:click={toggleRevealAllRegions}>
+          <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
+        </Button>
+        <t />
+        <Button color="primary" variant="outlined" on:click={handleShowSolution}>
           <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
         </Button>
         <br /><br />
