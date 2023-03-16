@@ -7,6 +7,7 @@
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
 	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
+	import { randomizeArray } from '$lib/randomize';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
@@ -32,7 +33,10 @@
    */
   let hoveringOverBasket;
   let baskets = [];
+  let regionRevealOrder = [];
+  let revealedRegions = [];
   let showSolution = false;
+  let revealRegionPoints = false;
   let howToDialogOpen = false;
   let mapSelected = 'johto';
   let selectedAvailableItem = {};
@@ -98,6 +102,8 @@
       }
 
       baskets = newBaskets;
+      regionRevealOrder = randomizeArray(REGIONS.map(region => region.id), file.name);
+      revealRegionPoints = false;
       showSolution = false;
     }
   }
@@ -106,8 +112,30 @@
     showSolution = !showSolution;
   }
 
+  function toggleRevealAllRegions() {
+    revealRegionPoints = !revealRegionPoints;
+  }
+
   function openHowToDialog() {
     howToDialogOpen = true;
+  }
+
+  function checkToExposeRegion(originalBasket, targetBasket, movedItem) {
+    if (originalBasket.type === 'item' && targetBasket.type === 'region' && movedItem.points === 9) {
+      // Found a badge in a region so expose a region's point value
+      const regionToExpose = regionRevealOrder.shift();
+      revealedRegions.unshift(regionToExpose);
+
+      regionRevealOrder = regionRevealOrder;
+      revealedRegions = revealedRegions;
+    } else if (originalBasket.type === 'region' && targetBasket.type === 'item' && movedItem.points === 9) {
+      // Unmarked a badge in a region so hide the last exposed region's point value
+      const regionToExpose = revealedRegions.shift();
+      regionRevealOrder.unshift(regionToExpose);
+
+      regionRevealOrder = regionRevealOrder;
+      revealedRegions = revealedRegions;
+    }
   }
 
 	/**
@@ -145,11 +173,14 @@
       }
 
       // Remove the item from the original basket.
-      const [item] = baskets[origItemLocation.basketIndex].items.splice(origItemLocation.itemIndex, 1);
+      const originalBasket = baskets[origItemLocation.basketIndex];
+      const [item] = originalBasket.items.splice(origItemLocation.itemIndex, 1);
 
       // Add the item to the drop target basket.
       targetBasket.items.push(item);
       baskets = baskets;
+
+      checkToExposeRegion(originalBasket, targetBasket, item);
 
       hoveringOverBasket = null;
       selectedAvailableItem = {};
@@ -189,12 +220,15 @@
       }
 
       // Remove the item from the original basket.
+      const originalBasket = baskets[itemGettingPlaced.currBasketIndex];
       const draggedItemIndexInBasket = baskets[itemGettingPlaced.currBasketIndex].items.findIndex(item => item.id === itemGettingPlaced.id);
-      const [freedItem] = baskets[itemGettingPlaced.currBasketIndex].items.splice(draggedItemIndexInBasket, 1);
+      const [freedItem] = originalBasket.items.splice(draggedItemIndexInBasket, 1);
 
       // Add the item to the drop target basket.
       targetBasket.items.push(freedItem);
       baskets = baskets;
+
+      checkToExposeRegion(originalBasket, targetBasket, freedItem);
     }
 
     selectedAvailableItem = {};
@@ -252,8 +286,13 @@
         This tracker works for use with most versions of the Item Randomizer and has been tested to work on v7.1.15.
       </p>
 
-      <h3>Tracker Layout</h3>
-      <p>In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer. The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:</p>
+      <h3>Initiating The Tracker</h3>
+      <p>
+        In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer. <b>NOTE:</b> if you are racing someone, make sure your spoiler log file name is the same as your opponent(s). This is important for randomness of the region point reveal (see Tracker Overview below).
+      </p>
+      <p>
+        The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:
+      </p>
       <ul>
         <li><b>9 Points:</b> Badges</li>
         <li><b>7 Points:</b> HMs and PokéGear Items (excluding Map Card)</li>
@@ -263,22 +302,29 @@
 
       <p><b>*</b>Both Blue Card and Coin Case get upgraded to 5-point items if the appropriate Modifiers have been turned on (namely, Buena Items and Game Corner respectively)</p>
 
+      <h3>Tracker Overview</h3>
       <p>
-        Once the upload is complete, a table will appear with each row being a region where a key item could be placed in the ROM. Beside the name of each region is the total number of points of Key Items contained in that region, as well as an empty space for you to put found items in.
+        Once the upload is complete, a table will appear with each row being a region where a key item could be placed in the ROM. Beside the name of each region is the remaining number of points of Key Items contained in that region, as well as an empty space for you to put found items in.
       </p>
       <p>
         As well, a table containing the remaining available Key Items will be located on the right including the point value of each Key Item. Underneath this table you will find a more descriptive list of all the locations in Pokémon Crystal and what region number they have been placed in. If a city is listed in a region, then any subareas within that city are also included in that region. For example, Tin Tower is located in Ecruteak City, so item locations in Tin Tower are a part of Region #6.
+      </p>
+      <p>
+        The total number of points of Key Items for each region will remain hidden with `??`. Every time you find a 9-point item in your game and place them into the region table (see Using The Tracker below), a random region's remaining point value will be revealed. If you replace the 9-point item back into the item table, the last region's remaining point value that was revealed will become hidden again and will also be the next region to reveal its point value when another 9-point item is placed in the table.
+      </p>
+      <p>
+        At any time, you can play this tracker in an easier mode by clicking the `Show Region Points` button underneath the region table, which will reveal all remaining point values of all regions. Click the button again to hide the point values (except the ones that have already been revealed with 9-point items found).
       </p>
 
       <h3>Using The Tracker</h3>
       <p>
         As you play your ROM, you can note the region where you found a Key Item by dragging the item's icon from the items table on the right into the appropriate region slot on the table on the left. For example, if you found the Boulder Badge in Cherrygrove Mart, drag the Boulder Badge icon from the 9 row of the right items table into Region #1's row on the table on the left.
         <br />
-        You can note, that when you drop the icon into the table, the Points Left value of that region will decrease based on the value of the item you placed there. If you ever make a mistake, you can always freely drag icons from region rows to other region rows, or even back to the available items table on the right.
+        You can note, that when you drop the icon into a revealed region's row in the table, the Points Left value of that region will decrease based on the value of the item you placed there. If you ever make a mistake, you can always freely drag icons from region rows to other region rows, or even back to the available items table on the right.
       </p>
 
       <p>
-        Instead of dragging, you can also click items in any list to move them to a different list. Clicking an item will bring up a black border around the clicked item. As well, any logical slot that item can be placed will highlight in green. Clicking a green section will place the selected item in that slot. To deselect a selected item, click anywhere outside the region table or the available item table.
+        Instead of dragging, you can also click items in any list to move them to a different list. Clicking an item will bring up a black border around the clicked item. As well, any logical slot that item can be placed will highlight in green (a region showing `??` is always assumed to have enough points to fit the item). Clicking a green section will place the selected item in that slot. To deselect a selected item, click anywhere outside the region table or the available item table.
       </p>
 
       <p>
@@ -332,16 +378,22 @@
                       <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
                     </Cell>
                     <Cell style="text-align: center; font-size: 20px;">
-                      {rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
+                      {(revealRegionPoints || revealedRegions.includes(rp.regionId))
+                        ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
+                        : '??'
+                      }
                     </Cell>
-                    <Cell style="white-space: normal;">
+                    <Cell style={`white-space: normal;${showSolution ? '' : ' padding-right: 0;'}`}>
                       <ul
                         class:hovering={
                           (hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`)
                         }
                         class:dumpable={
-                          (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
-                          (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
+                          (!revealRegionPoints && !revealedRegions.includes(rp.regionId) && (selectedAvailableItem?.points || selectedFoundItem?.points)) ||
+                          ((revealRegionPoints || (!revealRegionPoints && revealedRegions.includes(rp.regionId))) &&
+                            (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
+                            (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
+                          )
                         }
                         on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
                         on:dragleave={() => hoveringOverBasket = null}
@@ -381,7 +433,11 @@
           </DataTable>
         </div>
         <br /><br />
-        <Button color="primary" variant="raised" on:click={handleShowSolution}>
+        <Button color="primary" variant="raised" on:click={toggleRevealAllRegions}>
+          <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
+        </Button>
+        <t />
+        <Button color="primary" variant="outlined" on:click={handleShowSolution}>
           <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
         </Button>
         <br /><br />
