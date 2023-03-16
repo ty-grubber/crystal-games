@@ -286,8 +286,13 @@
         This tracker works for use with most versions of the Item Randomizer and has been tested to work on v7.1.15.
       </p>
 
-      <h3>Tracker Layout</h3>
-      <p>In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer. The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:</p>
+      <h3>Initiating The Tracker</h3>
+      <p>
+        In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer. <b>NOTE:</b> if you are racing someone, make sure your spoiler log file name is the same as your opponent(s). This is important for randomness of the region point reveal (see Tracker Overview below).
+      </p>
+      <p>
+        The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:
+      </p>
       <ul>
         <li><b>9 Points:</b> Badges</li>
         <li><b>7 Points:</b> HMs and PokéGear Items (excluding Map Card)</li>
@@ -297,6 +302,7 @@
 
       <p><b>*</b>Both Blue Card and Coin Case get upgraded to 5-point items if the appropriate Modifiers have been turned on (namely, Buena Items and Game Corner respectively)</p>
 
+      <h3>Tracker Overview</h3>
       <p>
         Once the upload is complete, a table will appear with each row being a region where a key item could be placed in the ROM. Beside the name of each region is the remaining number of points of Key Items contained in that region, as well as an empty space for you to put found items in.
       </p>
