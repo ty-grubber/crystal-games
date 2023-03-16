@@ -34,6 +34,7 @@
   let hoveringOverBasket;
   let baskets = [];
   let regionRevealOrder = [];
+  let revealedRegions = [];
   let showSolution = false;
   let revealRegionPoints = false;
   let howToDialogOpen = false;
@@ -119,6 +120,24 @@
     howToDialogOpen = true;
   }
 
+  function checkToExposeRegion(originalBasket, targetBasket, movedItem) {
+    if (originalBasket.type === 'item' && targetBasket.type === 'region' && movedItem.points === 9) {
+      // Found a badge in a region so expose a region's point value
+      const regionToExpose = regionRevealOrder.shift();
+      revealedRegions.unshift(regionToExpose);
+
+      regionRevealOrder = regionRevealOrder;
+      revealedRegions = revealedRegions;
+    } else if (originalBasket.type === 'region' && targetBasket.type === 'item' && movedItem.points === 9) {
+      // Unmarked a badge in a region so hide the last exposed region's point value
+      const regionToExpose = revealedRegions.shift();
+      regionRevealOrder.unshift(regionToExpose);
+
+      regionRevealOrder = regionRevealOrder;
+      revealedRegions = revealedRegions;
+    }
+  }
+
 	/**
 	 * @param {DragEvent & { currentTarget: EventTarget & HTMLLIElement; }} event
 	 * @param {any} basketIndex
@@ -154,11 +173,14 @@
       }
 
       // Remove the item from the original basket.
-      const [item] = baskets[origItemLocation.basketIndex].items.splice(origItemLocation.itemIndex, 1);
+      const originalBasket = baskets[origItemLocation.basketIndex];
+      const [item] = originalBasket.items.splice(origItemLocation.itemIndex, 1);
 
       // Add the item to the drop target basket.
       targetBasket.items.push(item);
       baskets = baskets;
+
+      checkToExposeRegion(originalBasket, targetBasket, item);
 
       hoveringOverBasket = null;
       selectedAvailableItem = {};
@@ -198,12 +220,15 @@
       }
 
       // Remove the item from the original basket.
+      const originalBasket = baskets[itemGettingPlaced.currBasketIndex];
       const draggedItemIndexInBasket = baskets[itemGettingPlaced.currBasketIndex].items.findIndex(item => item.id === itemGettingPlaced.id);
-      const [freedItem] = baskets[itemGettingPlaced.currBasketIndex].items.splice(draggedItemIndexInBasket, 1);
+      const [freedItem] = originalBasket.items.splice(draggedItemIndexInBasket, 1);
 
       // Add the item to the drop target basket.
       targetBasket.items.push(freedItem);
       baskets = baskets;
+
+      checkToExposeRegion(originalBasket, targetBasket, freedItem);
     }
 
     selectedAvailableItem = {};
@@ -341,7 +366,10 @@
                       <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
                     </Cell>
                     <Cell style="text-align: center; font-size: 20px;">
-                      {revealRegionPoints ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0) : '??'}
+                      {(revealRegionPoints || revealedRegions.includes(rp.regionId))
+                        ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
+                        : '??'
+                      }
                     </Cell>
                     <Cell style="white-space: normal;">
                       <ul
