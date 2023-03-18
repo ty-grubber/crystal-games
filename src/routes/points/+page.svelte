@@ -400,7 +400,10 @@
 
       <h3>Initiating The Tracker</h3>
       <p>
-        In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer. <b>NOTE:</b> if you are racing someone, make sure your spoiler log file name is the same as your opponent(s). This is important for randomness of the region point reveal (see Tracker Overview below).
+        In order to start the tracker, you will need to upload the spoiler log you received when you generated your rom through the Item Randomizer. The page with this tracker should have popped up a settings dialog where you can first input your spoiler log. If it didn't, click the New Game button to bring it up. You will not be able to start the tracker until a spoiler log file is uploaded.
+      </p>
+      <p>
+        After uploading your spoiler log, you can choose your settings for how you want the region points to be revealed (see Revealing Region Points below for details on how regions are revealed). You can choose between having them revealed in a random order, in descending order (highest total points to lowest total points), or in ascending order (lowest total points to highest total points). If you don't want to play with the revealing game mode, leave the above dropdown alone and check off the "Start with region points revealed?" checkbox. (You can change this later via the In-Game menu)
       </p>
       <p>
         The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:
@@ -422,10 +425,15 @@
         As well, a table containing the remaining available Key Items will be located on the right including the point value of each Key Item. Underneath this table you will find a more descriptive list of all the locations in Pokémon Crystal and what region number they have been placed in. If a city is listed in a region, then any subareas within that city are also included in that region. For example, Tin Tower is located in Ecruteak City, so item locations in Tin Tower are a part of Region #6.
       </p>
       <p>
-        The total number of points of Key Items for each region will remain hidden with `??`. Every time you find a 9-point item in your game and place them into the region table (see Using The Tracker below), a random region's remaining point value will be revealed. If you replace the 9-point item back into the item table, the last region's remaining point value that was revealed will become hidden again and will also be the next region to reveal its point value when another 9-point item is placed in the table.
+        Finally, you can access the In-Game menu via the green button in the top right corner of the page. This menu is useful for toggling certain settings, accessing this How To Play dialog, and starting a new game.
+      </p>
+
+      <h3>Revealing Region Points</h3>
+      <p>
+        The total number of points of Key Items for each region will remain hidden with `??`. Every time you find a 9-point item in your game and place them into the region table (see Using The Tracker below), a region's remaining point value will be revealed and bolded according to the ordering you chose when initiating the tracker. If you replace the 9-point item back into the item table, the last region's remaining point value that was revealed will become hidden again and will also be the next region to reveal its point value when another 9-point item is placed in the table.
       </p>
       <p>
-        At any time, you can play this tracker in an easier mode by clicking the `Show Region Points` button underneath the region table, which will reveal all remaining point values of all regions. Click the button again to hide the point values (except the ones that have already been revealed with 9-point items found).
+        At any time, you can toggle the reveal mode by clicking the `Show/Hide Region Points` in the In-Game menu, which will reveal all remaining point values of all regions. If you are hiding the region points via this button, the regions that have already been revealed with 9-point items found will not become hidden.
       </p>
 
       <h3>Using The Tracker</h3>
@@ -456,11 +464,11 @@
 
       <h3>Additional Info</h3>
       <p>
-        At any time, you can peek the solution of the tracker by clicking the Show Solution button underneath the Region table. This will cause an extra column to display in the Region table showing which region each Key Item can be found in. These key items in the solution are listed in descending points order. <br />
+        At any time, you can peek the solution of the tracker by clicking the Show Solution button in the In-Game menu. This will cause an extra column to display in the Region table showing which region each Key Item can be found in. These key items in the solution are listed in descending points order. <br />
         <b>Note: </b> if you have progressive Rods turned on, the Rod icons might be in different Regions in the solution compared to where you found them, but they're all worth the same number of points anyway.
       </p>
       <p>
-        To start a new game, simply upload a new spoiler file and the tables will reset.
+        To start a new game, click the Start New Game button in the In-Game menu. The tables will reset and the initial game settings dialog will show so you can upload your next spoiler log.
       </p>
     </Content>
     <Actions>
@@ -662,6 +670,7 @@
     position: absolute;
     top: 1%;
     right: 1%;
+    z-index: 10;
   }
 
   .hovering {
