@@ -38,6 +38,7 @@
   let revealedRegions = [];
   let showSolution = false;
   let howToDialogOpen = false;
+  let inGameMenuOpen = false;
 
   let settingsDialogOpen = true;
   let revealRegionPoints = false;
@@ -125,8 +126,24 @@
           regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, file.name);
       }
       regionRevealOrder = regionsWithTotalPoints.map(r => r.id);
-      showSolution = false;
       settingsDialogOpen = false;
+    }
+  }
+
+  function handleStartNewGame() {
+    if(confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
+      spoilerFile = null;
+      regionPoints = null;
+      baskets = [];
+      regionRevealOrder = [];
+      revealedRegions = [];
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
+      revealOrdering = 'random';
+      showSolution = false;
+      howToDialogOpen = false;
+      inGameMenuOpen = false;
+      settingsDialogOpen = true;
     }
   }
 
@@ -144,6 +161,10 @@
 
   function openSettingsDialog() {
     settingsDialogOpen = true;
+  }
+
+  function openInGameMenu() {
+    inGameMenuOpen = true;
   }
 
   function checkToExposeRegion(originalBasket, targetBasket, movedItem) {
@@ -293,6 +314,13 @@
     </Button>
     <br /><br />
   {/if}
+  {#if regionPoints}
+    <div class='floating-menu'>
+      <Button color="primary" on:click={openInGameMenu} variant="raised">
+        <Label>Menu</Label>
+      </Button>
+    </div>
+  {/if}
 
   <Dialog bind:open={settingsDialogOpen}>
     <Title id="settingsTitle">Pokémon Crystal Points Hint Tracker Settings</Title>
@@ -332,6 +360,31 @@
       <Button color="secondary" href="/" variant="outlined">
         <Label>Games Home</Label>
       </Button>
+    </Content>
+  </Dialog>
+
+  <Dialog bind:open={inGameMenuOpen}>
+    <Title id="inGameMenuTitle">Tracker Menu</Title>
+    <Content id="inGameMenuContent">
+      <Button color="primary" variant="outlined" on:click={toggleRevealAllRegions}>
+        <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
+      </Button>
+      <t />
+      <!-- TODO? put solution in separate dialog -->
+      <Button color="primary" variant="outlined" on:click={handleShowSolution}>
+        <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
+      </Button>
+      <br /><br />
+      <Button color="secondary" on:click={openHowToDialog} variant="raised">
+        <Label>How To Play</Label>
+      </Button>
+      <br /><br />
+      <Button color="primary" on:click={handleStartNewGame} variant="raised">
+        <Label>Start New Game</Label>
+      </Button>
+      <Actions>
+        <Button>Close</Button>
+      </Actions>
     </Content>
   </Dialog>
 
@@ -491,15 +544,11 @@
             </Body>
           </DataTable>
         </div>
-        <br /><br />
-        <Button color="primary" variant="raised" on:click={toggleRevealAllRegions}>
-          <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
-        </Button>
-        <t />
-        <Button color="primary" variant="outlined" on:click={handleShowSolution}>
-          <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
-        </Button>
-        <br /><br />
+        {#if spoilerFile}
+          <p>
+            Spoiler file name: {spoilerFile.name}
+          </p>
+        {/if}
         <p class="credits">
           Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
           Region map images created by Kovolta.
@@ -607,6 +656,12 @@
     height: 18px;
     width: 18px;
     margin: 5px;
+  }
+
+  .floating-menu {
+    position: absolute;
+    top: 1%;
+    right: 1%;
   }
 
   .hovering {
