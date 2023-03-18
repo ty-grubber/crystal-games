@@ -123,7 +123,7 @@
           regionsWithTotalPoints.sort((a, b) => a.points - b.points);
           break;
         default:
-          regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, file.name);
+          regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, extraction.rngSeed || file.name);
       }
       regionRevealOrder = regionsWithTotalPoints.map(r => r.id);
       settingsDialogOpen = false;
