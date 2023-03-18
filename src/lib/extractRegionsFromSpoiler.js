@@ -22,6 +22,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     solutionEndIndex,
     spoilerLines.findIndex(line => line.includes('Xtra Stuff:')),
   ).join(';')};`;
+  const rngSeed = spoilerLines.find(line => line.includes('RNG Seed:'))?.replace('RNG Seed: ', '');
 
   const blueCardImportant = modifierLines.includes('Buena Items');
   const coinCaseImportant = modifierLines.includes('Game Corner');
@@ -91,6 +92,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     extraItems,
     blueCardImportant,
     coinCaseImportant,
+    rngSeed,
   };
 }
 

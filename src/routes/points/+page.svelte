@@ -3,6 +3,7 @@
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Button, { Label } from '@smui/button';
+  import Select, { Option } from '@smui/select';
   import { clickOutside } from '$lib/clickOutside';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
@@ -36,8 +37,14 @@
   let regionRevealOrder = [];
   let revealedRegions = [];
   let showSolution = false;
-  let revealRegionPoints = false;
   let howToDialogOpen = false;
+  let inGameMenuOpen = false;
+
+  let settingsDialogOpen = true;
+  let revealRegionPoints = false;
+  let revealOrdering = 'random';
+  let spoilerFile;
+
   let mapSelected = 'johto';
   let selectedAvailableItem = {};
   let selectedFoundItem = {};
@@ -46,7 +53,11 @@
 	 * @param {any} e
 	 */
   async function handleSpoilerFileChange(e) {
-    const file = e.target.files[0];
+    spoilerFile = e.target.files[0];
+  };
+
+  async function onStartClick() {
+    const file = spoilerFile;
     if (file != null) {
       const spoilerText = await file.text();
 
@@ -102,9 +113,37 @@
       }
 
       baskets = newBaskets;
-      regionRevealOrder = randomizeArray(REGIONS.map(region => region.id), file.name);
-      revealRegionPoints = false;
+      let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
+
+      switch (revealOrdering) {
+        case 'desc':
+          regionsWithTotalPoints.sort((a, b) => b.points - a.points);
+          break;
+        case 'asc':
+          regionsWithTotalPoints.sort((a, b) => a.points - b.points);
+          break;
+        default:
+          regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, extraction.rngSeed || file.name);
+      }
+      regionRevealOrder = regionsWithTotalPoints.map(r => r.id);
+      settingsDialogOpen = false;
+    }
+  }
+
+  function handleStartNewGame() {
+    if(confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
+      spoilerFile = null;
+      regionPoints = null;
+      baskets = [];
+      regionRevealOrder = [];
+      revealedRegions = [];
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
+      revealOrdering = 'random';
       showSolution = false;
+      howToDialogOpen = false;
+      inGameMenuOpen = false;
+      settingsDialogOpen = true;
     }
   }
 
@@ -118,6 +157,14 @@
 
   function openHowToDialog() {
     howToDialogOpen = true;
+  }
+
+  function openSettingsDialog() {
+    settingsDialogOpen = true;
+  }
+
+  function openInGameMenu() {
+    inGameMenuOpen = true;
   }
 
   function checkToExposeRegion(originalBasket, targetBasket, movedItem) {
@@ -256,25 +303,90 @@
 <div class="page">
   {#if !regionPoints}
     <h1>Pokémon Crystal Points Tracker</h1>
+    <Button color="primary" on:click={openSettingsDialog} variant="raised">
+      <Label>New Game</Label>
+    </Button>
+    <Button color="secondary" on:click={openHowToDialog} variant="raised">
+      <Label>How To Play</Label>
+    </Button>
+    <Button color="secondary" href="/" variant="outlined">
+      <Label>Games Home</Label>
+    </Button>
+    <br /><br />
+  {/if}
+  {#if regionPoints}
+    <div class='floating-menu'>
+      <Button color="primary" on:click={openInGameMenu} variant="raised">
+        <Label>Menu</Label>
+      </Button>
+    </div>
   {/if}
 
-  <label for="spoiler">
-    {!regionPoints ? 'Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
-  </label>
-  <input
-    id="spoiler"
-    accept=".txt"
-    type="file"
-    on:change={handleSpoilerFileChange}
-    style="margin-right: 1rem;"
-  />
-  <Button color="primary" on:click={openHowToDialog} variant="raised">
-    <Label>How To Play</Label>
-  </Button>
-  <Button color="secondary" href="/" variant="outlined">
-    <Label>Games Home</Label>
-  </Button>
-  <br /><br />
+  <Dialog bind:open={settingsDialogOpen}>
+    <Title id="settingsTitle">Pokémon Crystal Points Hint Tracker Settings</Title>
+    <Content id="settingsContent">
+      <label for="spoiler">
+        {!spoilerFile ? 'Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
+      </label>
+      <input
+        id="spoiler"
+        accept=".txt"
+        type="file"
+        on:change={handleSpoilerFileChange}
+        style="margin-right: 1rem;"
+      />
+      <br /><br />
+      <Select bind:value={revealOrdering} variant="outlined" label="Region Reveal Order" style="width: 220px;">
+        <Option value="random">Random</Option>
+        <Option value="desc">Highest First</Option>
+        <Option value="asc">Lowest First</Option>
+      </Select>
+      <br /><br />
+      <label for="startRevealed">Start with region points revealed?</label>
+      <input
+        id="startRevealed"
+        type="checkbox"
+        class="checkbox"
+        on:click={toggleRevealAllRegions}
+        value={revealRegionPoints}
+      />
+      <br /><br /><br />
+      <Button color="primary" on:click={onStartClick} disabled={!spoilerFile} variant="raised">
+        <Label>Start Game</Label>
+      </Button>
+      <Button color="secondary" on:click={openHowToDialog} variant="raised">
+        <Label>How To Play</Label>
+      </Button>
+      <Button color="secondary" href="/" variant="outlined">
+        <Label>Games Home</Label>
+      </Button>
+    </Content>
+  </Dialog>
+
+  <Dialog bind:open={inGameMenuOpen}>
+    <Title id="inGameMenuTitle">Tracker Menu</Title>
+    <Content id="inGameMenuContent">
+      <Button color="primary" variant="outlined" on:click={toggleRevealAllRegions}>
+        <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
+      </Button>
+      <t />
+      <!-- TODO? put solution in separate dialog -->
+      <Button color="primary" variant="outlined" on:click={handleShowSolution}>
+        <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
+      </Button>
+      <br /><br />
+      <Button color="secondary" on:click={openHowToDialog} variant="raised">
+        <Label>How To Play</Label>
+      </Button>
+      <br /><br />
+      <Button color="primary" on:click={handleStartNewGame} variant="raised">
+        <Label>Start New Game</Label>
+      </Button>
+      <Actions>
+        <Button>Close</Button>
+      </Actions>
+    </Content>
+  </Dialog>
 
   <Dialog bind:open={howToDialogOpen} slot="over" surface$style="height: 700px">
     <Title id="howToTitle">How To Use The Points Hint Tracker</Title>
@@ -288,7 +400,10 @@
 
       <h3>Initiating The Tracker</h3>
       <p>
-        In order to start the tracker, you will need to upload the Spoiler log you received when you generated your rom through the Item Randomizer. <b>NOTE:</b> if you are racing someone, make sure your spoiler log file name is the same as your opponent(s). This is important for randomness of the region point reveal (see Tracker Overview below).
+        In order to start the tracker, you will need to upload the spoiler log you received when you generated your rom through the Item Randomizer. The page with this tracker should have popped up a settings dialog where you can first input your spoiler log. If it didn't, click the New Game button to bring it up. You will not be able to start the tracker until a spoiler log file is uploaded.
+      </p>
+      <p>
+        After uploading your spoiler log, you can choose your settings for how you want the region points to be revealed (see Revealing Region Points below for details on how regions are revealed). You can choose between having them revealed in a random order, in descending order (highest total points to lowest total points), or in ascending order (lowest total points to highest total points). If you don't want to play with the revealing game mode, leave the above dropdown alone and check off the "Start with region points revealed?" checkbox. (You can change this later via the In-Game menu)
       </p>
       <p>
         The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:
@@ -310,10 +425,15 @@
         As well, a table containing the remaining available Key Items will be located on the right including the point value of each Key Item. Underneath this table you will find a more descriptive list of all the locations in Pokémon Crystal and what region number they have been placed in. If a city is listed in a region, then any subareas within that city are also included in that region. For example, Tin Tower is located in Ecruteak City, so item locations in Tin Tower are a part of Region #6.
       </p>
       <p>
-        The total number of points of Key Items for each region will remain hidden with `??`. Every time you find a 9-point item in your game and place them into the region table (see Using The Tracker below), a random region's remaining point value will be revealed. If you replace the 9-point item back into the item table, the last region's remaining point value that was revealed will become hidden again and will also be the next region to reveal its point value when another 9-point item is placed in the table.
+        Finally, you can access the In-Game menu via the green button in the top right corner of the page. This menu is useful for toggling certain settings, accessing this How To Play dialog, and starting a new game.
+      </p>
+
+      <h3>Revealing Region Points</h3>
+      <p>
+        The total number of points of Key Items for each region will remain hidden with `??`. Every time you find a 9-point item in your game and place them into the region table (see Using The Tracker below), a region's remaining point value will be revealed and bolded according to the ordering you chose when initiating the tracker. If you replace the 9-point item back into the item table, the last region's remaining point value that was revealed will become hidden again and will also be the next region to reveal its point value when another 9-point item is placed in the table.
       </p>
       <p>
-        At any time, you can play this tracker in an easier mode by clicking the `Show Region Points` button underneath the region table, which will reveal all remaining point values of all regions. Click the button again to hide the point values (except the ones that have already been revealed with 9-point items found).
+        At any time, you can toggle the reveal mode by clicking the `Show/Hide Region Points` in the In-Game menu, which will reveal all remaining point values of all regions. If you are hiding the region points via this button, the regions that have already been revealed with 9-point items found will not become hidden.
       </p>
 
       <h3>Using The Tracker</h3>
@@ -344,11 +464,11 @@
 
       <h3>Additional Info</h3>
       <p>
-        At any time, you can peek the solution of the tracker by clicking the Show Solution button underneath the Region table. This will cause an extra column to display in the Region table showing which region each Key Item can be found in. These key items in the solution are listed in descending points order. <br />
+        At any time, you can peek the solution of the tracker by clicking the Show Solution button in the In-Game menu. This will cause an extra column to display in the Region table showing which region each Key Item can be found in. These key items in the solution are listed in descending points order. <br />
         <b>Note: </b> if you have progressive Rods turned on, the Rod icons might be in different Regions in the solution compared to where you found them, but they're all worth the same number of points anyway.
       </p>
       <p>
-        To start a new game, simply upload a new spoiler file and the tables will reset.
+        To start a new game, click the Start New Game button in the In-Game menu. The tables will reset and the initial game settings dialog will show so you can upload your next spoiler log.
       </p>
     </Content>
     <Actions>
@@ -377,7 +497,7 @@
                     <Cell style={`font-size: 16px; font-weight: bold`}>
                       <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
                     </Cell>
-                    <Cell style="text-align: center; font-size: 20px;">
+                    <Cell style={`text-align: center; font-size: 20px;${revealedRegions[0] === rp.regionId ? ' font-weight: bold': ''}`}>
                       {(revealRegionPoints || revealedRegions.includes(rp.regionId))
                         ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
                         : '??'
@@ -432,15 +552,11 @@
             </Body>
           </DataTable>
         </div>
-        <br /><br />
-        <Button color="primary" variant="raised" on:click={toggleRevealAllRegions}>
-          <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
-        </Button>
-        <t />
-        <Button color="primary" variant="outlined" on:click={handleShowSolution}>
-          <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
-        </Button>
-        <br /><br />
+        {#if spoilerFile}
+          <p>
+            Spoiler file name: {spoilerFile.name}
+          </p>
+        {/if}
         <p class="credits">
           Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
           Region map images created by Kovolta.
@@ -540,6 +656,21 @@
 <style>
   .grid-area {
     display: inline-flex;
+  }
+
+  .checkbox {
+    accent-color: #155c10;
+    border: 2px solid black;
+    height: 18px;
+    width: 18px;
+    margin: 5px;
+  }
+
+  .floating-menu {
+    position: absolute;
+    top: 1%;
+    right: 1%;
+    z-index: 10;
   }
 
   .hovering {
