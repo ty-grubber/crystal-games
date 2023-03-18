@@ -3,6 +3,7 @@
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Button, { Label } from '@smui/button';
+  import Select, { Option } from '@smui/select';
   import { clickOutside } from '$lib/clickOutside';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
@@ -36,8 +37,13 @@
   let regionRevealOrder = [];
   let revealedRegions = [];
   let showSolution = false;
-  let revealRegionPoints = false;
   let howToDialogOpen = false;
+
+  let settingsDialogOpen = true;
+  let revealRegionPoints = false;
+  let revealOrdering = 'random';
+  let spoilerFile;
+
   let mapSelected = 'johto';
   let selectedAvailableItem = {};
   let selectedFoundItem = {};
@@ -46,7 +52,11 @@
 	 * @param {any} e
 	 */
   async function handleSpoilerFileChange(e) {
-    const file = e.target.files[0];
+    spoilerFile = e.target.files[0];
+  };
+
+  async function onStartClick() {
+    const file = spoilerFile;
     if (file != null) {
       const spoilerText = await file.text();
 
@@ -102,9 +112,21 @@
       }
 
       baskets = newBaskets;
-      regionRevealOrder = randomizeArray(REGIONS.map(region => region.id), file.name);
-      revealRegionPoints = false;
+      let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
+
+      switch (revealOrdering) {
+        case 'desc':
+          regionsWithTotalPoints.sort((a, b) => b.points - a.points);
+          break;
+        case 'asc':
+          regionsWithTotalPoints.sort((a, b) => a.points - b.points);
+          break;
+        default:
+          regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, file.name);
+      }
+      regionRevealOrder = regionsWithTotalPoints.map(r => r.id);
       showSolution = false;
+      settingsDialogOpen = false;
     }
   }
 
@@ -118,6 +140,10 @@
 
   function openHowToDialog() {
     howToDialogOpen = true;
+  }
+
+  function openSettingsDialog() {
+    settingsDialogOpen = true;
   }
 
   function checkToExposeRegion(originalBasket, targetBasket, movedItem) {
@@ -256,25 +282,58 @@
 <div class="page">
   {#if !regionPoints}
     <h1>Pokémon Crystal Points Tracker</h1>
+    <Button color="primary" on:click={openSettingsDialog} variant="raised">
+      <Label>New Game</Label>
+    </Button>
+    <Button color="secondary" on:click={openHowToDialog} variant="raised">
+      <Label>How To Play</Label>
+    </Button>
+    <Button color="secondary" href="/" variant="outlined">
+      <Label>Games Home</Label>
+    </Button>
+    <br /><br />
   {/if}
 
-  <label for="spoiler">
-    {!regionPoints ? 'Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
-  </label>
-  <input
-    id="spoiler"
-    accept=".txt"
-    type="file"
-    on:change={handleSpoilerFileChange}
-    style="margin-right: 1rem;"
-  />
-  <Button color="primary" on:click={openHowToDialog} variant="raised">
-    <Label>How To Play</Label>
-  </Button>
-  <Button color="secondary" href="/" variant="outlined">
-    <Label>Games Home</Label>
-  </Button>
-  <br /><br />
+  <Dialog bind:open={settingsDialogOpen}>
+    <Title id="settingsTitle">Pokémon Crystal Points Hint Tracker Settings</Title>
+    <Content id="settingsContent">
+      <label for="spoiler">
+        {!spoilerFile ? 'Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
+      </label>
+      <input
+        id="spoiler"
+        accept=".txt"
+        type="file"
+        on:change={handleSpoilerFileChange}
+        style="margin-right: 1rem;"
+      />
+      <br /><br />
+      <Select bind:value={revealOrdering} variant="outlined" label="Region Reveal Order" style="width: 220px;">
+        <Option value="random">Random</Option>
+        <Option value="desc">Highest First</Option>
+        <Option value="asc">Lowest First</Option>
+      </Select>
+      <br /><br />
+      <label for="startRevealed">Start with region points revealed?</label>
+      <input
+        id="startRevealed"
+        type="checkbox"
+        class="checkbox"
+        on:click={toggleRevealAllRegions}
+        value={revealRegionPoints}
+      />
+      <br /><br /><br />
+      <Button color="primary" on:click={onStartClick} disabled={!spoilerFile} variant="raised">
+        <Label>Start Game</Label>
+      </Button>
+      <Button color="secondary" on:click={openHowToDialog} variant="raised">
+        <Label>How To Play</Label>
+      </Button>
+      <Button color="secondary" href="/" variant="outlined">
+        <Label>Games Home</Label>
+      </Button>
+    </Content>
+  </Dialog>
 
   <Dialog bind:open={howToDialogOpen} slot="over" surface$style="height: 700px">
     <Title id="howToTitle">How To Use The Points Hint Tracker</Title>
@@ -540,6 +599,14 @@
 <style>
   .grid-area {
     display: inline-flex;
+  }
+
+  .checkbox {
+    accent-color: #155c10;
+    border: 2px solid black;
+    height: 18px;
+    width: 18px;
+    margin: 5px;
   }
 
   .hovering {
