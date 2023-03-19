@@ -112,6 +112,17 @@
         });
       }
 
+      // Check if we have items to auto-place in the grid
+      extraction.autoPlaceItems.forEach(item => {
+        const autoPlaceItemBasket = newBaskets.find(basket => basket.name === item.vanillaRegion.toString());
+        const originalBasket = newBaskets.find(basket => basket.type === 'item' && basket.name === item.points.toString());
+        const originalBasketItemIndex = originalBasket.items.findIndex(origBasketItem => origBasketItem.name === item.name);
+
+        // Place the non-randomized item in its appropriate region
+        const [autoPlacedItem] = originalBasket.items.splice(originalBasketItemIndex, 1);
+        autoPlaceItemBasket.items.push(autoPlacedItem);
+      });
+
       baskets = newBaskets;
       let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
 
@@ -141,6 +152,7 @@
       selectedFoundItem = {};
       revealOrdering = 'random';
       showSolution = false;
+      revealRegionPoints = false;
       howToDialogOpen = false;
       inGameMenuOpen = false;
       settingsDialogOpen = true;

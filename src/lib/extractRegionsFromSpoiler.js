@@ -9,6 +9,10 @@ function extractRegionsFromSpoiler(spoilerFileText) {
    * @type {{ id: string; name: string; points: number; vanillaRegion: number; }[]}
    */
   let extraItems = [];
+  /**
+   * @type {{ id: string; name: string; points: number; vanillaRegion: number; }[]}
+   */
+  let autoPlaceItems = [];
   const regionPointsArray = REGIONS.map(region => ({ regionId: region.id, name: region.name, points: 0, items: [] }));
 
   const spoilerLines = spoilerFileText.split('\r\n');
@@ -26,6 +30,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
 
   const blueCardImportant = modifierLines.includes('Buena Items');
   const coinCaseImportant = modifierLines.includes('Game Corner');
+  const startWithBike = modifierLines.includes('Start With Bike');
 
   KEY_ITEMS.forEach(item => {
     /**
@@ -69,6 +74,9 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     if (matchedRegionIds.length === 0) {
       // Item is in its vanilla location
       matchedRegionIds.push(item.vanillaRegion);
+      if (item.name !== 'Bicycle' || (item.name === 'Bicycle' && startWithBike)) {
+        autoPlaceItems.push(item);
+      }
     }
 
     // Prep for dumping the item into its region by checking if we need to upgrade it
@@ -90,6 +98,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
   return {
     regionPointsArray,
     extraItems,
+    autoPlaceItems,
     blueCardImportant,
     coinCaseImportant,
     rngSeed,
