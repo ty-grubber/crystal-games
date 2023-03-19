@@ -59,7 +59,7 @@ export const KEY_ITEMS_3PTS = [
   { id: 'super_rod', name: 'Super Rod', points: 3, vanillaRegion: 14 },
 ];
 
-// Split these out in case someone has turned on Buena or Game Corner Items
+// Split key items that have extra logic during extraction
 export const BLUE_CARD_KEY_ITEM = { id: 'blue_card', name: 'Blue Card', points: 3, vanillaRegion: 5 };
 export const COIN_CASE_KEY_ITEM = { id: 'coin_case', name: 'Coin Case', points: 3, vanillaRegion: 5 };
 export const DIG_KEY_ITEM = { id: 'tm28', name: 'TM Dig', points: 3, vanillaRegion: 5 };
