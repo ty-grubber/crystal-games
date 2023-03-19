@@ -9,9 +9,14 @@ function extractRegionsFromSpoiler(spoilerFileText) {
    * @type {{ id: string; name: string; points: number; vanillaRegion: number; }[]}
    */
   let extraItems = [];
+  /**
+   * @type {{ id: string; name: string; points: number; vanillaRegion: number; }[]}
+   */
+  let autoPlaceItems = [];
   const regionPointsArray = REGIONS.map(region => ({ regionId: region.id, name: region.name, points: 0, items: [] }));
 
   const spoilerLines = spoilerFileText.split('\r\n');
+  const rngSeed = spoilerLines.find(line => line.includes('RNG Seed:'))?.replace('RNG Seed: ', '');
   const solutionStartIndex = spoilerLines.findIndex(line => line.includes('Solution:'));
   const solutionEndIndex = spoilerLines.findIndex(line => line.includes('Useless Stuff:'));
   const modifierStartIndex = spoilerLines.findIndex(line => line.includes('Modifiers:'));
@@ -22,10 +27,12 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     solutionEndIndex,
     spoilerLines.findIndex(line => line.includes('Xtra Stuff:')),
   ).join(';')};`;
-  const rngSeed = spoilerLines.find(line => line.includes('RNG Seed:'))?.replace('RNG Seed: ', '');
+  const upgradeLines = spoilerLines.slice(spoilerLines.findIndex(line => line.includes('Xtra Upgrades:')));
 
   const blueCardImportant = modifierLines.includes('Buena Items');
   const coinCaseImportant = modifierLines.includes('Game Corner');
+  const startWithBike = modifierLines.includes('Start With Bike');
+  let digReplaced = false;
 
   KEY_ITEMS.forEach(item => {
     /**
@@ -67,8 +74,15 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     }
 
     if (matchedRegionIds.length === 0) {
-      // Item is in its vanilla location
-      matchedRegionIds.push(item.vanillaRegion);
+      // Item is in its vanilla location, but it might be replaced if it is dig
+      if (item.name === 'TM Dig' && upgradeLines.find(line => line.trim().includes('TM_DIG:'))) {
+        digReplaced = true;
+      } else {
+        matchedRegionIds.push(item.vanillaRegion);
+        if (item.name !== 'Bicycle' || (item.name === 'Bicycle' && startWithBike)) {
+          autoPlaceItems.push(item);
+        }
+      }
     }
 
     // Prep for dumping the item into its region by checking if we need to upgrade it
@@ -90,8 +104,10 @@ function extractRegionsFromSpoiler(spoilerFileText) {
   return {
     regionPointsArray,
     extraItems,
+    autoPlaceItems,
     blueCardImportant,
     coinCaseImportant,
+    digReplaced,
     rngSeed,
   };
 }

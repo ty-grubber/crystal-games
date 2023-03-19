@@ -7,7 +7,7 @@
   import { clickOutside } from '$lib/clickOutside';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
-	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
+	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, DIG_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
 	import { randomizeArray } from '$lib/randomize';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
@@ -78,6 +78,10 @@
         threePointItems.push(COIN_CASE_KEY_ITEM);
       }
 
+      if (!extraction.digReplaced) {
+        threePointItems.push(DIG_KEY_ITEM);
+      }
+
       // Make our starting baskets
       const newBaskets = [
         { type: 'region', name: '1', items: []},
@@ -112,6 +116,17 @@
         });
       }
 
+      // Check if we have items to auto-place in the grid
+      extraction.autoPlaceItems.forEach(item => {
+        const autoPlaceItemBasket = newBaskets.find(basket => basket.name === item.vanillaRegion.toString());
+        const originalBasket = newBaskets.find(basket => basket.type === 'item' && basket.name === item.points.toString());
+        const originalBasketItemIndex = originalBasket.items.findIndex(origBasketItem => origBasketItem.name === item.name);
+
+        // Place the non-randomized item in its appropriate region
+        const [autoPlacedItem] = originalBasket.items.splice(originalBasketItemIndex, 1);
+        autoPlaceItemBasket.items.push(autoPlacedItem);
+      });
+
       baskets = newBaskets;
       let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
 
@@ -141,6 +156,7 @@
       selectedFoundItem = {};
       revealOrdering = 'random';
       showSolution = false;
+      revealRegionPoints = false;
       howToDialogOpen = false;
       inGameMenuOpen = false;
       settingsDialogOpen = true;
@@ -419,7 +435,7 @@
 
       <h3>Tracker Overview</h3>
       <p>
-        Once the upload is complete, a table will appear with each row being a region where a key item could be placed in the ROM. Beside the name of each region is the remaining number of points of Key Items contained in that region, as well as an empty space for you to put found items in.
+        Once the upload is complete, a table will appear with each row being a region where a key item could be placed in the ROM. Beside the name of each region is the remaining number of points of Key Items contained in that region, as well as an empty space for you to put found items in. Some items may have already been placed in this empty space. If so, it means those items were not randomized (ie. they're vanilla) or you have started with them (such as the Bicycle).
       </p>
       <p>
         As well, a table containing the remaining available Key Items will be located on the right including the point value of each Key Item. Underneath this table you will find a more descriptive list of all the locations in Pokémon Crystal and what region number they have been placed in. If a city is listed in a region, then any subareas within that city are also included in that region. For example, Tin Tower is located in Ecruteak City, so item locations in Tin Tower are a part of Region #6.
