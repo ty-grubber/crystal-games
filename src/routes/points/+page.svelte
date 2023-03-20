@@ -411,7 +411,7 @@
         The Points Hint Tracker is a different way to play your Pokémon Crystal Randomizer as it gives you hints as to where Key Items are located in your ROM. This tracker handles any logic settings, including Shopsanity (with Buena and Game Corner) and Nightmare modes, but it does assume that your goal is to beat Red.
       </p>
       <p>
-        This tracker works for use with most versions of the Item Randomizer and has been tested to work on v7.1.15.
+        This tracker works for use with most versions of the Item Randomizer and has been tested to work on v7.1.16.
       </p>
 
       <h3>Initiating The Tracker</h3>

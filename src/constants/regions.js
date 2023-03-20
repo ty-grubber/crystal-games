@@ -3,7 +3,7 @@ const REGIONS = [
   { id: 2, name: 'Violet', locations: ['Violet City', 'Violet Mart', 'Sprout Tower', 'Rock Smash Guy', 'Falkner', 'Miracle Seed', 'Old Rod Guru'], routes: [32, 36], description: 'Violet + Rts 32, 36' },
   { id: 3, name: 'Alph Union', locations: ['Ruins of Alph', 'Union Cave'], routes: [], description: 'Ruins of Alph, Union Cave' },
   { id: 4, name: 'Azalea', locations: ['Azalea', 'Ilex', 'Slowpoke Well', 'Kurt', 'Bugsy', 'Charcoal', 'Headbutt Guy', 'King\'s Rock', 'Soft Sand', 'Sweet Scent Girl'], routes: [33, 34], description: 'Azalea, Ilex + Rts 33, 34' },
-  { id: 5, name: 'Goldenrod', locations: ['Goldenrod', 'National Park', 'Underground Bargain', 'Underground Herb', 'Radio', 'Bike Shop', 'Buena', 'Department Store Basement', 'Flower Shop', 'Kenya Gate', 'Bug Catching', 'Whitney', 'Coin Case'], routes: [34, 35], description: 'Goldenrod, National Park + Rt 35' },
+  { id: 5, name: 'Goldenrod', locations: ['Goldenrod', 'National Park', 'Underground Bargain', 'Underground Herb', 'Radio', 'Bike Shop', 'Buena', 'Department Store Basement', 'Flower Shop', 'Kenya Gate', 'Bug Catching', 'Whitney', 'Coin Case', 'GS Ball'], routes: [34, 35], description: 'Goldenrod, National Park + Rt 35' },
   { id: 6, name: 'Ecruteak', locations: ['Ecruteak', 'Tin Tower', 'Burned Tower', 'Dance Theatre', 'Itemfinder', 'Morty', 'Rainbow Wing'], routes: [37], description: 'Ecruteak + Rt 37' },
   { id: 7, name: 'Olivine', locations: ['Olivine', 'SS Aqua', 'Good Rod Guru', 'Lighthouse', 'Jasmine'], routes: [38, 39, 40], description: 'Olivine, SS Aqua + Rts 38-40' },
   { id: 8, name: 'Cianwood', locations: ['Cianwood', 'Whirl Islands', 'Chuck', 'Secret Potion'], routes: [41], description: 'Cianwood, Whirl Islands + Rt 41' },
