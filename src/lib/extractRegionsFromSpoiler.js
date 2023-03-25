@@ -49,8 +49,8 @@ function extractRegionsFromSpoiler(spoilerFileText) {
       // Extract region from part after colon of solution line
       const [, location] = itemSpoilerLines.split(':');
       matchedRegionIds.push(REGIONS.find(region => (
-        region.locations.filter(l => location.includes(l)).length > 0 ||
-        region.routes.filter(r => location.includes(`Route ${r.toString()} `)).length > 0
+        region.locations.filter(l => location.toLowerCase().includes(l.toLowerCase())).length > 0 ||
+        region.routes.filter(r => location.toLowerCase().includes(`route ${r.toString()} `)).length > 0
       ))?.id);
     }
 
@@ -62,8 +62,8 @@ function extractRegionsFromSpoiler(spoilerFileText) {
       for (var i = 0; i < itemSpoilerLines.length; i++) {
         const [location] = itemSpoilerLines[i].split(':');
         matchedRegionIds.push(REGIONS.find(region => (
-          region.locations.filter(l => location.includes(l)).length > 0 ||
-          region.routes.filter(r => location.includes(`Route ${r.toString()} `)).length > 0
+          region.locations.filter(l => location.toLowerCase().includes(l.toLowerCase())).length > 0 ||
+          region.routes.filter(r => location.toLowerCase().includes(`route ${r.toString()} `)).length > 0
         ))?.id);
       }
 
