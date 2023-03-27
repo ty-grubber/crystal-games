@@ -711,6 +711,7 @@
 
   .region-section ul {
     width: 240px;
+    display: flex;
   }
 
   img {
@@ -720,8 +721,10 @@
   }
 
   .region-section img {
-    height: 28px;
-    width: 28px;
+    height: 100%;
+    max-height: 28px;
+    max-width: 28px;
+    width: 100%;
   }
 
   img.selected {
