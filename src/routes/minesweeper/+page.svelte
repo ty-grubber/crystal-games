@@ -932,6 +932,16 @@
     background-color: rgba(0, 127, 0, 0.2);
   }
 
+  @media(prefers-color-scheme: dark) {
+    .dex-mon.flagged {
+      background-color: rgba(255, 0, 0, 0.8);
+    }
+
+    .dex-mon.safe {
+      background-color: rgba(0, 127, 0, 0.8);
+    }
+  }
+
   .dex-mon.selected,
   .dex.search > .dex-mon.selected.matched {
     border-color: #8b008b;

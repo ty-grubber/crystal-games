@@ -98,7 +98,7 @@
       </Head>
       <Body>
         {#each formattedLocations as location, i (location.id)}
-          <Row style={location.found && 'background-color: #ebfbe9;'}>
+          <Row style={location.found && 'background-color: rgba(235, 251, 233, 0.5);'}>
             <Cell style="width: 300px; white-space: normal; height: 42px;">{location.description}</Cell>
             <Cell style="text-align: center">
               <input
@@ -137,7 +137,7 @@
       </Head>
       <Body>
         {#each rivals as rival (rival.id)}
-          <Row style={defeated.includes(rival.id) ? 'background-color: #ebfbe9;' : ''}>
+          <Row style={defeated.includes(rival.id) ? 'background-color: rgba(235, 251, 233, 0.5);' : ''}>
             <Cell>{rival.location}</Cell>
             <Cell>{rival.name}{#if rival.missable}{@html '<span style="color: red;">*</span>'}{/if}</Cell>
             <Cell style="text-align: center">

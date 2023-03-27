@@ -511,7 +511,7 @@
               {#each regionPoints as rp, i (rp.regionId)}
                 <Row>
                     <Cell style={`font-size: 16px; font-weight: bold`}>
-                      <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
+                      <span class="region-id" style={`color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
                     </Cell>
                     <Cell style={`text-align: center; font-size: 20px;${revealedRegions[0] === rp.regionId ? ' font-weight: bold': ''}`}>
                       {(revealRegionPoints || revealedRegions.includes(rp.regionId))
@@ -708,6 +708,17 @@
     min-height: 36px;
     padding: 4px 0 0;
 	}
+
+  .region-section .region-id {
+    font-size: 20px;
+    text-shadow: 0.5px 0.5px black;
+  }
+
+  @media(prefers-color-scheme: dark) {
+    .region-section .region-id {
+      text-shadow: 0.5px 0.5px 1px white;
+    }
+  }
 
   .region-section ul {
     width: 240px;
