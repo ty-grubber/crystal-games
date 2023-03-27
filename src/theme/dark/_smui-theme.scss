@@ -15,6 +15,7 @@ html,
 body {
   background-color: #000;
   color: theme.$on-surface;
+  font-family: 'Roboto', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 a {
@@ -22,4 +23,8 @@ a {
 }
 a:visited {
   color: color.scale(#40b3ff, $lightness: -35%);
+}
+
+tr {
+  height: auto !important;
 }

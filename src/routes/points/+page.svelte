@@ -510,8 +510,8 @@
             <Body>
               {#each regionPoints as rp, i (rp.regionId)}
                 <Row>
-                    <Cell style={`font-size: 16px; font-weight: bold`}>
-                      <span style={`font-size: 20px; text-shadow: 0.5px 0.5px black; color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
+                    <Cell style="font-size: 16px; font-weight: bold">
+                      <span class="region-id" style={`color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
                     </Cell>
                     <Cell style={`text-align: center; font-size: 20px;${revealedRegions[0] === rp.regionId ? ' font-weight: bold': ''}`}>
                       {(revealRegionPoints || revealedRegions.includes(rp.regionId))
@@ -519,7 +519,7 @@
                         : '??'
                       }
                     </Cell>
-                    <Cell style={`white-space: normal;${showSolution ? '' : ' padding-right: 0;'}`}>
+                    <Cell style="white-space: normal; padding-right: 0;">
                       <ul
                         class:hovering={
                           (hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`)
@@ -709,8 +709,21 @@
     padding: 4px 0 0;
 	}
 
+  .region-section .region-id {
+    font-size: 20px;
+    text-shadow: 0.5px 0.5px black;
+  }
+
+  @media(prefers-color-scheme: dark) {
+    .region-section .region-id {
+      text-shadow: 0.5px 0.5px 1px white;
+    }
+  }
+
   .region-section ul {
+    padding-right: 16px;
     width: 240px;
+    display: flex;
   }
 
   img {
@@ -720,8 +733,15 @@
   }
 
   .region-section img {
-    height: 28px;
-    width: 28px;
+    height: 100%;
+    max-height: 28px;
+    max-width: 28px;
+    width: 100%;
+  }
+
+  .region-section img.solution-item {
+    height: unset;
+    width: unset;
   }
 
   img.selected {
