@@ -330,13 +330,6 @@
     </Button>
     <br /><br />
   {/if}
-  {#if regionPoints}
-    <div class='floating-menu'>
-      <Button color="primary" on:click={openInGameMenu} variant="raised">
-        <Label>Menu</Label>
-      </Button>
-    </div>
-  {/if}
 
   <Dialog bind:open={settingsDialogOpen}>
     <Title id="settingsTitle">Pokémon Crystal Points Hint Tracker Settings</Title>
@@ -573,6 +566,13 @@
             Spoiler file name: {spoilerFile.name}
           </p>
         {/if}
+        {#if regionPoints}
+          <div class='floating-menu'>
+            <Button color="primary" on:click={openInGameMenu} variant="raised">
+              <Label>Menu</Label>
+            </Button>
+          </div>
+        {/if}
         <p class="credits">
           Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
           Region map images created by Kovolta.
@@ -687,6 +687,12 @@
     top: 1%;
     right: 1%;
     z-index: 10;
+  }
+
+  @media(max-width: 1024px) {
+    .floating-menu {
+      position: unset;
+    }
   }
 
   .hovering {
