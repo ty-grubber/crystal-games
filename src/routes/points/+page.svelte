@@ -513,7 +513,7 @@
                     <Cell style="font-size: 16px; font-weight: bold">
                       <span class={`region-id ${regionColorClasses[i % regionColorClasses.length]}`}>{rp.regionId}</span> - {rp.name}
                     </Cell>
-                    <Cell style={`text-align: center; font-size: 20px;${revealedRegions[0] === rp.regionId ? ' font-weight: bold': ''}`}>
+                    <Cell style={`text-align: center; font-size: ${revealedRegions[0] === rp.regionId ? '24px; font-weight: bold; text-decoration: underline green 4px;': '20px;'}`}>
                       {(revealRegionPoints || revealedRegions.includes(rp.regionId))
                         ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
                         : '??'
