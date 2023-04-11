@@ -13,15 +13,15 @@
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
 
-  const regionColors = [
-    '#000000',
-    '#e69f00',
-    '#56b4e9',
-    '#f0e442',
-    '#009e73',
-    '#0072b2',
-    '#d55e00',
-    '#cc79a7',
+  const regionColorClasses = [
+    'black',
+    'orange',
+    'lt-blue',
+    'yellow',
+    'green',
+    'dk-blue',
+    'red',
+    'pink',
   ];
 
   /**
@@ -511,7 +511,7 @@
               {#each regionPoints as rp, i (rp.regionId)}
                 <Row>
                     <Cell style="font-size: 16px; font-weight: bold">
-                      <span class="region-id" style={`color: ${regionColors[i % regionColors.length]}`}>{rp.regionId}</span> - {rp.name}
+                      <span class={`region-id ${regionColorClasses[i % regionColorClasses.length]}`}>{rp.regionId}</span> - {rp.name}
                     </Cell>
                     <Cell style={`text-align: center; font-size: 20px;${revealedRegions[0] === rp.regionId ? ' font-weight: bold': ''}`}>
                       {(revealRegionPoints || revealedRegions.includes(rp.regionId))
@@ -716,8 +716,45 @@
 
   @media(prefers-color-scheme: dark) {
     .region-section .region-id {
-      text-shadow: 0.5px 0.5px 1px white;
+      text-shadow: none;
     }
+  }
+
+  .region-id.black {
+    color: #000000;
+  }
+
+  @media(prefers-color-scheme: dark) {
+    .region-id.black {
+      color: #ffffff;
+    }
+  }
+  .region-id.orange {
+    color: #e69f00;
+  }
+
+  .region-id.lt-blue {
+    color: #56b4e9;
+  }
+
+  .region-id.yellow {
+    color: #f0e442;
+  }
+
+  .region-id.green {
+    color: #009e73;
+  }
+
+  .region-id.dk-blue {
+    color: #0072b2;
+  }
+
+  .region-id.red {
+    color: #d55e00;
+  }
+
+  .region-id.pink {
+    color: #cc79a7;
   }
 
   .region-section ul {
