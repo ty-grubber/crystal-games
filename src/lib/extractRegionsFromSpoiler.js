@@ -21,7 +21,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
   const solutionEndIndex = spoilerLines.findIndex(line => line.includes('Useless Stuff:'));
   const modifierStartIndex = spoilerLines.findIndex(line => line.includes('Modifiers:'));
   const modifierEndIndex = spoilerLines.findIndex(line => line.includes('RNG Seed:'));
-  const modifierLines = `${spoilerLines.slice(modifierStartIndex, modifierEndIndex).join('')}`;
+  const modifierLines = spoilerLines.slice(modifierStartIndex, modifierEndIndex).join('').replace(/\s\s/g, ' ');
   const solutionLines = `${spoilerLines.slice(solutionStartIndex, solutionEndIndex).join(';')};`;
   const uselessStuffLines = `${spoilerLines.slice(
     solutionEndIndex,
