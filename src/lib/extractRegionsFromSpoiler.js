@@ -44,7 +44,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     }
 
     // Check if item is also in useless stuff
-    const uselessRegExp = new RegExp(`;[^;]+${item.name.replace(' ', '_').toUpperCase()};`, 'g'); // TODO: make this case insensitive
+    const uselessRegExp = new RegExp(`;[^;]+${item.name.replace(' ', '[\\s_]')};`, 'gi');
     itemSpoilerLines = uselessStuffLines.match(uselessRegExp);
 
     if (itemSpoilerLines) {
