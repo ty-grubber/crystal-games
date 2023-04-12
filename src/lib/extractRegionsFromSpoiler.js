@@ -6,7 +6,7 @@ import REGIONS from '../constants/regions';
  */
 function extractRegionsFromSpoiler(spoilerFileText) {
   /**
-   * @type {{ points: number; id: string; name: string; vanillaRegion: number; }[]}
+   * @type {{ points: number; id: string; name: string; }[]}
    */
   let randomizedItems = [];
   const regionPointsArray = REGIONS.map(region => ({ regionId: region.id, name: region.name, points: 0, items: [] }));
@@ -15,24 +15,18 @@ function extractRegionsFromSpoiler(spoilerFileText) {
   const rngSeed = spoilerLines.find(line => line.includes('RNG Seed:'))?.replace('RNG Seed: ', '');
   const solutionStartIndex = spoilerLines.findIndex(line => line.includes('Solution:'));
   const solutionEndIndex = spoilerLines.findIndex(line => line.includes('Useless Stuff:'));
-  // const modifierStartIndex = spoilerLines.findIndex(line => line.includes('Modifiers:'));
-  // const modifierEndIndex = spoilerLines.findIndex(line => line.includes('RNG Seed:'));
-  // const modifierLines = spoilerLines.slice(modifierStartIndex, modifierEndIndex).join('').replace(/\s\s/g, ' ');
+  const modifierStartIndex = spoilerLines.findIndex(line => line.includes('Modifiers:'));
+  const modifierEndIndex = spoilerLines.findIndex(line => line.includes('RNG Seed:'));
+  const modifierLines = spoilerLines.slice(modifierStartIndex, modifierEndIndex).join('').replace(/\s\s/g, ' ');
   const solutionLines = `${spoilerLines.slice(solutionStartIndex, solutionEndIndex).join(';')};`;
   const uselessStuffLines = `${spoilerLines.slice(
     solutionEndIndex,
     spoilerLines.findIndex(line => line.includes('Xtra Stuff:')),
   ).join(';')};`;
+  // This is likely not needed anymore but keeping it around just in case
   // const upgradeLines = spoilerLines.slice(spoilerLines.findIndex(line => line.includes('Xtra Upgrades:')));
 
-  // const blueCardImportant = modifierLines.includes('Buena Items');
-  // const coinCaseImportant = modifierLines.includes('Game Corner');
-  // const startWithBike = modifierLines.includes('Start With Bike');
-
   KEY_ITEMS.forEach(item => {
-    /**
-     * @type {(number | undefined)[]}
-     */
     let matchedRegionIds = [];
     let itemSpoilerLines;
 
@@ -63,19 +57,20 @@ function extractRegionsFromSpoiler(spoilerFileText) {
       }
     }
 
-
     // For each matchedRegionId:
-    //   - TODO: check if the item needs to be upgraded
+    //   - check if the item needs to be upgraded (like coin case for game corner checks)
     //   - add the item's points to the region's overall value,
     //   - push the item into the region's items array (for the solution)
     //   - push the item into the randomizedItems array (so we know it is placeable)
-    const shouldUpgradeItem = false;
-
     matchedRegionIds.forEach(matchedId => {
       const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedId);
+      // @ts-ignore
+      const shouldUpgradeItem = item.upgradeModifier && modifierLines.includes(item.upgradeModifier);
+
       const addedItem = {
         ...item,
-        points: item.points + (shouldUpgradeItem ? 2 : 0),
+        // @ts-ignore
+        points: item.points + (shouldUpgradeItem ? item.upgradeAmt : 0),
       };
 
       regionPointsArray[matchedRPAIndex].points += addedItem.points;

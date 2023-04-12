@@ -7,7 +7,7 @@
   import { clickOutside } from '$lib/clickOutside';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
-	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, DIG_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
+	import KEY_ITEMS from '../../constants/keyItems';
 	import { randomizeArray } from '$lib/randomize';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
