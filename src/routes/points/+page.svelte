@@ -397,10 +397,13 @@
         Once the upload is complete, a table will appear with each row being a region where a key item could be placed in the ROM. Beside the name of each region is the remaining number of points of Key Items contained in that region, as well as an empty space for you to put found items in. Some items may have already been placed in this empty space. If so, it means those items were not randomized (ie. they're vanilla) or you have started with them (such as the Bicycle).
       </p>
       <p>
-        As well, a table containing the remaining available Key Items will be located on the right including the point value of each Key Item. Underneath this table you will find a more descriptive list of all the locations in Pokémon Crystal and what region number they have been placed in. If a city is listed in a region, then any subareas within that city are also included in that region. For example, Tin Tower is located in Ecruteak City, so item locations in Tin Tower are a part of Region #6.
+        As well, a table containing the remaining available Key Items will be located on the right including the point value of each Key Item. <b><u>Only Key Items that have been randomized according to your seed settings will show in this list.</u></b> For example, if you are playing on standard Crazy with Hidden Item settings, items like the Map Card will not appear in this table, because they are in their vanilla location. Additionally, if you have the Start With Bike modifier active, then the Bicycle will not appear in this table.
       </p>
       <p>
-        Finally, you can access the In-Game menu via the green button in the top right corner of the page. This menu is useful for toggling certain settings, accessing this How To Play dialog, and starting a new game.
+        Underneath this table you will find a more descriptive list of all the locations in Pokémon Crystal and what region number they have been placed in. If a city is listed in a region, then any subareas within that city are also included in that region. For example, Tin Tower is located in Ecruteak City, so item locations in Tin Tower are a part of Region #6.
+      </p>
+      <p>
+        Finally, you can access the In-Game menu via the green button in the top right corner of the page (or under the Region table for smaller screens). This menu is useful for toggling certain settings, accessing this How To Play dialog, and starting a new game.
       </p>
 
       <h3>Revealing Region Points</h3>
