@@ -64,23 +64,10 @@
       const extraction = extractRegionsFromSpoiler(spoilerText);
       regionPoints = extraction.regionPointsArray;
 
-      const fivePointItems = KEY_ITEMS_5PTS.map(item => item);
-      const threePointItems = KEY_ITEMS_3PTS.map(item => item);
-      if (extraction.blueCardImportant) {
-        fivePointItems.push({ ...BLUE_CARD_KEY_ITEM, points: 5 });
-      } else {
-        threePointItems.push(BLUE_CARD_KEY_ITEM);
-      }
-
-      if (extraction.coinCaseImportant) {
-        fivePointItems.push({ ...COIN_CASE_KEY_ITEM, points: 5 });
-      } else {
-        threePointItems.push(COIN_CASE_KEY_ITEM);
-      }
-
-      if (!extraction.digReplaced) {
-        threePointItems.push(DIG_KEY_ITEM);
-      }
+      const ninePtItems = extraction.randomizedItems.filter(item => item.points === 9);
+      const sevenPtItems = extraction.randomizedItems.filter(item => item.points === 7);
+      const fivePtItems =  extraction.randomizedItems.filter(item => item.points === 5);
+      const threePtItems =  extraction.randomizedItems.filter(item => item.points === 3);
 
       // Make our starting baskets
       const newBaskets = [
@@ -100,32 +87,11 @@
         { type: 'region', name: '14', items: []},
         { type: 'region', name: '15', items: []},
         { type: 'region', name: '16', items: []},
-        { type: 'item', name: '9', items: KEY_ITEMS_9PTS.map(item => item)}, // use mapping so we don't overwrite array
-        { type: 'item', name: '7', items: KEY_ITEMS_7PTS.map(item => item)},
-        { type: 'item', name: '5', items: fivePointItems},
-        { type: 'item', name: '3', items: threePointItems},
+        { type: 'item', name: '9', items: ninePtItems},
+        { type: 'item', name: '7', items: sevenPtItems},
+        { type: 'item', name: '5', items: fivePtItems},
+        { type: 'item', name: '3', items: threePtItems},
       ];
-
-      // Check if we have extra items to add to the starting buckets
-      if (extraction.extraItems.length > 0) {
-        extraction.extraItems.forEach(item => {
-          const extraItemBasket = newBaskets.find(basket => basket.type === 'item' && basket.name === item.points.toString());
-          // Place extra item beside its duplicate in the basket
-          const placementIndex = extraItemBasket.items.findIndex(defaultItem => defaultItem.id === item.id);
-          extraItemBasket.items.splice(placementIndex, 0, item);
-        });
-      }
-
-      // Check if we have items to auto-place in the grid
-      extraction.autoPlaceItems.forEach(item => {
-        const autoPlaceItemBasket = newBaskets.find(basket => basket.name === item.vanillaRegion.toString());
-        const originalBasket = newBaskets.find(basket => basket.type === 'item' && basket.name === item.points.toString());
-        const originalBasketItemIndex = originalBasket.items.findIndex(origBasketItem => origBasketItem.name === item.name);
-
-        // Place the non-randomized item in its appropriate region
-        const [autoPlacedItem] = originalBasket.items.splice(originalBasketItemIndex, 1);
-        autoPlaceItemBasket.items.push(autoPlacedItem);
-      });
 
       baskets = newBaskets;
       let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
