@@ -1,4 +1,4 @@
-import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM } from '../constants/keyItems';
+import KEY_ITEMS from '../constants/keyItems';
 import REGIONS from '../constants/regions';
 
 /**
@@ -6,13 +6,9 @@ import REGIONS from '../constants/regions';
  */
 function extractRegionsFromSpoiler(spoilerFileText) {
   /**
-   * @type {{ id: string; name: string; points: number; vanillaRegion: number; }[]}
+   * @type {{ points: number; id: string; name: string; }[]}
    */
-  let extraItems = [];
-  /**
-   * @type {{ id: string; name: string; points: number; vanillaRegion: number; }[]}
-   */
-  let autoPlaceItems = [];
+  let randomizedItems = [];
   const regionPointsArray = REGIONS.map(region => ({ regionId: region.id, name: region.name, points: 0, items: [] }));
 
   const spoilerLines = spoilerFileText.split('\r\n');
@@ -27,17 +23,10 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     solutionEndIndex,
     spoilerLines.findIndex(line => line.includes('Xtra Stuff:')),
   ).join(';')};`;
-  const upgradeLines = spoilerLines.slice(spoilerLines.findIndex(line => line.includes('Xtra Upgrades:')));
-
-  const blueCardImportant = modifierLines.includes('Buena Items');
-  const coinCaseImportant = modifierLines.includes('Game Corner');
-  const startWithBike = modifierLines.includes('Start With Bike');
-  let digReplaced = false;
+  // This is likely not needed anymore but keeping it around just in case
+  // const upgradeLines = spoilerLines.slice(spoilerLines.findIndex(line => line.includes('Xtra Upgrades:')));
 
   KEY_ITEMS.forEach(item => {
-    /**
-     * @type {(number | undefined)[]}
-     */
     let matchedRegionIds = [];
     let itemSpoilerLines;
 
@@ -55,7 +44,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
     }
 
     // Check if item is also in useless stuff
-    const uselessRegExp = new RegExp(`;[^;]+${item.name.replace(' ', '_').toUpperCase()};`, 'g');
+    const uselessRegExp = new RegExp(`;[^;]+${item.name.replace(' ', '[\\s_]')};`, 'gi');
     itemSpoilerLines = uselessStuffLines.match(uselessRegExp);
 
     if (itemSpoilerLines) {
@@ -66,48 +55,36 @@ function extractRegionsFromSpoiler(spoilerFileText) {
           region.routes.filter(r => location.toLowerCase().includes(`route ${r.toString()} `)).length > 0
         ))?.id);
       }
-
-      // If we have duplicate key items, make sure we note extra ones
-      for (var j = 1; j < matchedRegionIds.length; j++) {
-        extraItems.push(item);
-      }
     }
 
-    if (matchedRegionIds.length === 0) {
-      // Item is in its vanilla location, but it might be replaced if it is dig
-      if (item.name === 'TM Dig' && upgradeLines.find(line => line.trim().includes('TM_DIG:'))) {
-        digReplaced = true;
-      } else {
-        matchedRegionIds.push(item.vanillaRegion);
-        if (item.name !== 'Bicycle' || (item.name === 'Bicycle' && startWithBike)) {
-          autoPlaceItems.push(item);
-        }
-      }
-    }
-
-    // Prep for dumping the item into its region by checking if we need to upgrade it
-    const shouldUpgradeBlueCard = item.name === BLUE_CARD_KEY_ITEM.name && blueCardImportant;
-    const shouldUpgradeCoinCase = item.name === COIN_CASE_KEY_ITEM.name && coinCaseImportant;
-    const shouldUpgradeItem = shouldUpgradeBlueCard || shouldUpgradeCoinCase;
-
+    // For each matchedRegionId:
+    //   - check if the item needs to be upgraded (like coin case for game corner checks)
+    //   - add the item's points to the region's overall value,
+    //   - push the item into the region's items array (for the solution)
+    //   - push the item into the randomizedItems array (so we know it is placeable)
     matchedRegionIds.forEach(matchedId => {
       const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedId);
-      regionPointsArray[matchedRPAIndex].points += item.points + (shouldUpgradeItem ? 2 : 0);
+      // @ts-ignore
+      const shouldUpgradeItem = item.upgradeModifier && modifierLines.includes(item.upgradeModifier);
 
-      regionPointsArray[matchedRPAIndex].items.push(
+      const addedItem = {
+        ...item,
         // @ts-ignore
-        { id: item.id, name: item.name, points: item.points + (shouldUpgradeItem ? 2 : 0) },
-      );
+        points: item.points + (shouldUpgradeItem ? item.upgradeAmt : 0),
+      };
+
+      regionPointsArray[matchedRPAIndex].points += addedItem.points;
+
+      // @ts-ignore
+      regionPointsArray[matchedRPAIndex].items.push(addedItem);
+
+      randomizedItems.push(addedItem);
     });
   });
 
   return {
     regionPointsArray,
-    extraItems,
-    autoPlaceItems,
-    blueCardImportant,
-    coinCaseImportant,
-    digReplaced,
+    randomizedItems,
     rngSeed,
   };
 }

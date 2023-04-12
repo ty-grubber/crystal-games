@@ -7,7 +7,7 @@
   import { clickOutside } from '$lib/clickOutside';
 	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
 	import REGIONS from '../../constants/regions';
-	import KEY_ITEMS, { BLUE_CARD_KEY_ITEM, COIN_CASE_KEY_ITEM, DIG_KEY_ITEM, KEY_ITEMS_3PTS, KEY_ITEMS_5PTS, KEY_ITEMS_7PTS, KEY_ITEMS_9PTS } from '../../constants/keyItems';
+	import KEY_ITEMS from '../../constants/keyItems';
 	import { randomizeArray } from '$lib/randomize';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
@@ -64,23 +64,10 @@
       const extraction = extractRegionsFromSpoiler(spoilerText);
       regionPoints = extraction.regionPointsArray;
 
-      const fivePointItems = KEY_ITEMS_5PTS.map(item => item);
-      const threePointItems = KEY_ITEMS_3PTS.map(item => item);
-      if (extraction.blueCardImportant) {
-        fivePointItems.push({ ...BLUE_CARD_KEY_ITEM, points: 5 });
-      } else {
-        threePointItems.push(BLUE_CARD_KEY_ITEM);
-      }
-
-      if (extraction.coinCaseImportant) {
-        fivePointItems.push({ ...COIN_CASE_KEY_ITEM, points: 5 });
-      } else {
-        threePointItems.push(COIN_CASE_KEY_ITEM);
-      }
-
-      if (!extraction.digReplaced) {
-        threePointItems.push(DIG_KEY_ITEM);
-      }
+      const ninePtItems = extraction.randomizedItems.filter(item => item.points === 9);
+      const sevenPtItems = extraction.randomizedItems.filter(item => item.points === 7);
+      const fivePtItems =  extraction.randomizedItems.filter(item => item.points === 5);
+      const threePtItems =  extraction.randomizedItems.filter(item => item.points === 3);
 
       // Make our starting baskets
       const newBaskets = [
@@ -100,32 +87,11 @@
         { type: 'region', name: '14', items: []},
         { type: 'region', name: '15', items: []},
         { type: 'region', name: '16', items: []},
-        { type: 'item', name: '9', items: KEY_ITEMS_9PTS.map(item => item)}, // use mapping so we don't overwrite array
-        { type: 'item', name: '7', items: KEY_ITEMS_7PTS.map(item => item)},
-        { type: 'item', name: '5', items: fivePointItems},
-        { type: 'item', name: '3', items: threePointItems},
+        { type: 'item', name: '9', items: ninePtItems},
+        { type: 'item', name: '7', items: sevenPtItems},
+        { type: 'item', name: '5', items: fivePtItems},
+        { type: 'item', name: '3', items: threePtItems},
       ];
-
-      // Check if we have extra items to add to the starting buckets
-      if (extraction.extraItems.length > 0) {
-        extraction.extraItems.forEach(item => {
-          const extraItemBasket = newBaskets.find(basket => basket.type === 'item' && basket.name === item.points.toString());
-          // Place extra item beside its duplicate in the basket
-          const placementIndex = extraItemBasket.items.findIndex(defaultItem => defaultItem.id === item.id);
-          extraItemBasket.items.splice(placementIndex, 0, item);
-        });
-      }
-
-      // Check if we have items to auto-place in the grid
-      extraction.autoPlaceItems.forEach(item => {
-        const autoPlaceItemBasket = newBaskets.find(basket => basket.name === item.vanillaRegion.toString());
-        const originalBasket = newBaskets.find(basket => basket.type === 'item' && basket.name === item.points.toString());
-        const originalBasketItemIndex = originalBasket.items.findIndex(origBasketItem => origBasketItem.name === item.name);
-
-        // Place the non-randomized item in its appropriate region
-        const [autoPlacedItem] = originalBasket.items.splice(originalBasketItemIndex, 1);
-        autoPlaceItemBasket.items.push(autoPlacedItem);
-      });
 
       baskets = newBaskets;
       let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
@@ -431,10 +397,13 @@
         Once the upload is complete, a table will appear with each row being a region where a key item could be placed in the ROM. Beside the name of each region is the remaining number of points of Key Items contained in that region, as well as an empty space for you to put found items in. Some items may have already been placed in this empty space. If so, it means those items were not randomized (ie. they're vanilla) or you have started with them (such as the Bicycle).
       </p>
       <p>
-        As well, a table containing the remaining available Key Items will be located on the right including the point value of each Key Item. Underneath this table you will find a more descriptive list of all the locations in Pokémon Crystal and what region number they have been placed in. If a city is listed in a region, then any subareas within that city are also included in that region. For example, Tin Tower is located in Ecruteak City, so item locations in Tin Tower are a part of Region #6.
+        As well, a table containing the remaining available Key Items will be located on the right including the point value of each Key Item. <b><u>Only Key Items that have been randomized according to your seed settings will show in this list.</u></b> For example, if you are playing on standard Crazy with Hidden Item settings, items like the Map Card will not appear in this table, because they are in their vanilla location. Additionally, if you have the Start With Bike modifier active, then the Bicycle will not appear in this table.
       </p>
       <p>
-        Finally, you can access the In-Game menu via the green button in the top right corner of the page. This menu is useful for toggling certain settings, accessing this How To Play dialog, and starting a new game.
+        Underneath this table you will find a more descriptive list of all the locations in Pokémon Crystal and what region number they have been placed in. If a city is listed in a region, then any subareas within that city are also included in that region. For example, Tin Tower is located in Ecruteak City, so item locations in Tin Tower are a part of Region #6.
+      </p>
+      <p>
+        Finally, you can access the In-Game menu via the green button in the top right corner of the page (or under the Region table for smaller screens). This menu is useful for toggling certain settings, accessing this How To Play dialog, and starting a new game.
       </p>
 
       <h3>Revealing Region Points</h3>
