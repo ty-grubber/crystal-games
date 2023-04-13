@@ -51,7 +51,7 @@ export const KEY_ITEMS_3PTS = [
   { id: 'silver_wing', name: 'Silver Wing', points: 3 },
   { id: 'pokedex', name: 'Pokedex', points: 3, upgradeModifier: 'Mon Locked Checks', upgradeAmt: 2 },
   { id: 'unown_dex', name: 'Unown Dex', points: 3 },
-  { id: 'bicycle', name: 'Bicycle', points: 3 },
+  { id: 'bicycle', name: 'Bicycle', points: 3, upgradeModifier: 'Hidden Items', upgradeAmt: 2 },
   { id: 'town_map', name: 'Map Card', points: 3 },
   { id: 'blue_card', name: 'Blue Card', points: 3, upgradeModifier: 'Buena Items', upgradeAmt: 2 },
   { id: 'coin_case', name: 'Coin Case', points: 3, upgradeModifier: 'Game Corner', upgradeAmt: 2 },

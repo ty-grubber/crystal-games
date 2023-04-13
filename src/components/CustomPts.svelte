@@ -13,11 +13,14 @@
   }
 </script>
 
+<span style="font-size: 12px; text-decoration: 1px underline red;">
+  *red underlined items have upgradable points if certain modifiers are on
+</span>
 <div class="item-list">
   {#each keyItems as item, idx (item.id) }
     <div class="item-pt-card">
       <img
-        class="icon"
+        class={`icon ${item.upgradeModifier ? 'upgradable' : ''}`}
         src={`/keyItems/${item.id}.png`}
         alt={item.name}
         title={item.name}
@@ -55,6 +58,10 @@
   .icon {
     width: 40px;
     max-height: 40px;
+  }
+
+  .icon.upgradable {
+    border-bottom: 2px solid red;
   }
 
   input.points {
