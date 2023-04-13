@@ -3,8 +3,9 @@
 
   import Button, { Label } from '@smui/button';
   import KEY_ITEMS from '../constants/keyItems';
+  import Dialog, { Actions, Content, Title } from '@smui/dialog';
   export let onConfirmPts;
-  export let onCancel;
+  export let isOpen = false;
 
   const keyItems = [ ...KEY_ITEMS];
 
@@ -13,36 +14,44 @@
   }
 </script>
 
-<span style="font-size: 12px; text-decoration: 1px underline red;">
-  *red underlined items have upgradable points if certain modifiers are on
-</span>
-<div class="item-list">
-  {#each keyItems as item, idx (item.id) }
-    <div class="item-pt-card">
-      <img
-        class={`icon ${item.upgradeModifier ? 'upgradable' : ''}`}
-        src={`/keyItems/${item.id}.png`}
-        alt={item.name}
-        title={item.name}
-      />
-      <input
-        id={`${item.name}PointValue`}
-        class="points"
-        type="number"
-        min="1"
-        max="9"
-        bind:value={keyItems[idx].points}
-      />
+<Dialog bind:open={isOpen} slot="over" surface$style="height: 700px; width: 800px;">
+  <Title>Customize Key Item Points</Title>
+  <Content>
+    <div class="item-list">
+      {#each keyItems as item, idx (item.id) }
+        <div class="item-pt-card">
+          <img
+            class={`icon ${item.upgradeModifier ? 'upgradable' : ''}`}
+            src={`/keyItems/${item.id}.png`}
+            alt={item.name}
+            title={item.name}
+          />
+          <input
+            id={`${item.name}PointValue`}
+            class="points"
+            type="number"
+            min="1"
+            max="9"
+            bind:value={keyItems[idx].points}
+          />
+        </div>
+      {/each}
     </div>
-  {/each}
-</div>
-<br />
-<Button color="primary" on:click={handleOnConfirm} variant="raised">
-  <Label>Confirm Points</Label>
-</Button>
-<Button color="secondary" on:click={onCancel} variant="raised">
-  <Label>Cancel</Label>
-</Button>
+    <br />
+  </Content>
+  <Actions style="justify-content: flex-start;">
+    <p style="font-size: 12px; text-decoration: 1px underline red;">
+      *red underlined items have upgradable points if certain modifiers are on
+    </p>
+    <Button color="primary" on:click={handleOnConfirm} variant="raised">
+      <Label>Confirm Points</Label>
+    </Button>
+    <Button color="secondary" on:click={() => isOpen = false} variant="raised">
+      <Label>Cancel</Label>
+    </Button>
+  </Actions>
+</Dialog>
+
 
 <style>
   .item-list {

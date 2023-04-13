@@ -7,7 +7,7 @@
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Select, { Option } from '@smui/select';
-  import CustomPts from '../../components/CustomPts.svelte';
+  import CustomPtsDialog from '../../components/CustomPts.svelte';
   import KEY_ITEMS from '../../constants/keyItems';
   import REGIONS from '../../constants/regions';
 
@@ -357,15 +357,7 @@
     </Content>
   </Dialog>
 
-  <Dialog bind:open={customPtsMenuOpen} slot="over" surface$style="height: 700px; width: 800px;">
-    <Title>Customize Key Item Points</Title>
-    <Content>
-      <CustomPts
-        onCancel={() => customPtsMenuOpen = false}
-        onConfirmPts={handleUpdatePointValues}
-      />
-    </Content>
-  </Dialog>
+  <CustomPtsDialog bind:isOpen={customPtsMenuOpen} onConfirmPts={handleUpdatePointValues} />
 
   <Dialog bind:open={inGameMenuOpen}>
     <Title id="inGameMenuTitle">Tracker Menu</Title>
