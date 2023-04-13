@@ -26,6 +26,8 @@
         id={`${item.name}PointValue`}
         class="points"
         type="number"
+        min="1"
+        max="9"
         bind:value={keyItems[idx].points}
       />
     </div>

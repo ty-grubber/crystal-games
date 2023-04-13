@@ -52,6 +52,7 @@
   let selectedFoundItem = {};
 
   let keyItems = [ ...KEY_ITEMS];
+  let keyItemPointValues = [9, 7, 5, 3];
 
   /**
 	 * @param {any} e
@@ -68,10 +69,9 @@
       const extraction = extractRegionsFromSpoiler(spoilerText, keyItems);
       regionPoints = extraction.regionPointsArray;
 
-      const ninePtItems = extraction.randomizedItems.filter(item => item.points === 9);
-      const sevenPtItems = extraction.randomizedItems.filter(item => item.points === 7);
-      const fivePtItems =  extraction.randomizedItems.filter(item => item.points === 5);
-      const threePtItems =  extraction.randomizedItems.filter(item => item.points === 3);
+      keyItemPointValues = [
+        ...new Set(extraction.randomizedItems.map(item => item.points)),
+      ].sort((a, b) => b - a);
 
       // Make our starting baskets
       const newBaskets = [
@@ -91,13 +91,15 @@
         { type: 'region', name: '14', items: []},
         { type: 'region', name: '15', items: []},
         { type: 'region', name: '16', items: []},
-        { type: 'item', name: '9', items: ninePtItems},
-        { type: 'item', name: '7', items: sevenPtItems},
-        { type: 'item', name: '5', items: fivePtItems},
-        { type: 'item', name: '3', items: threePtItems},
       ];
 
-      baskets = newBaskets;
+      const itemBaskets = keyItemPointValues.map(pointValue => ({
+        type: 'item',
+        name: pointValue.toString(),
+        items: extraction.randomizedItems.filter(item => item.points === pointValue),
+      }));
+
+      baskets = newBaskets.concat(itemBaskets);
       let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
 
       switch (revealOrdering) {
@@ -269,8 +271,7 @@
   }
 
   function handleOutsideRegionTableClick(e) {
-    // TODO: need to change this for custom point values
-    if (e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' && !['3', '5', '7', '9'].find(value => value === e.explicitOriginalTarget.innerHTML)) {
+    if (e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' && !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)) {
       selectedAvailableItem = {};
       selectedFoundItem = {};
     }
