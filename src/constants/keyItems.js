@@ -23,6 +23,7 @@ export const KEY_ITEMS_7PTS = [
   { id: 'expn_card', name: 'Expansion Card', points: 7 },
   { id: 'squirtbottle', name: 'Squirtbottle', points: 7 },
   { id: 'ss_ticket', name: 'S S Ticket', points: 7 },
+  { id: 'card_key', name: 'Card Key', points: 7 },
   { id: 'pass', name: 'Pass', points: 7 },
   { id: 'hm01', name: 'Cut', points: 7 },
   { id: 'hm02', name: 'Fly', points: 7 },
@@ -35,7 +36,6 @@ export const KEY_ITEMS_7PTS = [
 
 export const KEY_ITEMS_5PTS = [
   { id: 'secretpotion', name: 'Secret Potion', points: 5 },
-  { id: 'card_key', name: 'Card Key', points: 5 },
   { id: 'machine_part', name: 'Machine Part', points: 5 },
   { id: 'clear_bell', name: 'Clear Bell', points: 5 },
   { id: 'rainbow_wing', name: 'Rainbow Wing', points: 5 },
