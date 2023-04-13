@@ -1,10 +1,10 @@
-import KEY_ITEMS from '../constants/keyItems';
 import REGIONS from '../constants/regions';
 
 /**
  * @param {string} spoilerFileText
+ * @param {any[]} keyItems
  */
-function extractRegionsFromSpoiler(spoilerFileText) {
+function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
   /**
    * @type {{ points: number; id: string; name: string; }[]}
    */
@@ -26,7 +26,7 @@ function extractRegionsFromSpoiler(spoilerFileText) {
   // This is likely not needed anymore but keeping it around just in case
   // const upgradeLines = spoilerLines.slice(spoilerLines.findIndex(line => line.includes('Xtra Upgrades:')));
 
-  KEY_ITEMS.forEach(item => {
+  keyItems.forEach(item => {
     let matchedRegionIds = [];
     let itemSpoilerLines;
 

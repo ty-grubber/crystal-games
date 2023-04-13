@@ -1,14 +1,15 @@
 <script>
 // @ts-nocheck
+  import { clickOutside } from '$lib/clickOutside';
+  import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
+  import { randomizeArray } from '$lib/randomize';
+  import Button, { Label } from '@smui/button';
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
-  import Button, { Label } from '@smui/button';
   import Select, { Option } from '@smui/select';
-  import { clickOutside } from '$lib/clickOutside';
-	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
-	import REGIONS from '../../constants/regions';
-	import KEY_ITEMS from '../../constants/keyItems';
-	import { randomizeArray } from '$lib/randomize';
+  import CustomPtsDialog from '../../components/CustomPts.svelte';
+  import KEY_ITEMS from '../../constants/keyItems';
+  import REGIONS from '../../constants/regions';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
@@ -39,6 +40,7 @@
   let showSolution = false;
   let howToDialogOpen = false;
   let inGameMenuOpen = false;
+  let customPtsMenuOpen = false;
 
   let settingsDialogOpen = true;
   let revealRegionPoints = false;
@@ -48,6 +50,9 @@
   let mapSelected = 'johto';
   let selectedAvailableItem = {};
   let selectedFoundItem = {};
+
+  let keyItems = [ ...KEY_ITEMS];
+  let keyItemPointValues = [9, 7, 5, 3];
 
   /**
 	 * @param {any} e
@@ -61,13 +66,12 @@
     if (file != null) {
       const spoilerText = await file.text();
 
-      const extraction = extractRegionsFromSpoiler(spoilerText);
+      const extraction = extractRegionsFromSpoiler(spoilerText, keyItems);
       regionPoints = extraction.regionPointsArray;
 
-      const ninePtItems = extraction.randomizedItems.filter(item => item.points === 9);
-      const sevenPtItems = extraction.randomizedItems.filter(item => item.points === 7);
-      const fivePtItems =  extraction.randomizedItems.filter(item => item.points === 5);
-      const threePtItems =  extraction.randomizedItems.filter(item => item.points === 3);
+      keyItemPointValues = [
+        ...new Set(extraction.randomizedItems.map(item => item.points)),
+      ].sort((a, b) => b - a);
 
       // Make our starting baskets
       const newBaskets = [
@@ -87,13 +91,15 @@
         { type: 'region', name: '14', items: []},
         { type: 'region', name: '15', items: []},
         { type: 'region', name: '16', items: []},
-        { type: 'item', name: '9', items: ninePtItems},
-        { type: 'item', name: '7', items: sevenPtItems},
-        { type: 'item', name: '5', items: fivePtItems},
-        { type: 'item', name: '3', items: threePtItems},
       ];
 
-      baskets = newBaskets;
+      const itemBaskets = keyItemPointValues.map(pointValue => ({
+        type: 'item',
+        name: pointValue.toString(),
+        items: extraction.randomizedItems.filter(item => item.points === pointValue),
+      }));
+
+      baskets = newBaskets.concat(itemBaskets);
       let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
 
       switch (revealOrdering) {
@@ -265,10 +271,15 @@
   }
 
   function handleOutsideRegionTableClick(e) {
-    if (e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' && !['3', '5', '7', '9'].find(value => value === e.explicitOriginalTarget.innerHTML)) {
+    if (e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' && !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)) {
       selectedAvailableItem = {};
       selectedFoundItem = {};
     }
+  }
+
+  function handleUpdatePointValues(updatedKeyItems) {
+    keyItems = [...updatedKeyItems];
+    customPtsMenuOpen = false;
   }
 </script>
 
@@ -325,6 +336,14 @@
         on:click={toggleRevealAllRegions}
         value={revealRegionPoints}
       />
+      <br /><br />
+      <Button
+        color="primary"
+        variant="outlined"
+        on:click={() => customPtsMenuOpen = true}
+      >
+        Customize Item Points
+      </Button>
       <br /><br /><br />
       <Button color="primary" on:click={onStartClick} disabled={!spoilerFile} variant="raised">
         <Label>Start Game</Label>
@@ -337,6 +356,8 @@
       </Button>
     </Content>
   </Dialog>
+
+  <CustomPtsDialog bind:isOpen={customPtsMenuOpen} onConfirmPts={handleUpdatePointValues} />
 
   <Dialog bind:open={inGameMenuOpen}>
     <Title id="inGameMenuTitle">Tracker Menu</Title>
@@ -381,11 +402,14 @@
         After uploading your spoiler log, you can choose your settings for how you want the region points to be revealed (see Revealing Region Points below for details on how regions are revealed). You can choose between having them revealed in a random order, in descending order (highest total points to lowest total points), or in ascending order (lowest total points to highest total points). If you don't want to play with the revealing game mode, leave the above dropdown alone and check off the "Start with region points revealed?" checkbox. (You can change this later via the In-Game menu)
       </p>
       <p>
-        The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:
+        There also is a button for customizing the point values of each key item in the tracker in this initial settings dialog. Clicking the Customize Item Points button will bring up a secondary dialog where you can set the point value for each item individually rather than rely on its default value (see below for the default values). It is important to note that some of these items have their point value improved based on certain randomizer modifiers added to your seed, so make sure you note these items. They are indicated by a red line under their icon.
+      </p>
+      <p>
+        The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a default point value based on its usefulness to defeating Red:
       </p>
       <ul>
         <li><b>9 Points:</b> Badges</li>
-        <li><b>7 Points:</b> HMs and PokéGear Items (excluding Map Card)</li>
+        <li><b>7 Points:</b> Large Region unlock items (such as HMs or Pokegear items)</li>
         <li><b>5 Points:</b> Any other Key Item that unlocks additional checks, like Escape Rope, Rock Smash, or Basement Key</li>
         <li><b>3 Points:</b> Useless Key Items that don't provide checks, like Silver Wing, Blue Card*, or Rods</li>
       </ul>
