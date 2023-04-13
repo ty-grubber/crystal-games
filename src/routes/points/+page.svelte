@@ -1,14 +1,15 @@
 <script>
 // @ts-nocheck
+  import { clickOutside } from '$lib/clickOutside';
+  import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
+  import { randomizeArray } from '$lib/randomize';
+  import Button, { Label } from '@smui/button';
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
-  import Button, { Label } from '@smui/button';
   import Select, { Option } from '@smui/select';
-  import { clickOutside } from '$lib/clickOutside';
-	import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
-	import REGIONS from '../../constants/regions';
-	import KEY_ITEMS from '../../constants/keyItems';
-	import { randomizeArray } from '$lib/randomize';
+  import CustomPts from '../../components/CustomPts.svelte';
+  import KEY_ITEMS from '../../constants/keyItems';
+  import REGIONS from '../../constants/regions';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
@@ -39,6 +40,7 @@
   let showSolution = false;
   let howToDialogOpen = false;
   let inGameMenuOpen = false;
+  let customPtsMenuOpen = false;
 
   let settingsDialogOpen = true;
   let revealRegionPoints = false;
@@ -48,6 +50,8 @@
   let mapSelected = 'johto';
   let selectedAvailableItem = {};
   let selectedFoundItem = {};
+
+  let keyItems = [ ...KEY_ITEMS];
 
   /**
 	 * @param {any} e
@@ -61,7 +65,7 @@
     if (file != null) {
       const spoilerText = await file.text();
 
-      const extraction = extractRegionsFromSpoiler(spoilerText);
+      const extraction = extractRegionsFromSpoiler(spoilerText, keyItems);
       regionPoints = extraction.regionPointsArray;
 
       const ninePtItems = extraction.randomizedItems.filter(item => item.points === 9);
@@ -265,10 +269,16 @@
   }
 
   function handleOutsideRegionTableClick(e) {
+    // TODO: need to change this for custom point values
     if (e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' && !['3', '5', '7', '9'].find(value => value === e.explicitOriginalTarget.innerHTML)) {
       selectedAvailableItem = {};
       selectedFoundItem = {};
     }
+  }
+
+  function handleUpdatePointValues(updatedKeyItems) {
+    keyItems = [...updatedKeyItems];
+    customPtsMenuOpen = false;
   }
 </script>
 
@@ -325,6 +335,13 @@
         on:click={toggleRevealAllRegions}
         value={revealRegionPoints}
       />
+      <br /><br />
+      <button
+        type="button"
+        on:click={() => customPtsMenuOpen = true}
+      >
+        Custom Item Points
+      </button>
       <br /><br /><br />
       <Button color="primary" on:click={onStartClick} disabled={!spoilerFile} variant="raised">
         <Label>Start Game</Label>
@@ -335,6 +352,16 @@
       <Button color="secondary" href="/" variant="outlined">
         <Label>Games Home</Label>
       </Button>
+    </Content>
+  </Dialog>
+
+  <Dialog bind:open={customPtsMenuOpen} slot="over" surface$style="height: 700px; width: 800px;">
+    <Title>Customize Key Item Points</Title>
+    <Content>
+      <CustomPts
+        onCancel={() => customPtsMenuOpen = false}
+        onConfirmPts={handleUpdatePointValues}
+      />
     </Content>
   </Dialog>
 
@@ -385,7 +412,7 @@
       </p>
       <ul>
         <li><b>9 Points:</b> Badges</li>
-        <li><b>7 Points:</b> HMs and PokéGear Items (excluding Map Card)</li>
+        <li><b>7 Points:</b> Large Region unlock items (such as HMs or Pokegear items)</li>
         <li><b>5 Points:</b> Any other Key Item that unlocks additional checks, like Escape Rope, Rock Smash, or Basement Key</li>
         <li><b>3 Points:</b> Useless Key Items that don't provide checks, like Silver Wing, Blue Card*, or Rods</li>
       </ul>
