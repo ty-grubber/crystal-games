@@ -337,12 +337,13 @@
         value={revealRegionPoints}
       />
       <br /><br />
-      <button
-        type="button"
+      <Button
+        color="primary"
+        variant="outlined"
         on:click={() => customPtsMenuOpen = true}
       >
-        Custom Item Points
-      </button>
+        Customize Item Points
+      </Button>
       <br /><br /><br />
       <Button color="primary" on:click={onStartClick} disabled={!spoilerFile} variant="raised">
         <Label>Start Game</Label>
@@ -409,7 +410,10 @@
         After uploading your spoiler log, you can choose your settings for how you want the region points to be revealed (see Revealing Region Points below for details on how regions are revealed). You can choose between having them revealed in a random order, in descending order (highest total points to lowest total points), or in ascending order (lowest total points to highest total points). If you don't want to play with the revealing game mode, leave the above dropdown alone and check off the "Start with region points revealed?" checkbox. (You can change this later via the In-Game menu)
       </p>
       <p>
-        The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a point value based on its usefulness to defeating Red:
+        There also is a button for customizing the point values of each key item in the tracker in this initial settings dialog. Clicking the Customize Item Points button will bring up a secondary dialog where you can set the point value for each item individually rather than rely on its default value (see below for the default values). It is important to note that some of these items have their point value improved based on certain randomizer modifiers added to your seed, so make sure you note these items. They are indicated by a red line under their icon.
+      </p>
+      <p>
+        The upload process will log each Key Item into a region based on where the randomizer placed it in the ROM. If a Key Item has not been randomized (ie. does not appear in the spoiler log), the tracker assumes that the Key Item has been placed in its vanilla location. Each Key Item has been assigned a default point value based on its usefulness to defeating Red:
       </p>
       <ul>
         <li><b>9 Points:</b> Badges</li>
