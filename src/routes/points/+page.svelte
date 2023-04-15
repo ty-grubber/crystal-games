@@ -44,6 +44,7 @@
 
   let settingsDialogOpen = true;
   let revealRegionPoints = false;
+  let initialRevealedRegions = 1;
   let revealOrdering = 'random';
   let spoilerFile;
 
@@ -113,6 +114,7 @@
           regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, extraction.rngSeed || file.name);
       }
       regionRevealOrder = regionsWithTotalPoints.map(r => r.id);
+      revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
       settingsDialogOpen = false;
     }
   }
@@ -129,6 +131,7 @@
       revealOrdering = 'random';
       showSolution = false;
       revealRegionPoints = false;
+      initialRevealedRegions = 1;
       howToDialogOpen = false;
       inGameMenuOpen = false;
       settingsDialogOpen = true;
@@ -156,20 +159,22 @@
   }
 
   function checkToExposeRegion(originalBasket, targetBasket, movedItem) {
-    if (originalBasket.type === 'item' && targetBasket.type === 'region' && movedItem.points === 9) {
-      // Found a badge in a region so expose a region's point value
-      const regionToExpose = regionRevealOrder.shift();
-      revealedRegions.unshift(regionToExpose);
+    if (regionRevealOrder.length > 0) {
+      if (originalBasket.type === 'item' && targetBasket.type === 'region' && movedItem.points === 9) {
+        // Found a badge in a region so expose a region's point value
+        const regionToExpose = regionRevealOrder.shift();
+        revealedRegions.unshift(regionToExpose);
 
-      regionRevealOrder = regionRevealOrder;
-      revealedRegions = revealedRegions;
-    } else if (originalBasket.type === 'region' && targetBasket.type === 'item' && movedItem.points === 9) {
-      // Unmarked a badge in a region so hide the last exposed region's point value
-      const regionToExpose = revealedRegions.shift();
-      regionRevealOrder.unshift(regionToExpose);
+        regionRevealOrder = regionRevealOrder;
+        revealedRegions = revealedRegions;
+      } else if (originalBasket.type === 'region' && targetBasket.type === 'item' && movedItem.points === 9) {
+        // Unmarked a badge in a region so hide the last exposed region's point value
+        const regionToExpose = revealedRegions.shift();
+        regionRevealOrder.unshift(regionToExpose);
 
-      regionRevealOrder = regionRevealOrder;
-      revealedRegions = revealedRegions;
+        regionRevealOrder = regionRevealOrder;
+        revealedRegions = revealedRegions;
+      }
     }
   }
 
@@ -328,13 +333,14 @@
         <Option value="asc">Lowest First</Option>
       </Select>
       <br /><br />
-      <label for="startRevealed">Start with region points revealed?</label>
+      <label for="startRevealed">Initial Revealed Regions</label>
       <input
-        id="startRevealed"
-        type="checkbox"
-        class="checkbox"
-        on:click={toggleRevealAllRegions}
-        value={revealRegionPoints}
+        id={`startRevealed`}
+        class="start-revealed"
+        type="number"
+        min="0"
+        max="16"
+        bind:value={initialRevealedRegions}
       />
       <br /><br />
       <Button
@@ -816,5 +822,13 @@
 
   .credits {
     font-size: 12px;
+  }
+
+  input.start-revealed {
+    font-size: 1.5rem;
+    height: 40px;
+    margin-left: 20px;
+    text-align: center;
+    width: 70px;
   }
 </style>
