@@ -10,6 +10,7 @@
   import CustomPtsDialog from '../../components/CustomPts.svelte';
   import KEY_ITEMS from '../../constants/keyItems';
   import REGIONS from '../../constants/regions';
+	import RegionGrid2 from '../../components/Tracker/RegionGrid2.svelte';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
@@ -483,6 +484,8 @@
       <Button>Close</Button>
     </Actions>
   </Dialog>
+
+  <RegionGrid2 />
 
   {#if regionPoints?.length > 0}
     <div class="grid-area">
