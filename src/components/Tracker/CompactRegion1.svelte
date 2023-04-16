@@ -124,28 +124,147 @@
       <span class="info-label">Pts Remaining: <b>13</b></span><br />
       <span class="info-label">Items Found:</span><br />
       <div class="found-items">
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
       </div>
     </div>
     <RegionRefs includeTextRegions={false} hideTitle />
+  </div>
+</div>
+<br />
+<div class="item-tracker">
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
+    <span class="region-found">9</span>
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
+    <span class="region-found">9</span>
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
+    <span class="region-found">9</span>
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
+    <span class="region-found">14</span>
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
+    <span class="region-found">14</span>
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
+    <span class="region-found">14</span>
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
+    <span class="region-found">14</span>
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
+    <span class="region-found">14</span>
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
+  </div>
+  <div class="item-wrapper">
+    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
   </div>
 </div>
 
 <style>
   .container {
     display: flex;
-    max-width: 620px;
-    max-height: 595px;
+    max-width: 605px;
+    height: 595px;
   }
 
   .region-boxes {
@@ -173,6 +292,7 @@
   .box.new-revealed .remaining {
     font-weight: bold;
     color: green;
+    text-decoration: underline 4px;
   }
 
   .region-id {
@@ -223,5 +343,36 @@
 
   .found-items > .icon {
     display: inline-block;
+  }
+
+  .item-tracker {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 400px;
+  }
+
+  .item-tracker .item-wrapper {
+    position: relative;
+  }
+
+  .item-tracker .icon {
+    display: inline-block;
+    padding: 5px;
+    opacity: 0.3;
+  }
+
+  .item-tracker .icon.owned {
+    opacity: 1;
+    position: relative;
+  }
+
+  .item-tracker .region-found {
+    background-color: black;
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px;
+    position: absolute;
+    right: 2%;
   }
 </style>
