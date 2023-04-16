@@ -772,6 +772,7 @@
     border: 1px solid transparent;
     height: 32px;
     width: 32px;
+    object-fit: contain;
   }
 
   .region-section img {
