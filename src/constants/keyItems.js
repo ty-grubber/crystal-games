@@ -62,7 +62,7 @@ export const KEY_ITEMS_3PTS = [
   { id: 'super_rod', name: 'Super Rod', points: 3 },
   { id: 'leftovers', name: 'Leftovers', points: 3 },
   { id: 'tm02', name: 'Headbutt', points: 3 },
-  { id: 'tm12', name: 'Sweet Scent', points: 3 },
+  { id: 'tm12', name: 'Sweet Scent', points: 3, upgradeModifier: 'Mon Locked Checks', upgradeAmt: 2 },
   { id: 'tm28', name: 'Dig', points: 3 },
 ];
 
