@@ -11,6 +11,7 @@
   import KEY_ITEMS from '../../constants/keyItems';
   import REGIONS from '../../constants/regions';
 	import RegionGrid2 from '../../components/Tracker/RegionGrid2.svelte';
+	import RegionRefs from '../../components/References/RegionRefs.svelte';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
@@ -49,7 +50,6 @@
   let revealOrdering = 'random';
   let spoilerFile;
 
-  let mapSelected = 'johto';
   let selectedAvailableItem = {};
   let selectedFoundItem = {};
 
@@ -623,48 +623,8 @@
           </Body>
         </DataTable>
         <br /><br />
-        <div class="references">
-          <b style="font-size:18px;">References</b>
-          <br />
-          <Button color="primary" on:click={() => mapSelected = 'johto'} style={`text-decoration: ${mapSelected === 'johto' ? 'underline' : 'none'}`}>
-            <Label>Johto Map</Label>
-          </Button>
-          <Button color="primary" on:click={() => mapSelected = 'kanto'} style={`text-decoration: ${mapSelected === 'kanto' ? 'underline' : 'none'}`}>
-            <Label>Kanto Map</Label>
-          </Button>
-          <Button color="primary" on:click={() => mapSelected = 'text'} style={`text-decoration: ${mapSelected === 'text' ? 'underline' : 'none'}`}>
-            <Label>Text Regions</Label>
-          </Button>
-          <Button color="primary" on:click={() => mapSelected = 'points'} style={`text-decoration: ${mapSelected === 'points' ? 'underline' : 'none'}`}>
-            <Label>Point Sums</Label>
-          </Button>
-          <br />
-          {#if mapSelected === 'text'}
-            <ol start="1" type="1">
-              {#each REGIONS as region (region.id)}
-                <li>{region.description}</li>
-              {/each}
-            </ol>
-          {:else if mapSelected === 'points'}
-            <ol start="6" type="1" class="points-cheat-sheet">
-              <li> 33</li>
-              <li> 7</li>
-              <li> 35</li>
-              <li> 333 | 9</li>
-              <li> 55 | 37</li>
-              <li> 335</li>
-              <li> 3333 | 39 | 57</li>
-              <li> 337 | 355</li>
-              <li> 3335 | 59 | 77</li>
-              <li> 35 | 339 | 357 | 555</li>
-              <li> 3337 | 3355 | 79</li>
-              <li> 33335 | 359 | 377 | 557</li>
-              <li> 333333 | 3339 | 3555 | 3357 | 99</li>
-              <li> 33337 | 33355 | 379 | 559 | 577</li>
-            </ol>
-          {:else}
-            <img src={`/maps/${mapSelected}-points-region-map.png`} alt={`Points region map of ${mapSelected}`} />
-          {/if}
+        <div style="margin-left: 3rem;">
+          <RegionRefs />
         </div>
       </div>
     </div>
@@ -797,31 +757,6 @@
   img.solution-item {
     padding-top: 4px;
     margin-bottom: -2px;
-  }
-
-  .points-cheat-sheet {
-    margin-top: 8px;
-    max-width: 450px;
-  }
-
-  ol > li::marker {
-    font-weight: bold;
-  }
-
-
-  .references {
-    padding-left: 3rem;
-  }
-
-  .references ol {
-    margin-top: 0;
-    padding-left: 0;
-    line-height: 1.35;
-  }
-
-  .references img {
-    height: 350px;
-    width: auto;
   }
 
   .credits {

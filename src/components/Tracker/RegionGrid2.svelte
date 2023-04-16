@@ -1,3 +1,7 @@
+<script>
+	import RegionRefs from '../References/RegionRefs.svelte';
+
+</script>
 <div class="container">
   <div class="region-boxes">
     <div class="box">
@@ -133,15 +137,15 @@
         <img src="/keyItems/hm01.png" alt="Cut" class="icon" />
       </div>
     </div>
-    References Area
+    <RegionRefs includeTextRegions={false} hideTitle />
   </div>
 </div>
 
 <style>
   .container {
-    background-color: grey;
     display: flex;
-    max-width: 550px;
+    max-width: 620px;
+    max-height: 595px;
   }
 
   .region-boxes {
@@ -151,7 +155,6 @@
   }
 
   .box {
-    background-color: lightgrey;
     border: 2px solid #444;
     flex-basis: calc(50% - 4px);
     display: flex;
@@ -174,14 +177,15 @@
 
   .region-id {
     flex-grow: 0;
-    font-size: 2.5rem;
+    font-size: 2.7rem;
     line-height: 1.6;
     width: 60px;
   }
 
   .side-section {
     position: absolute;
-    right: 3%;
+    right: 0;
+    width: 40px;
   }
 
   .side-section > div {
@@ -213,6 +217,8 @@
     display: flex;
     height: 76px;
     object-fit: contain;
+    max-width: 280px;
+    flex-wrap: wrap;
   }
 
   .found-items > .icon {
