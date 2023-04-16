@@ -49,6 +49,7 @@ export const KEY_ITEMS_5PTS = [
 
 export const KEY_ITEMS_3PTS = [
   { id: 'silver_wing', name: 'Silver Wing', points: 3 },
+  { id: 'gs_ball', name: 'GS Ball', points: 3 },
   { id: 'pokedex', name: 'Pokedex', points: 3, upgradeModifier: 'Mon Locked Checks', upgradeAmt: 2 },
   { id: 'unown_dex', name: 'Unown Dex', points: 3 },
   { id: 'bicycle', name: 'Bicycle', points: 3, upgradeModifier: 'Hidden Items', upgradeAmt: 2 },
@@ -56,12 +57,11 @@ export const KEY_ITEMS_3PTS = [
   { id: 'blue_card', name: 'Blue Card', points: 3, upgradeModifier: 'Buena Items', upgradeAmt: 2 },
   { id: 'coin_case', name: 'Coin Case', points: 3, upgradeModifier: 'Game Corner', upgradeAmt: 2 },
   { id: 'itemfinder', name: 'Itemfinder', points: 3 },
-  { id: 'gs_ball', name: 'GS Ball', points: 3 },
   { id: 'old_rod', name: 'Old Rod', points: 3 },
   { id: 'good_rod', name: 'Good Rod', points: 3 },
   { id: 'super_rod', name: 'Super Rod', points: 3 },
   { id: 'leftovers', name: 'Leftovers', points: 3 },
-  { id: 'tm01', name: 'Headbutt', points: 3 },
+  { id: 'tm02', name: 'Headbutt', points: 3 },
   { id: 'tm12', name: 'Sweet Scent', points: 3 },
   { id: 'tm28', name: 'Dig', points: 3 },
 ];
