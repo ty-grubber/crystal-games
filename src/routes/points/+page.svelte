@@ -25,8 +25,9 @@
 
   let settingsDialogOpen = true;
   let revealRegionPoints = false;
-  let initialRevealedRegions = 1;
+  let trackerLayout = 'classic';
   let revealOrdering = 'random';
+  let initialRevealedRegions = 1;
   let spoilerFile;
 
   let selectedAvailableItem = {};
@@ -210,6 +211,11 @@
         style="margin-right: 1rem;"
       />
       <br /><br />
+      <Select bind:value={trackerLayout} variant="outlined" label="Tracker Layout Style" style="width: 220px;">
+        <Option value="classic">Classic</Option>
+        <Option value="compact1">Compact</Option>
+      </Select>
+      <br /><br />
       <Select bind:value={revealOrdering} variant="outlined" label="Region Reveal Order" style="width: 220px;">
         <Option value="random">Random</Option>
         <Option value="desc">Highest First</Option>
@@ -259,6 +265,11 @@
       <Button color="primary" variant="outlined" on:click={handleShowSolution}>
         <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
       </Button>
+      <br /><br />
+      <Select bind:value={trackerLayout} variant="outlined" label="Tracker Layout Style" style="width: 220px;">
+        <Option value="classic">Classic</Option>
+        <Option value="compact1">Compact</Option>
+      </Select>
       <br /><br />
       <Button color="secondary" on:click={openHowToDialog} variant="raised">
         <Label>How To Play</Label>
@@ -367,21 +378,23 @@
     </Actions>
   </Dialog>
 
-  <CompactRegion1 />
-
-  <ClassicRegion
-    spoilerFile={spoilerFile}
-    regionPoints={regionPoints}
-    bind:baskets
-    revealedRegions={revealedRegions}
-    bind:selectedAvailableItem
-    bind:selectedFoundItem
-    showSolution={showSolution}
-    revealRegionPoints={revealRegionPoints}
-    handleOutsideRegionTableClick={handleOutsideRegionTableClick}
-    checkToExposeRegion={checkToExposeRegion}
-    openInGameMenu={openInGameMenu}
-  />
+  {#if trackerLayout === 'compact1'}
+    <CompactRegion1 />
+  {:else}
+    <ClassicRegion
+      spoilerFile={spoilerFile}
+      regionPoints={regionPoints}
+      bind:baskets
+      revealedRegions={revealedRegions}
+      bind:selectedAvailableItem
+      bind:selectedFoundItem
+      showSolution={showSolution}
+      revealRegionPoints={revealRegionPoints}
+      handleOutsideRegionTableClick={handleOutsideRegionTableClick}
+      checkToExposeRegion={checkToExposeRegion}
+      openInGameMenu={openInGameMenu}
+    />
+  {/if}
 </div>
 
 <style>
