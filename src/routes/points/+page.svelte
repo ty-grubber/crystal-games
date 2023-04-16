@@ -9,23 +9,13 @@
   import Select, { Option } from '@smui/select';
   import CustomPtsDialog from '../../components/CustomPts.svelte';
   import KEY_ITEMS from '../../constants/keyItems';
-  import REGIONS from '../../constants/regions';
+  import REGIONS, { regionColorClasses } from '../../constants/regions';
 	import RegionGrid2 from '../../components/Tracker/RegionGrid2.svelte';
 	import RegionRefs from '../../components/References/RegionRefs.svelte';
+	import PointTrackerCredits from '../../components/References/PointTrackerCredits.svelte';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
-
-  const regionColorClasses = [
-    'black',
-    'orange',
-    'lt-blue',
-    'yellow',
-    'green',
-    'dk-blue',
-    'red',
-    'pink',
-  ];
 
   /**
 	 * @type {{ regionId: number; points: number; items: any[]; }[]}
@@ -563,22 +553,11 @@
             </Body>
           </DataTable>
         </div>
-        {#if spoilerFile}
-          <p>
-            Spoiler file name: {spoilerFile.name}
-          </p>
-        {/if}
-        {#if regionPoints}
-          <div class='floating-menu'>
-            <Button color="primary" on:click={openInGameMenu} variant="raised">
-              <Label>Menu</Label>
-            </Button>
-          </div>
-        {/if}
-        <p class="credits">
-          Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
-          Region map images created by Kovolta.
-        </p>
+        <PointTrackerCredits
+          spoilerFile={spoilerFile}
+          showMenuButton={!!regionPoints}
+          openInGameMenu={openInGameMenu}
+        />
       </div>
       <div class="available-items">
         <DataTable style="width: 350px; margin-left: 3rem;">
@@ -642,19 +621,6 @@
     height: 18px;
     width: 18px;
     margin: 5px;
-  }
-
-  .floating-menu {
-    position: absolute;
-    top: 1%;
-    right: 1%;
-    z-index: 10;
-  }
-
-  @media(max-width: 1024px) {
-    .floating-menu {
-      position: unset;
-    }
   }
 
   .hovering {
@@ -757,10 +723,6 @@
   img.solution-item {
     padding-top: 4px;
     margin-bottom: -2px;
-  }
-
-  .credits {
-    font-size: 12px;
   }
 
   input.start-revealed {

@@ -15,6 +15,17 @@ const REGIONS = [
   { id: 14, name: 'Eastern Kanto', locations: ['Lavender', 'Fuchsia', 'Rock Tunnel', 'Power Plant', 'Super Rod Guru', 'Janine', 'Expansion Card'], routes: [8, 9, 10, 11, 12, 13, 14, 15], description: 'Lavender, Fuchsia, Rock Tunnel, Power Plant + Rts 8-15' },
   { id: 15, name: 'Western Kanto', locations: ['Pewter', 'Viridian', 'Pallet', 'Cinnabar', 'Mt Moon', 'Mount Moon', 'Diglett\'s Cave', 'Seafoam Islands', 'Silver Wing'], routes: [4, 2, 1], description: 'Pewter, Viridian, Pallet, Cinnabar, Mt Moon, Diglett\'s Cave, Seafoam + Rts 1-4' },
   { id: 16, name: 'Victory Road', locations: ['Victory Road', 'Indigo Plateau', 'Mt. Silver', 'Tohjo Falls'], routes: [26, 27, 28], description: 'Victory Road, Indigo, Mt. Silver, Tohjo + Rts. 26-28' },
-]
+];
+
+export const regionColorClasses = [
+  'black',
+  'orange',
+  'lt-blue',
+  'yellow',
+  'green',
+  'dk-blue',
+  'red',
+  'pink',
+];
 
 export default REGIONS;
