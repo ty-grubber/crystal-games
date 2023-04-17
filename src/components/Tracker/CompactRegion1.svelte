@@ -5,139 +5,189 @@
 <div class="container">
   <div class="region-boxes">
     <div class="box">
-      <div class="region-id">1</div>
+      <div class="region-id">
+        <img src="/regions/1.png" alt="Region 1" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">1</div>
         <div class="remaining">27</div>
       </div>
+      <div class="items"> <!-- Add class if more than 13 items placed in region -->
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+      </div>
     </div>
     <div class="box">
-      <div class="region-id">2</div>
+      <div class="region-id">
+        <img src="/regions/2.png" alt="Region 2" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">2</div>
         <div class="remaining">11</div>
       </div>
-    </div>
-    <div class="box">
-      <div class="region-id">3</div>
-      <div class="side-section">
-        <div class="selector">+</div>
-        <div class="remaining">??</div>
+      <div class="items">
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
       </div>
     </div>
     <div class="box">
-      <div class="region-id">4</div>
+      <div class="region-id">
+        <img src="/regions/3.png" alt="Region 3" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">3</div>
+        <div class="remaining">??</div>
+      </div>
+      <div class="items">
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
+      </div>
+    </div>
+    <div class="box">
+      <div class="region-id">
+        <img src="/regions/4.png" alt="Region 4" />
+      </div>
+      <div class="side-section">
+        <div class="selector">4</div>
         <div class="remaining">0</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">5</div>
+      <div class="region-id">
+        <img src="/regions/5.png" alt="Region 5" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">5</div>
         <div class="remaining">13</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">6</div>
+      <div class="region-id">
+        <img src="/regions/6.png" alt="Region 6" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">6</div>
         <div class="remaining">??</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">7</div>
+      <div class="region-id">
+        <img src="/regions/7.png" alt="Region 7" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">7</div>
         <div class="remaining">??</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">8</div>
+      <div class="region-id">
+        <img src="/regions/8.png" alt="Region 8" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">8</div>
         <div class="remaining">??</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box selected">
-      <div class="region-id">9</div>
+      <div class="region-id">
+        <img src="/regions/9.png" alt="Region 9" />
+      </div>
       <div class="side-section">
-        <div class="selector">></div>
+        <div class="selector">9</div>
         <div class="remaining">13</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">10</div>
+      <div class="region-id">
+        <img src="/regions/10.png" alt="Region 10" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">10</div>
         <div class="remaining">??</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">11</div>
+      <div class="region-id">
+        <img src="/regions/11.png" alt="Region 11" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">11</div>
         <div class="remaining">??</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">12</div>
+      <div class="region-id">
+        <img src="/regions/12.png" alt="Region 12" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">12</div>
         <div class="remaining">??</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box new-revealed">
-      <div class="region-id">13</div>
+      <div class="region-id">
+        <img src="/regions/13.png" alt="Region 13" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">13</div>
         <div class="remaining">54</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">14</div>
+      <div class="region-id">
+        <img src="/regions/14.png" alt="Region 14" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">14</div>
         <div class="remaining">??</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">15</div>
+      <div class="region-id">
+        <img src="/regions/15.png" alt="Region 15" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">15</div>
         <div class="remaining">??</div>
       </div>
+      <div class="items"></div>
     </div>
     <div class="box">
-      <div class="region-id">16</div>
+      <div class="region-id">
+        <img src="/regions/16.png" alt="Region 16" />
+      </div>
       <div class="side-section">
-        <div class="selector">+</div>
+        <div class="selector">16</div>
         <div class="remaining">??</div>
       </div>
+      <div class="items"></div>
     </div>
-  </div>
-  <div class="info-section selected">
-    <div class="selected-region">
-      <span class="title">Selected Region</span><br />
-      <span class="info-label">Region ID: <b>9</b></span><br />
-      <span class="info-label">Pts Remaining: <b>13</b></span><br />
-      <span class="info-label">Items Found:</span><br />
-      <div class="found-items">
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-        <img src="/keyItems/hm01.png" alt="Cut" class="icon" title="Cut - 7" />
-      </div>
-    </div>
-    <RegionRefs includeTextRegions={false} hideTitle />
   </div>
 </div>
 <br />
@@ -263,22 +313,22 @@
 <style>
   .container {
     display: flex;
-    max-width: 605px;
-    height: 595px;
   }
 
   .region-boxes {
     display: flex;
     flex-wrap: wrap;
-    max-width: 200px;
+    max-width: 620px;
   }
 
   .box {
     border: 2px solid #444;
-    flex-basis: calc(50% - 4px);
     display: flex;
-    text-align: center;
+    flex-basis: calc(50% - 4px);
+    max-height: 60px;
+    max-width: 300px;
     position: relative;
+    text-align: center;
   }
 
   .box.selected {
@@ -296,53 +346,36 @@
   }
 
   .region-id {
-    flex-grow: 0;
-    font-size: 2.7rem;
-    line-height: 1.6;
+    display: flex;
+    flex: 0 0 auto;
     width: 60px;
   }
 
+  .region-id > img {
+    object-fit: scale-down;
+  }
+
   .side-section {
-    position: absolute;
-    right: 0;
-    width: 40px;
+    width: 30px;
   }
 
   .side-section > div {
-    font-size: 1.75rem;
-  }
-
-  .info-section {
-    border: 2px solid black;
-    padding: 10px;
-    width: 100%;
-  }
-
-  .info-section.selected {
-    border-color: purple;
-  }
-
-  .selected-region {
     font-size: 1.5rem;
   }
 
-  .selected-region > .title {
-    font-weight: bold;
-    margin-bottom: 10px;
-    text-decoration: underline;
-  }
-
-  .found-items {
+  .items {
     align-items: center;
     display: flex;
-    height: 76px;
-    object-fit: contain;
-    max-width: 280px;
     flex-wrap: wrap;
+    height: 60px;
+    object-fit: contain;
+    padding-left: 5px;
+    width: 205px;
   }
 
-  .found-items > .icon {
-    display: inline-block;
+  .items > img {
+    max-height: 28px;
+    max-width: 28px;
   }
 
   .item-tracker {
