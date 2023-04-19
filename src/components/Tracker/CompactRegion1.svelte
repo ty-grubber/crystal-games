@@ -1,5 +1,6 @@
 <script>
-	import RegionRefs from '../References/RegionRefs.svelte';
+  // @ts-nocheck
+  export let baskets = [];
 
 </script>
 <div class="container">
@@ -108,7 +109,7 @@
       </div>
       <div class="items"></div>
     </div>
-    <div class="box selected">
+    <div class="box">
       <div class="region-id">
         <img src="/regions/9.png" alt="Region 9" />
       </div>
@@ -192,61 +193,15 @@
 </div>
 <br />
 <div class="item-tracker">
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
-    <span class="region-found">9</span>
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
-    <span class="region-found">9</span>
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
-    <span class="region-found">9</span>
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
-    <span class="region-found">14</span>
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
+  {#each baskets.filter(basket => basket.type === 'item') as itemBasket (itemBasket)}
+    <div class="item-row">
+      {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+        <div class="item-wrapper">
+          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} class="icon" />
+        </div>
+      {/each}
+    </div>
+  {/each}
   <div class="item-wrapper">
     <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
     <span class="region-found">14</span>
@@ -258,55 +213,6 @@
   <div class="item-wrapper">
     <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
     <span class="region-found">14</span>
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
-    <span class="region-found">14</span>
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
-  </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon" />
   </div>
 </div>
 
@@ -329,10 +235,6 @@
     max-width: 300px;
     position: relative;
     text-align: center;
-  }
-
-  .box.selected {
-    border-color: purple;
   }
 
   .box.new-revealed {
@@ -379,10 +281,14 @@
   }
 
   .item-tracker {
+    max-width: 610px;
+  }
+
+  .item-tracker .item-row {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    max-width: 400px;
+    margin: 0 0 15px;
+    width: 100%;
   }
 
   .item-tracker .item-wrapper {
@@ -391,7 +297,9 @@
 
   .item-tracker .icon {
     display: inline-block;
-    padding: 5px;
+    max-height: 32px;
+    max-width: 32px;
+    padding: 0 3px;
     opacity: 0.3;
   }
 

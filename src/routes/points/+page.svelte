@@ -379,7 +379,7 @@
   </Dialog>
 
   {#if trackerLayout === 'compact1'}
-    <CompactRegion1 />
+    <CompactRegion1 bind:baskets />
   {:else}
     <ClassicRegion
       spoilerFile={spoilerFile}
