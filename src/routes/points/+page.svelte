@@ -160,7 +160,11 @@
   }
 
   function handleOutsideRegionTableClick(e) {
-    if (e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' && !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)) {
+    if (
+      e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
+      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button' &&
+      !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)
+    ) {
       selectedAvailableItem = {};
       selectedFoundItem = {};
     }

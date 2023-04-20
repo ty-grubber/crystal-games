@@ -1,10 +1,10 @@
 <script>
   // @ts-nocheck
   import { clickOutside } from '$lib/clickOutside';
+  import Button, { Label } from '@smui/button';
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
 	import RegionRefs from '../References/RegionRefs.svelte';
 	import REGIONS, { regionColorClasses } from '../../constants/regions';
-	import PointTrackerCredits from '../References/PointTrackerCredits.svelte';
 
   const availableItemsPointCellStyles = "width: 65px !important; text-align: center; font-size: 24px;";
   const availableItemsItemCellStyles = "padding: 0; width: 300px; white-space: normal;"
@@ -204,11 +204,22 @@
             {/each}
           </Body>
         </DataTable>
-        <PointTrackerCredits
-          spoilerFile={spoilerFile}
-          showMenuButton={!!regionPoints}
-          openInGameMenu={openInGameMenu}
-        />
+        {#if spoilerFile}
+          <p>
+            Spoiler file name: {spoilerFile.name}
+          </p>
+        {/if}
+        {#if regionPoints}
+          <div class='floating-menu'>
+            <Button color="primary" on:click={openInGameMenu} variant="raised">
+              <Label>Menu</Label>
+            </Button>
+          </div>
+        {/if}
+        <p class="credits">
+          Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
+          Region map images created by Kovolta.
+        </p>
       </div>
     </div>
     <div class="available-items">
@@ -366,5 +377,22 @@
   img.solution-item {
     padding-top: 4px;
     margin-bottom: -2px;
+  }
+
+  .floating-menu {
+    position: absolute;
+    top: 1%;
+    right: 1%;
+    z-index: 10;
+  }
+
+  @media(max-width: 1024px) {
+    .floating-menu {
+      position: unset;
+    }
+  }
+
+  .credits {
+    font-size: 12px;
   }
 </style>

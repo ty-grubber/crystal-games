@@ -43,8 +43,8 @@ export const KEY_ITEMS_5PTS = [
   { id: 'lost_item', name: 'Lost Item', points: 5 },
   { id: 'red_scale', name: 'Red Scale', points: 5 },
   { id: 'mystery_egg', name: 'Mystery Egg', points: 5 },
-  { id: 'water_stone', name: 'Water Stone', points: 5 },
-  { id: 'tm08', name: 'Rock Smash', points: 5 },
+  { id: 'water_stone', name: 'Water Stone', points: 5, onPoke: true },
+  { id: 'tm08', name: 'Rock Smash', points: 5, onPoke: true },
 ];
 
 export const KEY_ITEMS_3PTS = [
@@ -60,10 +60,10 @@ export const KEY_ITEMS_3PTS = [
   { id: 'old_rod', name: 'Old Rod', points: 3 },
   { id: 'good_rod', name: 'Good Rod', points: 3 },
   { id: 'super_rod', name: 'Super Rod', points: 3 },
-  { id: 'leftovers', name: 'Leftovers', points: 3 },
-  { id: 'tm02', name: 'Headbutt', points: 3 },
-  { id: 'tm12', name: 'Sweet Scent', points: 3, upgradeModifier: 'Mon Locked Checks', upgradeAmt: 2 },
-  { id: 'tm28', name: 'Dig', points: 3 },
+  { id: 'leftovers', name: 'Leftovers', points: 3, onPoke: true },
+  { id: 'tm02', name: 'Headbutt', points: 3, onPoke: true },
+  { id: 'tm12', name: 'Sweet Scent', points: 3, upgradeModifier: 'Mon Locked Checks', upgradeAmt: 2, onPoke: true },
+  { id: 'tm28', name: 'Dig', points: 3, onPoke: true },
 ];
 
 export default KEY_ITEMS_9PTS.concat(KEY_ITEMS_7PTS, KEY_ITEMS_5PTS, KEY_ITEMS_3PTS);

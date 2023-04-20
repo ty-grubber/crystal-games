@@ -1,7 +1,7 @@
 <script>
   // @ts-nocheck
   import { clickOutside } from '$lib/clickOutside';
-	import PointTrackerCredits from '../References/PointTrackerCredits.svelte';
+  import Button, { Label } from '@smui/button';
 	import REGIONS, { regionColorClasses } from '../../constants/regions';
 
   export let baskets = [];
@@ -104,7 +104,7 @@
     let targetBasket = baskets[basketIndex];
     const itemGettingPlaced = selectedAvailableItem.points ? selectedAvailableItem : selectedFoundItem;
 
-    if (itemGettingPlaced.points && !itemGettingPlaced.regionFound) {
+    if (itemGettingPlaced.points && (itemGettingPlaced.regionFound === 'P' || !itemGettingPlaced.regionFound)) {
       // Remove item if item came from another region, otherwise just copy it to its new location
       const originalBasket = baskets[itemGettingPlaced.currBasketIndex];
       const draggedItemIndexInBasket = baskets[itemGettingPlaced.currBasketIndex].items.findIndex((item, idx) => item.id === itemGettingPlaced.id && idx === itemGettingPlaced.currItemIndex);
@@ -166,6 +166,17 @@
     checkToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
     selectedAvailableItem = {};
     selectedFoundItem = {};
+  }
+
+  function assignToPokemon() {
+    if (selectedAvailableItem.points) {
+      baskets[selectedAvailableItem.currBasketIndex].items[selectedAvailableItem.currItemIndex] = {
+        ...baskets[selectedAvailableItem.currBasketIndex].items[selectedAvailableItem.currItemIndex],
+        regionFound: 'P',
+      };
+      baskets = baskets;
+      selectedAvailableItem = {};
+    }
   }
 </script>
 
@@ -229,6 +240,7 @@
                 on:contextmenu={(e) => handleClearItem(e, i, itemIndex)}
               />
             {/each}
+            <!-- TODO: show ghost icons for solution -->
           </div>
         </div>
       {/each}
@@ -241,11 +253,11 @@
         {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
           <div
             class="item-wrapper"
-            class:draggable={!item.regionFound}
+            class:draggable={!item.regionFound || item.regionFound === 'P'}
             class:selected={selectedAvailableItem?.id === item.id && selectedAvailableItem?.currItemIndex === itemIndex}
-            draggable={!item.regionFound}
+            draggable={!item.regionFound || item.regionFound === 'P'}
             on:dragstart={(e) => {
-              if (!item.regionFound) {
+              if (!item.regionFound || item.regionFound === 'P') {
                 dragStart(e, REGIONS.length + basketIndex, itemIndex);
               }}
             }
@@ -257,7 +269,7 @@
               class="icon"
               class:owned={!!item.regionFound}
               src={`/keyItems/${item.id}.png`}
-              title={`${item.name} - ${item.points}pts${!!item.regionFound ? `: Found In Region ${item.regionFound}` : ''}`}
+              title={`${item.name} - ${item.points}pts${!!item.regionFound ? `: Found ${item.regionFound === 'P' ? 'On Pokémon' : `In Region ${item.regionFound}`}` : ''}`}
             />
             {#if item.regionFound}
               <span class="region-found">{item.regionFound}</span>
@@ -266,13 +278,31 @@
         {/each}
       </div>
     {/each}
-    <!-- TODO: Add button for setting item found on Pokemon (will need to parse int to make sure item is still draggable onto region grid)-->
+    {#if regionPoints.length > 0}
+      <div class='extra-actions'>
+        <Button color="primary" on:click={openInGameMenu} variant="raised">
+          <Label>Menu</Label>
+        </Button>
+        <Button
+          color="primary"
+          on:click={(e) => assignToPokemon(e)}
+          variant="outlined"
+          style={!selectedAvailableItem.points || !selectedAvailableItem.onPoke ? 'visibility: hidden' : ''}
+        >
+          Found On Pokémon
+        </Button>
+      </div>
+    {/if}
+    {#if spoilerFile}
+      <p>
+        Spoiler file name: {spoilerFile.name}
+      </p>
+    {/if}
+    <p class="credits">
+      Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
+      Region ID images created by TyGr.
+    </p>
   </div>
-  <PointTrackerCredits
-    spoilerFile={spoilerFile}
-    showMenuButton={!!regionPoints}
-    openInGameMenu={openInGameMenu}
-  />
 {/if}
 
 <style>
