@@ -215,6 +215,7 @@
         <Option value="classic">Classic</Option>
         <Option value="compact1">Compact</Option>
       </Select>
+      <!-- TODO: Write short blurb about each type of tracker layout -->
       <br /><br />
       <Select bind:value={revealOrdering} variant="outlined" label="Region Reveal Order" style="width: 220px;">
         <Option value="random">Random</Option>
@@ -381,9 +382,15 @@
   {#if trackerLayout === 'compact1'}
     <CompactRegion1
       bind:baskets
+      spoilerFile={spoilerFile}
       regionPoints={regionPoints}
       revealedRegions={revealedRegions}
       revealRegionPoints={revealRegionPoints}
+      bind:selectedAvailableItem
+      bind:selectedFoundItem
+      handleOutsideRegionTableClick={handleOutsideRegionTableClick}
+      checkToExposeRegion={checkToExposeRegion}
+      openInGameMenu={openInGameMenu}
     />
   {:else}
     <ClassicRegion

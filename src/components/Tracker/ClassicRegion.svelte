@@ -16,8 +16,8 @@
   export let baskets = [];
   export let revealedRegions = [];
 
-  export let selectedAvailableItem = {}; // need to be bound
-  export let selectedFoundItem = {}; // need to be bound
+  export let selectedAvailableItem = {};
+  export let selectedFoundItem = {};
 
   export let spoilerFile = {};
   export let showSolution = false;

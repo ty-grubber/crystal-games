@@ -1,69 +1,279 @@
 <script>
   // @ts-nocheck
+  import { clickOutside } from '$lib/clickOutside';
+	import PointTrackerCredits from '../References/PointTrackerCredits.svelte';
+	import REGIONS, { regionColorClasses } from '../../constants/regions';
+
   export let baskets = [];
   export let regionPoints = [];
   export let revealedRegions = [];
+
+  export let spoilerFile = {};
+  export let selectedAvailableItem = {};
+  export let selectedFoundItem = {};
   export let revealRegionPoints = false;
 
+  export let handleOutsideRegionTableClick = () => {};
+  export let checkToExposeRegion = () => {};
+  export let openInGameMenu = () => {};
+
+  let hoveringOverBasket;
+
+  function updateRegionFoundFromRegionTransfer(movedItem, newRegionFoundValue, originalBasketIndex) {
+    const movedItemAvailableBasketIndex = baskets.findIndex(basket => basket.type === 'item' && basket.name === movedItem.points.toString());
+    const movedItemAvailableBasket = baskets[movedItemAvailableBasketIndex];
+
+    const matchingAvailableItemIndex = movedItemAvailableBasket.items.findIndex(aItem => aItem.name === movedItem.name && aItem.regionFound === baskets[originalBasketIndex].name);
+
+    movedItemAvailableBasket.items[matchingAvailableItemIndex] = {
+      ...movedItemAvailableBasket.items[matchingAvailableItemIndex],
+      regionFound: newRegionFoundValue,
+    };
+
+    baskets[movedItemAvailableBasketIndex] = movedItemAvailableBasket;
+    baskets = baskets;
+  }
+
+  /**
+	 * @param {DragEvent & { currentTarget: EventTarget & HTMLLIElement; }} event
+	 * @param {any} basketIndex
+	 * @param {number} itemIndex
+	 */
+	function dragStart(event, basketIndex, itemIndex) {
+		// The data we want to make available when the element is dropped
+    // is the index of the item being dragged and
+    // the index of the basket from which it is leaving.
+		const data = {basketIndex, itemIndex};
+   	event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+	}
+
+  /**
+	 * @param {DragEvent & { currentTarget: EventTarget & HTMLUListElement; }} event
+	 * @param {number} basketIndex
+	 */
+	function regionDrop(event, basketIndex) {
+		event.preventDefault();
+    if (event.dataTransfer) {
+      const json = event.dataTransfer.getData("text/plain");
+      let origItemLocation;
+      try {
+        origItemLocation = JSON.parse(json);
+      } catch {
+        return;
+      }
+
+      if (!origItemLocation || !origItemLocation.basketIndex || origItemLocation.itemIndex < 0) {
+        return;
+      }
+
+      let targetBasket = baskets[basketIndex];
+
+      const originalBasket = baskets[origItemLocation.basketIndex];
+      // Remove item if item came from another region, otherwise just copy it to its new location
+      let item;
+      if (originalBasket.type === 'item') {
+        [item] = originalBasket.items.slice(origItemLocation.itemIndex, origItemLocation.itemIndex + 1);
+        // update the original item to include the new region where it was found
+        originalBasket.items[origItemLocation.itemIndex] = {
+          ...originalBasket.items[origItemLocation.itemIndex],
+          regionFound: targetBasket.name,
+        };
+        baskets[origItemLocation.basketIndex] = originalBasket;
+      } else {
+        [item] = originalBasket.items.splice(origItemLocation.itemIndex, 1);
+
+        updateRegionFoundFromRegionTransfer(item, targetBasket.name, origItemLocation.basketIndex);
+      }
+
+      // Add the item to the drop target basket and update our baskets.
+      targetBasket.items.push(item);
+      baskets = baskets;
+
+      checkToExposeRegion(originalBasket, targetBasket, item);
+
+      hoveringOverBasket = null;
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
+    }
+	}
+
+  /**
+	 * @param {number} basketIndex
+	 */
+  function setSelectedItemIntoBasket(basketIndex) {
+    let targetBasket = baskets[basketIndex];
+    const itemGettingPlaced = selectedAvailableItem.points ? selectedAvailableItem : selectedFoundItem;
+
+    if (itemGettingPlaced.points && !itemGettingPlaced.regionFound) {
+      // Remove item if item came from another region, otherwise just copy it to its new location
+      const originalBasket = baskets[itemGettingPlaced.currBasketIndex];
+      const draggedItemIndexInBasket = baskets[itemGettingPlaced.currBasketIndex].items.findIndex((item, idx) => item.id === itemGettingPlaced.id && idx === itemGettingPlaced.currItemIndex);
+
+      let freedItem;
+      if (originalBasket.type === 'item') {
+        [freedItem] = originalBasket.items.slice(draggedItemIndexInBasket, draggedItemIndexInBasket + 1);
+        // update the original item to include the new region where it was found
+        originalBasket.items[draggedItemIndexInBasket] = {
+          ...originalBasket.items[draggedItemIndexInBasket],
+          regionFound: targetBasket.name,
+        };
+        baskets[itemGettingPlaced.currBasketIndex] = originalBasket;
+      } else {
+        [freedItem] = originalBasket.items.splice(draggedItemIndexInBasket, 1);
+
+        updateRegionFoundFromRegionTransfer(freedItem, targetBasket.name, itemGettingPlaced.currBasketIndex);
+      }
+
+      // Add the item to the drop target basket.
+      targetBasket.items.push(freedItem);
+      baskets = baskets;
+
+      checkToExposeRegion(originalBasket, targetBasket, freedItem);
+    }
+
+    selectedAvailableItem = {};
+    selectedFoundItem = {};
+  }
+
+  function handleFoundItemClick(event, item, currBasketIndex, currItemIndex) {
+    event.stopPropagation();
+    selectedAvailableItem = {};
+    selectedFoundItem = {
+      ...item,
+      currBasketIndex,
+      currItemIndex,
+    };
+  }
+
+  function handleAvailableItemClick(event, item, currBasketIndex, currItemIndex) {
+    event.stopPropagation();
+    selectedAvailableItem = {
+      ...item,
+      currBasketIndex,
+      currItemIndex,
+    };
+    selectedFoundItem = {};
+  }
+
+  function handleClearItem(event, basketIndex, itemIndex) {
+    event.preventDefault();
+
+    const [removedItem] = baskets[basketIndex].items.splice(itemIndex, 1);
+
+    updateRegionFoundFromRegionTransfer(removedItem, undefined, basketIndex);
+    baskets = baskets;
+
+    checkToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
+    selectedAvailableItem = {};
+    selectedFoundItem = {};
+  }
 </script>
-<div class="container">
-  <div class="region-boxes">
-    {#each regionPoints as rp, i (rp.regionId)}
-      <div class={`box ${revealedRegions[0] === rp.regionId ? 'new-revealed' : ''}`}>
-        <div class="region-id">
-          <img
-            src={`/regions/${rp.regionId}.png`}
-            alt={`Region ${rp.regionId} - ${rp.name}`}
-            title={`Region ${rp.regionId} - ${rp.name}`}
-          />
-        </div>
-        <div class="side-section">
-          <div class="selector">{rp.regionId}</div>
-          <div class="remaining">
-            {(revealRegionPoints || revealedRegions.includes(rp.regionId))
-              ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
-              : '??'
-            }
-          </div>
-        </div>
-        <div class={`items ${baskets[i].items.length > 13 ? 'big-list' : ''}`}>
-          {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+
+<svelte:window on:dragend={() => hoveringOverBasket = null} />
+
+{#if regionPoints?.length > 0}
+  <div class="container" use:clickOutside on:click_outside={handleOutsideRegionTableClick}>
+    <div class="region-boxes">
+      {#each regionPoints as rp, i (rp.regionId)}
+        <div
+          class="box"
+          class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
+          class:dumpable={
+            (!revealRegionPoints && !revealedRegions.includes(rp.regionId) && (selectedAvailableItem?.points || selectedFoundItem?.points)) ||
+            ((revealRegionPoints || (!revealRegionPoints && revealedRegions.includes(rp.regionId))) &&
+              (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
+              (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
+            )
+          }
+          class:new-revealed={revealedRegions[0] === rp.regionId}
+          on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
+          on:drop={(e) => regionDrop(e, i)}
+          ondragover="return false;"
+          on:click={() => setSelectedItemIntoBasket(i)}
+          on:keypress={() => setSelectedItemIntoBasket(i)}
+        >
+          <div class="region-image">
             <img
-              src={`/keyItems/${item.id}.png`}
-              alt={item.name}
-              class="icon"
-              title={`${item.name} - ${item.points}`}
+              src={`/regions/${rp.regionId}.png`}
+              alt={`Region ${rp.regionId} - ${rp.name}`}
+              title={`Region ${rp.regionId} - ${rp.name}`}
             />
-          {/each}
-        </div>
-      </div>
-    {/each}
-  </div>
-</div>
-<br />
-<div class="item-tracker">
-  {#each baskets.filter(basket => basket.type === 'item') as itemBasket (itemBasket)}
-    <div class="item-row">
-      {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
-        <div class="item-wrapper">
-          <img src={`/keyItems/${item.id}.png`} alt={item.name} title={`${item.name} - ${item.points}`} class="icon" />
+          </div>
+          <div class="side-section">
+            <div class="region-id">
+              <span class={regionColorClasses[i % regionColorClasses.length]}>{rp.regionId}</span>
+            </div>
+            <div class="remaining">
+              {(revealRegionPoints || revealedRegions.includes(rp.regionId))
+                ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
+                : '??'
+              }
+            </div>
+          </div>
+          <div class={`items ${baskets[i].items.length > 13 ? 'big-list' : ''}`}>
+            {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+              <img
+                src={`/keyItems/${item.id}.png`}
+                alt={item.name}
+                class="region"
+                class:selected={
+                  selectedFoundItem?.id === item.id &&
+                  selectedFoundItem?.currItemIndex === itemIndex &&
+                  selectedFoundItem?.currBasketIndex === i
+                }
+                title={`${item.name} - ${item.points}pts`}
+                draggable={true}
+                on:dragstart={(e) => dragStart(e, i, itemIndex)}
+                on:click={(e) => handleFoundItemClick(e, item, i, itemIndex)}
+                on:keypress={(e) => handleFoundItemClick(e, item, i, itemIndex)}
+                on:contextmenu={(e) => handleClearItem(e, i, itemIndex)}
+              />
+            {/each}
+          </div>
         </div>
       {/each}
     </div>
-  {/each}
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
-    <span class="region-found">14</span>
   </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
-    <span class="region-found">14</span>
+  <br />
+  <div class="item-tracker">
+    {#each baskets.filter(basket => basket.type === 'item') as itemBasket, basketIndex (itemBasket)}
+      <div class="item-row">
+        {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+          <div
+            class="item-wrapper"
+            class:draggable={!item.regionFound}
+            class:selected={selectedAvailableItem?.id === item.id && selectedAvailableItem?.currItemIndex === itemIndex}
+            draggable={!item.regionFound}
+            on:dragstart={(e) => {
+              if (!item.regionFound) {
+                dragStart(e, REGIONS.length + basketIndex, itemIndex);
+              }}
+            }
+            on:click={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
+            on:keypress={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
+          >
+            <img
+              alt={item.name}
+              class="icon"
+              class:owned={!!item.regionFound}
+              src={`/keyItems/${item.id}.png`}
+              title={`${item.name} - ${item.points}pts${!!item.regionFound ? `: Found In Region ${item.regionFound}` : ''}`}
+            />
+            {#if item.regionFound}
+              <span class="region-found">{item.regionFound}</span>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    {/each}
+    <!-- TODO: Add button for setting item found on Pokemon (will need to parse int to make sure item is still draggable onto region grid)-->
   </div>
-  <div class="item-wrapper">
-    <img src="/keyItems/hm01.png" alt="Cut" title="Cut - 7" class="icon owned" />
-    <span class="region-found">14</span>
-  </div>
-</div>
+  <PointTrackerCredits
+    spoilerFile={spoilerFile}
+    showMenuButton={!!regionPoints}
+    openInGameMenu={openInGameMenu}
+  />
+{/if}
 
 <style>
   .container {
@@ -86,6 +296,11 @@
     text-align: center;
   }
 
+  .box.hovering,
+  .box.dumpable {
+    background-color: rgba(10, 182, 47, 0.25);
+  }
+
   .box.new-revealed {
     border-color: green;
   }
@@ -96,13 +311,14 @@
     text-decoration: underline 4px;
   }
 
-  .region-id {
+  .region-image {
     display: flex;
     flex: 0 0 auto;
     width: 60px;
   }
 
-  .region-id > img {
+  .region-image > img {
+    cursor: grab;
     object-fit: scale-down;
   }
 
@@ -112,6 +328,54 @@
 
   .side-section > div {
     font-size: 1.5rem;
+  }
+
+  .region-id {
+    font-size: 20px;
+    text-shadow: 0.5px 0.5px black;
+  }
+
+  @media(prefers-color-scheme: dark) {
+    .region-id {
+      text-shadow: none;
+    }
+  }
+
+  .region-id > .black {
+    color: #000000;
+  }
+
+  @media(prefers-color-scheme: dark) {
+    .region-id > .black {
+      color: #ffffff;
+    }
+  }
+  .region-id > .orange {
+    color: #e69f00;
+  }
+
+  .region-id > .lt-blue {
+    color: #56b4e9;
+  }
+
+  .region-id > .yellow {
+    color: #f0e442;
+  }
+
+  .region-id > .green {
+    color: #009e73;
+  }
+
+  .region-id > .dk-blue {
+    color: #0072b2;
+  }
+
+  .region-id > .red {
+    color: #d55e00;
+  }
+
+  .region-id > .pink {
+    color: #cc79a7;
   }
 
   .items {
@@ -124,12 +388,18 @@
     width: 205px;
   }
 
-  .items > img {
+  .items > img.region {
+    border: 1px solid transparent;
+    cursor: grab;
     max-height: 28px;
     max-width: 28px;
   }
 
-  .items.big-list > img {
+  .items > img.region.selected {
+    border-color: purple;
+  }
+
+  .items.big-list > img.region {
     max-height: 24px;
     max-width: 24px;
   }
@@ -146,14 +416,23 @@
   }
 
   .item-tracker .item-wrapper {
+    border: 1px solid transparent;
     position: relative;
+  }
+
+  .item-tracker .item-wrapper.draggable {
+    cursor: grab;
+  }
+
+  .item-tracker .item-wrapper.selected {
+    border-color: purple;
   }
 
   .item-tracker .icon {
     display: inline-block;
     max-height: 32px;
     max-width: 32px;
-    padding: 0 3px;
+    padding: 0 2px;
     opacity: 0.3;
   }
 
