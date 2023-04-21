@@ -259,7 +259,7 @@
 
   <CustomPtsDialog bind:isOpen={customPtsMenuOpen} onConfirmPts={handleUpdatePointValues} />
 
-  <Dialog bind:open={inGameMenuOpen}>
+  <Dialog bind:open={inGameMenuOpen} surface$style="width: 450px">
     <Title id="inGameMenuTitle">Tracker Menu</Title>
     <Content id="inGameMenuContent">
       <Button color="primary" variant="outlined" on:click={toggleRevealAllRegions}>
@@ -392,6 +392,7 @@
       revealRegionPoints={revealRegionPoints}
       bind:selectedAvailableItem
       bind:selectedFoundItem
+      showSolution={showSolution}
       handleOutsideRegionTableClick={handleOutsideRegionTableClick}
       checkToExposeRegion={checkToExposeRegion}
       openInGameMenu={openInGameMenu}

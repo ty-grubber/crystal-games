@@ -12,6 +12,7 @@
   export let selectedAvailableItem = {};
   export let selectedFoundItem = {};
   export let revealRegionPoints = false;
+  export let showSolution = false;
 
   export let handleOutsideRegionTableClick = () => {};
   export let checkToExposeRegion = () => {};
@@ -178,6 +179,21 @@
       selectedAvailableItem = {};
     }
   }
+
+  function getRemainingSolutionItems(rpIndex) {
+    const solutionItems = regionPoints[rpIndex].items.map(item => item);
+    const basketItems = baskets[rpIndex].items.map(item => item.name);
+
+    return solutionItems.reduce((all, curr) => {
+      if (basketItems.includes(curr.name)) {
+        basketItems.splice(basketItems.findIndex(item => item === curr.name), 1);
+      } else {
+        all.push(curr);
+      }
+
+      return all;
+    }, []);
+  }
 </script>
 
 <svelte:window on:dragend={() => hoveringOverBasket = null} />
@@ -186,6 +202,7 @@
   <div class="container" use:clickOutside on:click_outside={handleOutsideRegionTableClick}>
     <div class="region-boxes">
       {#each regionPoints as rp, i (rp.regionId)}
+      {@const missingSolutionItems = showSolution ? getRemainingSolutionItems(i) : []}
         <div
           class="box"
           class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
@@ -221,7 +238,7 @@
               }
             </div>
           </div>
-          <div class={`items ${baskets[i].items.length > 13 ? 'big-list' : ''}`}>
+          <div class={`items ${baskets[i].items.concat(missingSolutionItems).length > 13 ? 'big-list' : ''}`}>
             {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
               <img
                 src={`/keyItems/${item.id}.png`}
@@ -240,7 +257,17 @@
                 on:contextmenu={(e) => handleClearItem(e, i, itemIndex)}
               />
             {/each}
-            <!-- TODO: show ghost icons for solution -->
+            {#if showSolution}
+              {#each missingSolutionItems as solutionItem, sItemIndex (`${solutionItem.id}_${sItemIndex}`)}
+                <!-- TODO: Adding an item to a region when solution is up does not refresh missing solution items -->
+                <!-- Can just toggle the button in the menu to get it to refresh -->
+                <img
+                  alt={solutionItem.name}
+                  src={`/keyItems/${solutionItem.id}.png`}
+                  class="region solution"
+                />
+              {/each}
+            {/if}
           </div>
         </div>
       {/each}
@@ -427,6 +454,10 @@
 
   .items > img.region.selected {
     border-color: purple;
+  }
+
+  .items > img.region.solution {
+    opacity: 0.3;
   }
 
   .items.big-list > img.region {
