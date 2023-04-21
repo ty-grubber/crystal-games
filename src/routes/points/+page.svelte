@@ -274,24 +274,9 @@
         <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
       </Button>
       <t />
-      <!-- TODO? put solution in separate dialog -->
       <Button color="primary" variant="outlined" on:click={handleShowSolution}>
         <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
       </Button>
-      <br /><br />
-      <Select bind:value={trackerLayout} variant="outlined" label="Tracker Layout Style" style="width: 220px;">
-        <Option value="classic">Classic</Option>
-        <Option value="compact1">Compact</Option>
-      </Select>
-      <div class="tracker-blurb">
-        <span>
-          {#if trackerLayout === 'classic'}
-            A wider layout with all references to help you complete a seed.
-          {:else}
-            A compact layout for a runner more familiar with the regions and point values.
-          {/if}
-        </span>
-      </div>
       <br /><br />
       <Button color="secondary" on:click={openHowToDialog} variant="raised">
         <Label>How To Play</Label>
@@ -400,34 +385,36 @@
     </Actions>
   </Dialog>
 
-  {#if trackerLayout === 'compact1'}
-    <CompactRegion1
-      bind:baskets
-      spoilerFile={spoilerFile}
-      regionPoints={regionPoints}
-      revealedRegions={revealedRegions}
-      revealRegionPoints={revealRegionPoints}
-      bind:selectedAvailableItem
-      bind:selectedFoundItem
-      showSolution={showSolution}
-      handleOutsideRegionTableClick={handleOutsideRegionTableClick}
-      checkToExposeRegion={checkToExposeRegion}
-      openInGameMenu={openInGameMenu}
-    />
-  {:else}
-    <ClassicRegion
-      spoilerFile={spoilerFile}
-      regionPoints={regionPoints}
-      bind:baskets
-      revealedRegions={revealedRegions}
-      bind:selectedAvailableItem
-      bind:selectedFoundItem
-      showSolution={showSolution}
-      revealRegionPoints={revealRegionPoints}
-      handleOutsideRegionTableClick={handleOutsideRegionTableClick}
-      checkToExposeRegion={checkToExposeRegion}
-      openInGameMenu={openInGameMenu}
-    />
+  {#if regionPoints?.length > 0}
+    {#if trackerLayout === 'compact1'}
+      <CompactRegion1
+        bind:baskets
+        spoilerFile={spoilerFile}
+        regionPoints={regionPoints}
+        revealedRegions={revealedRegions}
+        revealRegionPoints={revealRegionPoints}
+        bind:selectedAvailableItem
+        bind:selectedFoundItem
+        showSolution={showSolution}
+        handleOutsideRegionTableClick={handleOutsideRegionTableClick}
+        checkToExposeRegion={checkToExposeRegion}
+        openInGameMenu={openInGameMenu}
+      />
+    {:else}
+      <ClassicRegion
+        spoilerFile={spoilerFile}
+        regionPoints={regionPoints}
+        bind:baskets
+        revealedRegions={revealedRegions}
+        bind:selectedAvailableItem
+        bind:selectedFoundItem
+        showSolution={showSolution}
+        revealRegionPoints={revealRegionPoints}
+        handleOutsideRegionTableClick={handleOutsideRegionTableClick}
+        checkToExposeRegion={checkToExposeRegion}
+        openInGameMenu={openInGameMenu}
+      />
+    {/if}
   {/if}
 </div>
 

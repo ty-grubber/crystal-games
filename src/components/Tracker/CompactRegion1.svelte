@@ -194,143 +194,154 @@
       return all;
     }, []);
   }
+
+  $: totalPointsAvailable = baskets.filter(basket => basket.type === 'item').reduce((sum, curr) => {
+    return sum + curr.items.reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0);
+  }, 0);
+
+  $: totalPointsRemaining = baskets.filter(basket => basket.type === 'item').reduce((sum, curr) => {
+    return sum + curr.items
+      .filter(item => !item.regionFound || item.regionFound === 'P')
+      .reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0);
+  }, 0);
 </script>
 
 <svelte:window on:dragend={() => hoveringOverBasket = null} />
 
-{#if regionPoints?.length > 0}
-  <div class="container" use:clickOutside on:click_outside={handleOutsideRegionTableClick}>
-    <div class="region-boxes">
-      {#each regionPoints as rp, i (rp.regionId)}
-      {@const missingSolutionItems = showSolution ? getRemainingSolutionItems(i) : []}
-        <div
-          class="box"
-          class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
-          class:dumpable={
-            (!revealRegionPoints && !revealedRegions.includes(rp.regionId) && (selectedAvailableItem?.points || selectedFoundItem?.points)) ||
-            ((revealRegionPoints || (!revealRegionPoints && revealedRegions.includes(rp.regionId))) &&
-              (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
-              (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
-            )
-          }
-          class:new-revealed={revealedRegions[0] === rp.regionId}
-          on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
-          on:drop={(e) => regionDrop(e, i)}
-          ondragover="return false;"
-          on:click={() => setSelectedItemIntoBasket(i)}
-          on:keypress={() => setSelectedItemIntoBasket(i)}
-        >
-          <div class="region-image">
+<div class="container" use:clickOutside on:click_outside={handleOutsideRegionTableClick}>
+  <div class="region-boxes">
+    {#each regionPoints as rp, i (rp.regionId)}
+    {@const missingSolutionItems = showSolution ? getRemainingSolutionItems(i) : []}
+      <div
+        class="box"
+        class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
+        class:dumpable={
+          (!revealRegionPoints && !revealedRegions.includes(rp.regionId) && (selectedAvailableItem?.points || selectedFoundItem?.points)) ||
+          ((revealRegionPoints || (!revealRegionPoints && revealedRegions.includes(rp.regionId))) &&
+            (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
+            (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
+          )
+        }
+        class:new-revealed={revealedRegions[0] === rp.regionId}
+        on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
+        on:drop={(e) => regionDrop(e, i)}
+        ondragover="return false;"
+        on:click={() => setSelectedItemIntoBasket(i)}
+        on:keypress={() => setSelectedItemIntoBasket(i)}
+      >
+        <div class="region-image">
+          <img
+            src={`/regions/${rp.regionId}.png`}
+            alt={`Region ${rp.regionId} - ${rp.name}`}
+            title={`Region ${rp.regionId} - ${rp.name}`}
+          />
+        </div>
+        <div class="side-section">
+          <div class="region-id">
+            <span class={regionColorClasses[i % regionColorClasses.length]}>{rp.regionId}</span>
+          </div>
+          <div class="remaining">
+            {(revealRegionPoints || revealedRegions.includes(rp.regionId))
+              ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
+              : '??'
+            }
+          </div>
+        </div>
+        <div class={`items ${baskets[i].items.concat(missingSolutionItems).length > 13 ? 'big-list' : ''}`}>
+          {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
             <img
-              src={`/regions/${rp.regionId}.png`}
-              alt={`Region ${rp.regionId} - ${rp.name}`}
-              title={`Region ${rp.regionId} - ${rp.name}`}
-            />
-          </div>
-          <div class="side-section">
-            <div class="region-id">
-              <span class={regionColorClasses[i % regionColorClasses.length]}>{rp.regionId}</span>
-            </div>
-            <div class="remaining">
-              {(revealRegionPoints || revealedRegions.includes(rp.regionId))
-                ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
-                : '??'
+              src={`/keyItems/${item.id}.png`}
+              alt={item.name}
+              class="region"
+              class:selected={
+                selectedFoundItem?.id === item.id &&
+                selectedFoundItem?.currItemIndex === itemIndex &&
+                selectedFoundItem?.currBasketIndex === i
               }
-            </div>
-          </div>
-          <div class={`items ${baskets[i].items.concat(missingSolutionItems).length > 13 ? 'big-list' : ''}`}>
-            {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+              title={`${item.name} - ${item.points}pts`}
+              draggable={true}
+              on:dragstart={(e) => dragStart(e, i, itemIndex)}
+              on:click={(e) => handleFoundItemClick(e, item, i, itemIndex)}
+              on:keypress={(e) => handleFoundItemClick(e, item, i, itemIndex)}
+              on:contextmenu={(e) => handleClearItem(e, i, itemIndex)}
+            />
+          {/each}
+          {#if showSolution}
+            {#each missingSolutionItems as solutionItem, sItemIndex (`${solutionItem.id}_${sItemIndex}`)}
+              <!-- TODO: Adding an item to a region when solution is up does not refresh missing solution items -->
+              <!-- Can just toggle the button in the menu to get it to refresh -->
               <img
-                src={`/keyItems/${item.id}.png`}
-                alt={item.name}
-                class="region"
-                class:selected={
-                  selectedFoundItem?.id === item.id &&
-                  selectedFoundItem?.currItemIndex === itemIndex &&
-                  selectedFoundItem?.currBasketIndex === i
-                }
-                title={`${item.name} - ${item.points}pts`}
-                draggable={true}
-                on:dragstart={(e) => dragStart(e, i, itemIndex)}
-                on:click={(e) => handleFoundItemClick(e, item, i, itemIndex)}
-                on:keypress={(e) => handleFoundItemClick(e, item, i, itemIndex)}
-                on:contextmenu={(e) => handleClearItem(e, i, itemIndex)}
+                alt={solutionItem.name}
+                src={`/keyItems/${solutionItem.id}.png`}
+                class="region solution"
               />
             {/each}
-            {#if showSolution}
-              {#each missingSolutionItems as solutionItem, sItemIndex (`${solutionItem.id}_${sItemIndex}`)}
-                <!-- TODO: Adding an item to a region when solution is up does not refresh missing solution items -->
-                <!-- Can just toggle the button in the menu to get it to refresh -->
-                <img
-                  alt={solutionItem.name}
-                  src={`/keyItems/${solutionItem.id}.png`}
-                  class="region solution"
-                />
-              {/each}
-            {/if}
-          </div>
+          {/if}
+        </div>
+      </div>
+    {/each}
+  </div>
+</div>
+<br />
+<div class="item-tracker">
+  {#each baskets.filter(basket => basket.type === 'item') as itemBasket, basketIndex (itemBasket)}
+    <div class="item-row">
+      {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+        <div
+          class="item-wrapper"
+          class:draggable={!item.regionFound || item.regionFound === 'P'}
+          class:selected={selectedAvailableItem?.id === item.id && selectedAvailableItem?.currItemIndex === itemIndex}
+          draggable={!item.regionFound || item.regionFound === 'P'}
+          on:dragstart={(e) => {
+            if (!item.regionFound || item.regionFound === 'P') {
+              dragStart(e, REGIONS.length + basketIndex, itemIndex);
+            }}
+          }
+          on:click={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
+          on:keypress={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
+        >
+          <img
+            alt={item.name}
+            class="icon"
+            class:owned={!!item.regionFound}
+            src={`/keyItems/${item.id}.png`}
+            title={`${item.name} - ${item.points}pts${!!item.regionFound ? `: Found ${item.regionFound === 'P' ? 'On Pokémon' : `In Region ${item.regionFound}`}` : ''}`}
+          />
+          {#if item.regionFound}
+            <span class="region-found">{item.regionFound}</span>
+          {/if}
         </div>
       {/each}
     </div>
-  </div>
-  <br />
-  <div class="item-tracker">
-    {#each baskets.filter(basket => basket.type === 'item') as itemBasket, basketIndex (itemBasket)}
-      <div class="item-row">
-        {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
-          <div
-            class="item-wrapper"
-            class:draggable={!item.regionFound || item.regionFound === 'P'}
-            class:selected={selectedAvailableItem?.id === item.id && selectedAvailableItem?.currItemIndex === itemIndex}
-            draggable={!item.regionFound || item.regionFound === 'P'}
-            on:dragstart={(e) => {
-              if (!item.regionFound || item.regionFound === 'P') {
-                dragStart(e, REGIONS.length + basketIndex, itemIndex);
-              }}
-            }
-            on:click={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
-            on:keypress={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
-          >
-            <img
-              alt={item.name}
-              class="icon"
-              class:owned={!!item.regionFound}
-              src={`/keyItems/${item.id}.png`}
-              title={`${item.name} - ${item.points}pts${!!item.regionFound ? `: Found ${item.regionFound === 'P' ? 'On Pokémon' : `In Region ${item.regionFound}`}` : ''}`}
-            />
-            {#if item.regionFound}
-              <span class="region-found">{item.regionFound}</span>
-            {/if}
-          </div>
-        {/each}
+  {/each}
+  {#if regionPoints.length > 0}
+    <div class='extra-actions'>
+      <Button color="primary" on:click={openInGameMenu} variant="raised">
+        <Label>Menu</Label>
+      </Button>
+      <Button
+        color="primary"
+        on:click={(e) => assignToPokemon(e)}
+        variant="outlined"
+        style={!selectedAvailableItem.points || !selectedAvailableItem.onPoke ? 'visibility: hidden' : ''}
+      >
+        Found On Pokémon
+      </Button>
+      <div class="points-remaining">
+        {totalPointsRemaining} / {totalPointsAvailable}
       </div>
-    {/each}
-    {#if regionPoints.length > 0}
-      <div class='extra-actions'>
-        <Button color="primary" on:click={openInGameMenu} variant="raised">
-          <Label>Menu</Label>
-        </Button>
-        <Button
-          color="primary"
-          on:click={(e) => assignToPokemon(e)}
-          variant="outlined"
-          style={!selectedAvailableItem.points || !selectedAvailableItem.onPoke ? 'visibility: hidden' : ''}
-        >
-          Found On Pokémon
-        </Button>
-      </div>
-    {/if}
-    {#if spoilerFile}
-      <p>
-        Spoiler file name: {spoilerFile.name}
-      </p>
-    {/if}
-    <p class="credits">
-      Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
-      Region ID images created by TyGr.
+    </div>
+  {/if}
+  {#if spoilerFile}
+    <p>
+      Spoiler file name: {spoilerFile.name}
     </p>
-  </div>
-{/if}
+  {/if}
+  <p class="credits">
+    Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
+    Region ID images created by TyGr.
+  </p>
+</div>
 
 <style>
   .container {
@@ -509,5 +520,17 @@
     padding: 2px;
     position: absolute;
     right: 2%;
+  }
+
+  .extra-actions {
+    position: relative;
+    width: 100%;
+  }
+
+  .points-remaining {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 1.5rem;
   }
 </style>
