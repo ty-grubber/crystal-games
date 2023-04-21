@@ -219,7 +219,15 @@
         <Option value="classic">Classic</Option>
         <Option value="compact1">Compact</Option>
       </Select>
-      <!-- TODO: Write short blurb about each type of tracker layout -->
+      <div class="tracker-blurb">
+        <span>
+          {#if trackerLayout === 'classic'}
+            A wider layout with all references to help you complete a seed.
+          {:else}
+            A compact layout for a runner more familiar with the regions and point values.
+          {/if}
+        </span>
+      </div>
       <br /><br />
       <Select bind:value={revealOrdering} variant="outlined" label="Region Reveal Order" style="width: 220px;">
         <Option value="random">Random</Option>
@@ -275,6 +283,15 @@
         <Option value="classic">Classic</Option>
         <Option value="compact1">Compact</Option>
       </Select>
+      <div class="tracker-blurb">
+        <span>
+          {#if trackerLayout === 'classic'}
+            A wider layout with all references to help you complete a seed.
+          {:else}
+            A compact layout for a runner more familiar with the regions and point values.
+          {/if}
+        </span>
+      </div>
       <br /><br />
       <Button color="secondary" on:click={openHowToDialog} variant="raised">
         <Label>How To Play</Label>
@@ -421,5 +438,14 @@
     margin-left: 20px;
     text-align: center;
     width: 70px;
+  }
+
+  .tracker-blurb {
+    display: inline-block;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-left: 10px;
+    vertical-align: middle;
+    width: 265px;
   }
 </style>
