@@ -247,7 +247,7 @@
             }
           </div>
         </div>
-        <div class={`items ${baskets[i].items.concat(missingSolutionItems).length > 13 ? 'big-list' : ''}`}>
+        <div class={`items ${baskets[i].items.concat(missingSolutionItems).length > 11 ? 'big-list' : ''}`}>
           {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
             <img
               src={`/keyItems/${item.id}.png`}
@@ -472,8 +472,8 @@
   }
 
   .items.big-list > img.region {
-    max-height: 24px;
-    max-width: 24px;
+    max-height: 19px;
+    max-width: 19px;
   }
 
   .item-tracker {
