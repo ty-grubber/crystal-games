@@ -9,7 +9,13 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
    * @type {{ points: number; id: string; name: string; }[]}
    */
   let randomizedItems = [];
-  const regionPointsArray = REGIONS.map(region => ({ regionId: region.id, name: region.name, points: 0, items: [] }));
+  const regionPointsArray = REGIONS.map(region => ({
+    regionId: region.id,
+    name: region.name,
+    description: region.description,
+    points: 0,
+    items: [],
+  }));
 
   const spoilerLines = spoilerFileText.split('\r\n');
   const rngSeed = spoilerLines.find(line => line.includes('RNG Seed:'))?.replace('RNG Seed: ', '');
