@@ -233,7 +233,7 @@
           <img
             src={`/regions/${rp.regionId}.png`}
             alt={`Region ${rp.regionId} - ${rp.name}`}
-            title={`Region ${rp.regionId} - ${rp.name}`}
+            title={`Region ${rp.regionId} - ${rp.name}: ${rp.description}`}
           />
         </div>
         <div class="side-section">
