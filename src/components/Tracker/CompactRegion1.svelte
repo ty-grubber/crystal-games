@@ -2,7 +2,7 @@
   // @ts-nocheck
   import { clickOutside } from '$lib/clickOutside';
   import Button, { Label } from '@smui/button';
-	import REGIONS, { regionColorClasses } from '../../constants/regions';
+	import REGIONS from '../../constants/regions';
 
   export let baskets = [];
   export let regionPoints = [];
@@ -237,9 +237,6 @@
           />
         </div>
         <div class="side-section">
-          <div class="region-id">
-            <span class={regionColorClasses[i % regionColorClasses.length]}>{rp.regionId}</span>
-          </div>
           <div class="remaining">
             {(revealRegionPoints || revealedRegions.includes(rp.regionId))
               ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
@@ -277,6 +274,11 @@
               />
             {/each}
           {/if}
+          <div class="found-region-points">
+            {#if baskets[i].items.length > 0}
+              {baskets[i].items.reduce((sum, curr) => sum + curr.points, 0)}
+            {/if}
+          </div>
         </div>
       </div>
     {/each}
@@ -285,33 +287,36 @@
 <br />
 <div class="item-tracker">
   {#each baskets.filter(basket => basket.type === 'item') as itemBasket, basketIndex (itemBasket)}
-    <div class="item-row">
-      {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
-        <div
-          class="item-wrapper"
-          class:draggable={!item.regionFound || item.regionFound === 'P'}
-          class:selected={selectedAvailableItem?.id === item.id && selectedAvailableItem?.currItemIndex === itemIndex}
-          draggable={!item.regionFound || item.regionFound === 'P'}
-          on:dragstart={(e) => {
-            if (!item.regionFound || item.regionFound === 'P') {
-              dragStart(e, REGIONS.length + basketIndex, itemIndex);
-            }}
-          }
-          on:click={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
-          on:keypress={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
-        >
-          <img
-            alt={item.name}
-            class="icon"
-            class:owned={!!item.regionFound}
-            src={`/keyItems/${item.id}.png`}
-            title={`${item.name} - ${item.points}pts${!!item.regionFound ? `: Found ${item.regionFound === 'P' ? 'On Pokémon' : `In Region ${item.regionFound}`}` : ''}`}
-          />
-          {#if item.regionFound}
-            <span class="region-found">{item.regionFound}</span>
-          {/if}
-        </div>
-      {/each}
+    <div class="basket-wrapper">
+      <div class="point-label">{itemBasket.items[0].points}</div>
+      <div class="item-row">
+        {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+          <div
+            class="item-wrapper"
+            class:draggable={!item.regionFound || item.regionFound === 'P'}
+            class:selected={selectedAvailableItem?.id === item.id && selectedAvailableItem?.currItemIndex === itemIndex}
+            draggable={!item.regionFound || item.regionFound === 'P'}
+            on:dragstart={(e) => {
+              if (!item.regionFound || item.regionFound === 'P') {
+                dragStart(e, REGIONS.length + basketIndex, itemIndex);
+              }}
+            }
+            on:click={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
+            on:keypress={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
+          >
+            <img
+              alt={item.name}
+              class="icon"
+              class:owned={!!item.regionFound}
+              src={`/keyItems/${item.id}.png`}
+              title={`${item.name} - ${item.points}pts${!!item.regionFound ? `: Found ${item.regionFound === 'P' ? 'On Pokémon' : `In Region ${item.regionFound}`}` : ''}`}
+            />
+            {#if item.regionFound}
+              <span class="region-found">{item.regionFound}</span>
+            {/if}
+          </div>
+        {/each}
+      </div>
     </div>
   {/each}
   {#if regionPoints.length > 0}
@@ -322,7 +327,7 @@
       <Button
         color="primary"
         on:click={(e) => assignToPokemon(e)}
-        variant="outlined"
+        variant="raised"
         style={!selectedAvailableItem.points || !selectedAvailableItem.onPoke ? 'visibility: hidden' : ''}
       >
         Found On Pokémon
@@ -394,56 +399,10 @@
     width: 30px;
   }
 
-  .side-section > div {
+  .side-section > div.remaining {
     font-size: 1.5rem;
-  }
-
-  .region-id {
-    font-size: 20px;
-    text-shadow: 0.5px 0.5px black;
-  }
-
-  @media(prefers-color-scheme: dark) {
-    .region-id {
-      text-shadow: none;
-    }
-  }
-
-  .region-id > .black {
-    color: #000000;
-  }
-
-  @media(prefers-color-scheme: dark) {
-    .region-id > .black {
-      color: #ffffff;
-    }
-  }
-  .region-id > .orange {
-    color: #e69f00;
-  }
-
-  .region-id > .lt-blue {
-    color: #56b4e9;
-  }
-
-  .region-id > .yellow {
-    color: #f0e442;
-  }
-
-  .region-id > .green {
-    color: #009e73;
-  }
-
-  .region-id > .dk-blue {
-    color: #0072b2;
-  }
-
-  .region-id > .red {
-    color: #d55e00;
-  }
-
-  .region-id > .pink {
-    color: #cc79a7;
+    height: 100%;
+    line-height: 60px;
   }
 
   .items {
@@ -453,6 +412,7 @@
     height: 60px;
     object-fit: contain;
     padding-left: 5px;
+    position: relative;
     width: 205px;
   }
 
@@ -476,14 +436,31 @@
     max-width: 19px;
   }
 
+  .found-region-points {
+    bottom: 1%;
+    font-size: 0.8rem;
+    position: absolute;
+    right: 2%;
+  }
+
   .item-tracker {
     max-width: 610px;
+  }
+
+  .item-tracker .basket-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .item-tracker .point-label {
+    font-size: 1.5rem;
+    margin-right: 10px;
   }
 
   .item-tracker .item-row {
     display: flex;
     flex-wrap: wrap;
-    margin: 0 0 15px;
     width: 100%;
   }
 
@@ -502,8 +479,8 @@
 
   .item-tracker .icon {
     display: inline-block;
-    max-height: 32px;
-    max-width: 32px;
+    max-height: 30px;
+    max-width: 30px;
     padding: 0 2px;
     opacity: 0.3;
   }
