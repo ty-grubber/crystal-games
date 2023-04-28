@@ -355,8 +355,9 @@
 
   .region-boxes {
     display: flex;
-    flex-wrap: wrap;
+    flex-flow: column wrap;
     max-width: 620px;
+    max-height: 512px;
   }
 
   .box {
