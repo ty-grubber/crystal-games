@@ -24,11 +24,11 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
   const modifierStartIndex = spoilerLines.findIndex(line => line.includes('Modifiers:'));
   const modifierEndIndex = spoilerLines.findIndex(line => line.includes('RNG Seed:'));
   const modifierLines = spoilerLines.slice(modifierStartIndex, modifierEndIndex).join('').replace(/\s\s/g, ' ');
-  const solutionLines = `${spoilerLines.slice(solutionStartIndex, solutionEndIndex).join(';')};`;
+  const solutionLines = `${spoilerLines.slice(solutionStartIndex, solutionEndIndex).join(';;')};`;
   const uselessStuffLines = `${spoilerLines.slice(
     solutionEndIndex,
     spoilerLines.findIndex(line => line.includes('Xtra Stuff:')),
-  ).join(';')};`;
+  ).join(';;')};`;
   // This is likely not needed anymore but keeping it around just in case
   // const upgradeLines = spoilerLines.slice(spoilerLines.findIndex(line => line.includes('Xtra Upgrades:')));
 
