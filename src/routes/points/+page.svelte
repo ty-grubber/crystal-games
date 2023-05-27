@@ -175,7 +175,16 @@
     keyItems = [...updatedKeyItems];
     customPtsMenuOpen = false;
   }
+
+  function beforeUnload(event) {
+    if (regionPoints) {
+      event.preventDefault();
+      return (event.returnValue = '');
+    }
+  }
 </script>
+
+<svelte:window on:beforeunload={beforeUnload} />
 
 <svelte:head>
   <title>Pokémon Crystal Points Hint Tracker</title>
