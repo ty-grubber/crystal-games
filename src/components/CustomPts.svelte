@@ -2,7 +2,7 @@
 // @ts-nocheck
 
   import Button, { Label } from '@smui/button';
-  import KEY_ITEMS from '../constants/keyItems';
+  import KEY_ITEMS from '../constants/keyItemsPresets';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   export let onConfirmPts;
   export let isOpen = false;
