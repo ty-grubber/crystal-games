@@ -6,7 +6,7 @@
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Select, { Option } from '@smui/select';
   import CustomPtsDialog from '../../components/CustomPts.svelte';
-  import KEY_ITEMS from '../../constants/keyItemsPresets';
+  import KEY_ITEMS from '../../constants/keyItemPresets';
 	import CompactRegion1 from '../../components/Tracker/CompactRegion1.svelte';
 	import ClassicRegion from '../../components/Tracker/ClassicRegion.svelte';
 	import PointsHintDialog from '../../components/HowTos/PointsHintDialog.svelte';
