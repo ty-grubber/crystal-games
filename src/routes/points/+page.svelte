@@ -6,7 +6,7 @@
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Select, { Option } from '@smui/select';
   import CustomPtsDialog from '../../components/CustomPts.svelte';
-  import KEY_ITEMS from '../../constants/keyItems';
+  import KEY_ITEMS from '../../constants/keyItemPresets';
 	import CompactRegion1 from '../../components/Tracker/CompactRegion1.svelte';
 	import ClassicRegion from '../../components/Tracker/ClassicRegion.svelte';
 	import PointsHintDialog from '../../components/HowTos/PointsHintDialog.svelte';
@@ -175,7 +175,16 @@
     keyItems = [...updatedKeyItems];
     customPtsMenuOpen = false;
   }
+
+  function beforeUnload(event) {
+    if (regionPoints) {
+      event.preventDefault();
+      return (event.returnValue = '');
+    }
+  }
 </script>
+
+<svelte:window on:beforeunload={beforeUnload} />
 
 <svelte:head>
   <title>Pokémon Crystal Points Hint Tracker</title>
