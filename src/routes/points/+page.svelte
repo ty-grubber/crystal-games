@@ -1,7 +1,7 @@
 <script>
 // @ts-nocheck
   import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
-  import { randomizeArray } from '$lib/randomize';
+  import { randomizeArray, randomTiesSorting } from '$lib/randomize';
   import Button, { Label } from '@smui/button';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Select, { Option } from '@smui/select';
@@ -86,14 +86,10 @@
       let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
 
       switch (revealOrdering) {
-        case 'desc':
-          regionsWithTotalPoints.sort((a, b) => b.points - a.points);
-          break;
-        case 'asc':
-          regionsWithTotalPoints.sort((a, b) => a.points - b.points);
-          break;
-        default:
+        case 'random':
           regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, extraction.rngSeed || file.name);
+        default:
+          regionsWithTotalPoints = randomTiesSorting(regionsWithTotalPoints, revealOrdering);
       }
       regionRevealOrder = regionsWithTotalPoints.map(r => r.id);
       revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
