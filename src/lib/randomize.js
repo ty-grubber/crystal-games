@@ -3,6 +3,7 @@ import seedrandom from 'seedrandom';
 /**
  * @param {Array<any>} arr
  * @param {String} seed
+ * @returns {Array<any>}
  */
 function randomizeArray(arr, seed) {
   if (!seed) {
@@ -25,11 +26,12 @@ function randomizeArray(arr, seed) {
  *
  * @param {Array<any>} arr
  * @param {String} direction
- * @returns
+ * @param {String} seed
+ * @returns {Array<any>}
  */
-function randomTiesSorting(arr, direction) {
+function randomTiesSorting(arr, direction, seed) {
   const newArr = [...arr];
-  const rng = seedrandom();
+  const rng = seedrandom(seed);
 
   return newArr.sort((a, b) => {
     if (a.points === b.points) {

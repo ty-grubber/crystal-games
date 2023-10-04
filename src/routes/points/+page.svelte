@@ -85,11 +85,12 @@
       baskets = newBaskets.concat(itemBaskets);
       let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
 
+      const rngSeed = extraction.rngSeed || file.name;
       switch (revealOrdering) {
         case 'random':
-          regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, extraction.rngSeed || file.name);
+          regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, rngSeed);
         default:
-          regionsWithTotalPoints = randomTiesSorting(regionsWithTotalPoints, revealOrdering);
+          regionsWithTotalPoints = randomTiesSorting(regionsWithTotalPoints, revealOrdering, rngSeed);
       }
       regionRevealOrder = regionsWithTotalPoints.map(r => r.id);
       revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
