@@ -4,18 +4,49 @@
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Tab, { Label as TabLabel } from '@smui/tab';
   import TabBar from '@smui/tab-bar';
+  import CustomPtsDialog from '../../../components/CustomPts.svelte';
+	import PointsHintDialog from '../../../components/HowTos/PointsHintDialog.svelte';
+	import PointsSharedSettings from '../../../components/PointsSharedSettings.svelte';
   import KEY_ITEMS from '../../../constants/keyItemPresets';
 
   let regionPoints;
 
   let settingsDialogOpen = true;
+  let howToDialogOpen = false;
+  let customPtsMenuOpen = false;
   let activeTab = 'Host';
+
+  let trackerLayout;
+  let revealOrdering;
+  let initialRevealedRegions;
+  let spoilerFile;
+
+  let keyItems = [ ...KEY_ITEMS];
+  let keyItemPointValues = [9, 7, 5, 3];
 
   function openSettingsDialog() {
     settingsDialogOpen = true;
   }
 
-  function openHowToDialog() {}
+  function openHowToDialog() {
+    howToDialogOpen = true;
+  }
+
+  function openCustomPointsDialog() {
+    customPtsMenuOpen = true;
+  }
+
+  function handleUpdatePointValues(updatedKeyItems) {
+    keyItems = [...updatedKeyItems]
+    customPtsMenuOpen = false;
+  }
+
+  function handleSettingsSubmit(settings) {
+    trackerLayout = settings.trackerLayout;
+    revealOrdering = settings.revealOrdering;
+    initialRevealedRegions = settings.initialRevealedRegions;
+    spoilerFile = settings.spoilerFile;
+  }
 </script>
 
 <svelte:head>
@@ -52,10 +83,19 @@
         </Tab>
       </TabBar>
       {#if activeTab === 'Host'}
-        This is the Host content
+        <PointsSharedSettings
+          onSubmit={handleSettingsSubmit}
+          openHowToDialog={openHowToDialog}
+          openCustomPointsDialog={openCustomPointsDialog}
+          showNetworking
+        />
       {:else}
         This is the Join content
       {/if}
     </Content>
   </Dialog>
+
+  <CustomPtsDialog bind:isOpen={customPtsMenuOpen} onConfirmPts={handleUpdatePointValues} />
+
+  <PointsHintDialog bind:isOpen={howToDialogOpen} />
 </div>
