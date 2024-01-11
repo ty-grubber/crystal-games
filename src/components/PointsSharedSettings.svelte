@@ -90,3 +90,22 @@
 <Button color="secondary" href="/" variant="outlined">
   <Label>Games Home</Label>
 </Button>
+
+<style>
+  input.start-revealed {
+    font-size: 1.5rem;
+    height: 40px;
+    margin-left: 20px;
+    text-align: center;
+    width: 70px;
+  }
+
+  .tracker-blurb {
+    display: inline-block;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-left: 10px;
+    vertical-align: middle;
+    width: 265px;
+  }
+</style>
