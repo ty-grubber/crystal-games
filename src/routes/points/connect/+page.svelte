@@ -1,5 +1,7 @@
 <script>
 // @ts-nocheck
+	import checkToExposeRegion from '$lib/checkToExposeRegion';
+  import { extractPointsInfoFromSpoiler } from '$lib/extractFromSpoiler';
   import Button, { Label } from '@smui/button';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Tab, { Label as TabLabel } from '@smui/tab';
@@ -7,8 +9,8 @@
   import CustomPtsDialog from '../../../components/CustomPts.svelte';
 	import PointsHintDialog from '../../../components/HowTos/PointsHintDialog.svelte';
 	import PointsSharedSettings from '../../../components/PointsSharedSettings.svelte';
-	import CompactRegion1 from '../../../components/Tracker/CompactRegion1.svelte';
 	import ClassicRegion from '../../../components/Tracker/ClassicRegion.svelte';
+	import CompactRegion1 from '../../../components/Tracker/CompactRegion1.svelte';
   import KEY_ITEMS from '../../../constants/keyItemPresets';
 
   let regionPoints;
@@ -29,9 +31,6 @@
   let revealOrdering;
   let initialRevealedRegions;
   let spoilerFile;
-
-  let selectedAvailableItem = {};
-  let selectedFoundItem = {};
 
   let keyItems = [ ...KEY_ITEMS];
   let keyItemPointValues = [9, 7, 5, 3];
@@ -66,64 +65,26 @@
   }
 
   async function onStartClick() {
-    const file = spoilerFile;
-    if (file != null) {
-      const spoilerText = await file.text();
+    if (spoilerFile != null) {
+      ({
+        baskets,
+        keyItemPointValues,
+        regionRevealOrder,
+        regionPoints
+      } = extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering));
 
-      const extraction = extractRegionsFromSpoiler(spoilerText, keyItems);
-      regionPoints = extraction.regionPointsArray;
-
-      keyItemPointValues = [
-        ...new Set(extraction.randomizedItems.map(item => item.points)),
-      ].sort((a, b) => b - a);
-
-      // Make our starting baskets
-      const newBaskets = [
-        { type: 'region', name: '1', items: []},
-        { type: 'region', name: '2', items: []},
-        { type: 'region', name: '3', items: []},
-        { type: 'region', name: '4', items: []},
-        { type: 'region', name: '5', items: []},
-        { type: 'region', name: '6', items: []},
-        { type: 'region', name: '7', items: []},
-        { type: 'region', name: '8', items: []},
-        { type: 'region', name: '9', items: []},
-        { type: 'region', name: '10', items: []},
-        { type: 'region', name: '11', items: []},
-        { type: 'region', name: '12', items: []},
-        { type: 'region', name: '13', items: []},
-        { type: 'region', name: '14', items: []},
-        { type: 'region', name: '15', items: []},
-        { type: 'region', name: '16', items: []},
-      ];
-
-      const itemBaskets = keyItemPointValues.map(pointValue => ({
-        type: 'item',
-        name: pointValue.toString(),
-        items: extraction.randomizedItems.filter(item => item.points === pointValue),
-      }));
-
-      baskets = newBaskets.concat(itemBaskets);
-      let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
-
-      const rngSeed = extraction.rngSeed || file.name;
-      switch (revealOrdering) {
-        case 'random':
-          regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, rngSeed);
-        default:
-          regionsWithTotalPoints = randomTiesSorting(regionsWithTotalPoints, revealOrdering, rngSeed);
-      }
-      regionRevealOrder = regionsWithTotalPoints.map(r => r.id);
       revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
       settingsDialogOpen = false;
     }
   }
 
   function handleSettingsSubmit(settings) {
-    trackerLayout = settings.trackerLayout;
-    revealOrdering = settings.revealOrdering;
-    initialRevealedRegions = settings.initialRevealedRegions;
-    spoilerFile = settings.spoilerFile;
+    ({
+      trackerLayout,
+      revealOrdering,
+      initialRevealedRegions,
+      spoilerFile
+    } = settings);
     onStartClick();
   }
 
@@ -134,8 +95,6 @@
       baskets = [];
       regionRevealOrder = [];
       revealedRegions = [];
-      selectedAvailableItem = {};
-      selectedFoundItem = {};
       revealOrdering = 'random';
       showSolution = false;
       revealRegionPoints = false;
@@ -146,35 +105,14 @@
     }
   }
 
-  function checkToExposeRegion(originalBasket, targetBasket, movedItem) {
-    if (regionRevealOrder.length > 0) {
-      if (originalBasket.type === 'item' && targetBasket.type === 'region' && movedItem.points === 9) {
-        // Found a badge in a region so expose a region's point value
-        const regionToExpose = regionRevealOrder.shift();
-        revealedRegions.unshift(regionToExpose);
-
-        regionRevealOrder = regionRevealOrder;
-        revealedRegions = revealedRegions;
-      } else if (originalBasket.type === 'region' && targetBasket.type === 'item' && movedItem.points === 9) {
-        // Unmarked a badge in a region so hide the last exposed region's point value
-        const regionToExpose = revealedRegions.shift();
-        regionRevealOrder.unshift(regionToExpose);
-
-        regionRevealOrder = regionRevealOrder;
-        revealedRegions = revealedRegions;
-      }
-    }
-  }
-
-  function handleOutsideRegionTableClick(e) {
-    if (
-      e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
-      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button' &&
-      !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)
-    ) {
-      selectedAvailableItem = {};
-      selectedFoundItem = {};
-    }
+  function handleCheckToExposeRegion(originalBasket, targetBasket, movedItem) {
+    ({ regionRevealOrder, revealedRegions } = checkToExposeRegion(
+      originalBasket.type,
+      targetBasket.type,
+      movedItem.points,
+      regionRevealOrder,
+      revealedRegions
+    ));
   }
 
   function beforeUnload(event) {
@@ -269,12 +207,10 @@
         regionPoints={regionPoints}
         revealedRegions={revealedRegions}
         revealRegionPoints={revealRegionPoints}
-        bind:selectedAvailableItem
-        bind:selectedFoundItem
         showSolution={showSolution}
-        handleOutsideRegionTableClick={handleOutsideRegionTableClick}
-        checkToExposeRegion={checkToExposeRegion}
+        checkToExposeRegion={handleCheckToExposeRegion}
         openInGameMenu={openInGameMenu}
+        keyItemPointValues={keyItemPointValues}
       />
     {:else}
       <ClassicRegion
@@ -282,13 +218,11 @@
         regionPoints={regionPoints}
         bind:baskets
         revealedRegions={revealedRegions}
-        bind:selectedAvailableItem
-        bind:selectedFoundItem
         showSolution={showSolution}
         revealRegionPoints={revealRegionPoints}
-        handleOutsideRegionTableClick={handleOutsideRegionTableClick}
-        checkToExposeRegion={checkToExposeRegion}
+        checkToExposeRegion={handleCheckToExposeRegion}
         openInGameMenu={openInGameMenu}
+        keyItemPointValues={keyItemPointValues}
       />
     {/if}
   {/if}

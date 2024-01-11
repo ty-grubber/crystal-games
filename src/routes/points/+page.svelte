@@ -1,6 +1,6 @@
 <script>
 // @ts-nocheck
-  import extractRegionsFromSpoiler from '$lib/extractRegionsFromSpoiler';
+  import extractRegionsFromSpoiler from '$lib/extractFromSpoiler';
   import { randomizeArray, randomTiesSorting } from '$lib/randomize';
   import Button, { Label } from '@smui/button';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
