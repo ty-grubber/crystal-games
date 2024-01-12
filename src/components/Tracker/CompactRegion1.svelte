@@ -223,6 +223,7 @@
   <div class="region-boxes">
     {#each regionPoints as rp, i (rp.regionId)}
     {@const missingSolutionItems = showSolution ? getRemainingSolutionItems(i) : []}
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="box"
         class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
@@ -257,6 +258,7 @@
         </div>
         <div class={`items ${baskets[i].items.concat(missingSolutionItems).length > 11 ? 'big-list' : ''}`}>
           {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
             <img
               src={`/keyItems/${item.id}.png`}
               alt={item.name}
@@ -302,6 +304,7 @@
       <div class="point-label">{itemBasket.items[0].points}</div>
       <div class="item-row">
         {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div
             class="item-wrapper"
             class:draggable={!item.regionFound || item.regionFound === 'P'}
