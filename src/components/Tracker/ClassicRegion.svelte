@@ -15,18 +15,17 @@
   export let regionPoints = [];
   export let baskets = [];
   export let revealedRegions = [];
-
-  export let selectedAvailableItem = {};
-  export let selectedFoundItem = {};
+  export let keyItemPointValues = [];
 
   export let spoilerFile = {};
   export let showSolution = false;
   export let revealRegionPoints = false;
-  export let handleOutsideRegionTableClick = () => {};
   export let checkToExposeRegion = () => {};
   export let openInGameMenu = () => {};
 
   let hoveringOverBasket;
+  let selectedAvailableItem = {};
+  let selectedFoundItem = {};
 
   /**
 	 * @param {DragEvent & { currentTarget: EventTarget & HTMLLIElement; }} event
@@ -126,6 +125,17 @@
       currBasketIndex,
     };
     selectedFoundItem = {};
+  }
+
+  function handleOutsideRegionTableClick(e) {
+    if (
+      e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
+      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button' &&
+      !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)
+    ) {
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
+    }
   }
 
   const totalPointsAvailable = baskets.reduce((sum, curr) => {

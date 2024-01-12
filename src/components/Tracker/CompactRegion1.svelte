@@ -7,18 +7,18 @@
   export let baskets = [];
   export let regionPoints = [];
   export let revealedRegions = [];
+  export let keyItemPointValues = [];
 
   export let spoilerFile = {};
-  export let selectedAvailableItem = {};
-  export let selectedFoundItem = {};
   export let revealRegionPoints = false;
   export let showSolution = false;
 
-  export let handleOutsideRegionTableClick = () => {};
   export let checkToExposeRegion = () => {};
   export let openInGameMenu = () => {};
 
   let hoveringOverBasket;
+  let selectedAvailableItem = {};
+  let selectedFoundItem = {};
 
   function updateRegionFoundFromRegionTransfer(movedItem, newRegionFoundValue, originalBasketIndex) {
     const movedItemAvailableBasketIndex = baskets.findIndex(basket => basket.type === 'item' && basket.name === movedItem.points.toString());
@@ -193,6 +193,17 @@
 
       return all;
     }, []);
+  }
+
+  function handleOutsideRegionTableClick(e) {
+    if (
+      e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
+      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button' &&
+      !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)
+    ) {
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
+    }
   }
 
   $: totalPointsAvailable = baskets.filter(basket => basket.type === 'item').reduce((sum, curr) => {
