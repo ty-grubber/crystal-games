@@ -175,6 +175,7 @@
                   }
                 </Cell>
                 <Cell style="white-space: normal; padding-right: 0;">
+                  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                   <ul
                     class:hovering={
                       (hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`)
@@ -194,6 +195,7 @@
                     ondragover="return false;"
                   >
                     {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+                      <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                       <li
                         class="draggableIcon"
                         draggable={true}
@@ -261,6 +263,7 @@
                 ondragover="return false;"
               >
                 {#each basket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+                  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                   <li
                     class="draggableIcon"
                     draggable={true}
