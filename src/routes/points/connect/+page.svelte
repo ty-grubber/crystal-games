@@ -71,7 +71,7 @@
         keyItemPointValues,
         regionRevealOrder,
         regionPoints
-      } = extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering));
+      } = await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering));
 
       revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
       settingsDialogOpen = false;
