@@ -92,7 +92,7 @@
         currentPeer.on('open', function(id) {
           isConnecting = false;
           settingsDialogOpen = false;
-          alert(`Hosting ${gameName} with id: ${id}`);
+          alert(`Hosting ${gameName} with id: ${id}`); // TODO: remove this when we have connection info box in layouts
         });
         return;
       }

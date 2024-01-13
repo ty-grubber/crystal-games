@@ -77,11 +77,15 @@
       label="Player Name"
       variant="outlined"
     />
+    <br /><br />
     <Textfield
       bind:value={gameName}
       label="Game Name"
       variant="outlined"
     />
+    <div class="field-blurb">
+      <span>Public game name all players can see</span>
+    </div>
     <br /><br />
     <Textfield
       value={hostID}
@@ -89,7 +93,7 @@
       variant="outlined"
       disabled
     />
-    <div class="hostID-blurb">
+    <div class="field-blurb">
       <span>Share this ID with other players so they can connect to your game</span>
     </div>
     <br />
@@ -116,7 +120,7 @@
     padding: 1rem;
   }
 
-  .hostID-blurb {
+  .field-blurb {
     display: inline-block;
     font-size: 0.8rem;
     line-height: 1.5;

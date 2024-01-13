@@ -3,6 +3,7 @@
   import { clickOutside } from '$lib/clickOutside';
   import Button, { Label } from '@smui/button';
 	import REGIONS from '../../constants/regions';
+  import GameConnectionInfo from '../References/GameConnectionInfo.svelte';
 
   export let baskets = [];
   export let regionPoints = [];
@@ -351,6 +352,7 @@
       </div>
     </div>
   {/if}
+  <GameConnectionInfo />
   {#if spoilerFile}
     <p>
       Spoiler file name: {spoilerFile.name}

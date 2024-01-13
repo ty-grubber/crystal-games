@@ -3,6 +3,7 @@
   import { clickOutside } from '$lib/clickOutside';
   import Button, { Label } from '@smui/button';
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
+  import GameConnectionInfo from '../References/GameConnectionInfo.svelte';
 	import RegionRefs from '../References/RegionRefs.svelte';
 	import REGIONS, { regionColorClasses } from '../../constants/regions';
 
@@ -224,6 +225,7 @@
           {/each}
         </Body>
       </DataTable>
+      <GameConnectionInfo />
       {#if spoilerFile}
         <p>
           Spoiler file name: {spoilerFile.name}
