@@ -3,16 +3,16 @@
   import Button, { Label } from '@smui/button';
   import Select, { Option } from '@smui/select';
 	import Textfield from '@smui/textfield';
-  import LayoutChooser from '../../components/LayoutChooser';
+  import LayoutChooser from './LayoutChooser.svelte';
 
   export let onSubmit;
   export let openHowToDialog;
   export let openCustomPointsDialog;
 
   export let showNetworking = false;
-  export let playerName;
-  export let gameName;
-  export let hostID;
+  export let playerName = '';
+  export let gameName = '';
+  export let hostID = '';
 
   let trackerLayout = 'classic';
   let revealOrdering = 'random';
@@ -76,17 +76,21 @@
       label="Player Name"
       variant="outlined"
     />
-    <br />
     <Textfield
       bind:value={gameName}
       label="Game Name"
       variant="outlined"
     />
+    <br /><br />
     <Textfield
-      bind:value={hostID}
+      value={hostID}
       label="Host ID"
       variant="outlined"
+      disabled
     />
+    <div class="hostID-blurb">
+      <span>Share this ID with other players so they can connect to your game</span>
+    </div>
     <br />
   {/if}
 </div>
@@ -105,5 +109,14 @@
   .settings-wrapper {
     border: 1px solid grey;
     padding: 1rem;
+  }
+
+  .hostID-blurb {
+    display: inline-block;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-left: 10px;
+    vertical-align: middle;
+    width: 225px;
   }
 </style>

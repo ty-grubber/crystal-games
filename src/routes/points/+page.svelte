@@ -2,6 +2,7 @@
   // @ts-nocheck
   import checkToExposeRegion from '$lib/checkToExposeRegion';
   import { extractPointsInfoFromSpoiler } from '$lib/extractFromSpoiler';
+  import { getRandomHostID } from '$lib/randomize';
   import Button, { Label } from '@smui/button';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Tab, { Label as TabLabel } from '@smui/tab';
@@ -9,11 +10,11 @@
 	import Textfield from '@smui/textfield';
   import CustomPtsDialog from '../../components/CustomPts.svelte';
   import PointsHintDialog from '../../components/HowTos/PointsHintDialog.svelte';
+	import LayoutChooser from '../../components/LayoutChooser.svelte';
   import PointsSharedSettings from '../../components/PointsSharedSettings.svelte';
   import ClassicRegion from '../../components/Tracker/ClassicRegion.svelte';
   import CompactRegion1 from '../../components/Tracker/CompactRegion1.svelte';
   import KEY_ITEMS from '../../constants/keyItemPresets';
-	import LayoutChooser from '../../components/LayoutChooser.svelte';
 
   let regionPoints;
 
@@ -37,9 +38,10 @@
   let keyItems = [ ...KEY_ITEMS];
   let keyItemPointValues = [9, 7, 5, 3];
 
-  let playerName;
-  let gameName;
-  let hostID;
+  let playerName = '';
+  let gameName = '';
+  let hostID = getRandomHostID();
+  let joinID = '';
 
   function openSettingsDialog() {
     settingsDialogOpen = true;
@@ -141,6 +143,7 @@
   {/each}
   <link rel="preload" as="image" href="/maps/johto-points-region-map.png" />
   <link rel="preload" as="image" href="/maps/kanto-points-region-map.png" />
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </svelte:head>
 
 <div class="page">
@@ -172,9 +175,9 @@
           openHowToDialog={openHowToDialog}
           openCustomPointsDialog={openCustomPointsDialog}
           showNetworking={true}
+          hostID={hostID}
           bind:playerName={playerName}
           bind:gameName={gameName}
-          bind:hostID={hostID}
         />
       {:else if activeTab === 'Solo'}
         <PointsSharedSettings
@@ -189,13 +192,12 @@
             label="Player Name"
             variant="outlined"
           />
-          <br />
           <Textfield
-            bind:value={hostID}
+            bind:value={joinID}
             label="Host ID"
             variant="outlined"
           />
-          <br />
+          <br /><br />
           <LayoutChooser bind:trackerLayout={trackerLayout} />
         </div>
         <br /><br /><br />
