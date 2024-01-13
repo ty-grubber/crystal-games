@@ -3,11 +3,16 @@
   import Button, { Label } from '@smui/button';
   import Select, { Option } from '@smui/select';
 	import Textfield from '@smui/textfield';
+  import LayoutChooser from '../../components/LayoutChooser';
 
   export let onSubmit;
   export let openHowToDialog;
   export let openCustomPointsDialog;
+
   export let showNetworking = false;
+  export let playerName;
+  export let gameName;
+  export let hostID;
 
   let trackerLayout = 'classic';
   let revealOrdering = 'random';
@@ -40,19 +45,7 @@
     style="margin-right: 1rem;"
   />
   <br /><br />
-  <Select bind:value={trackerLayout} variant="outlined" label="Tracker Layout Style" style="width: 220px;">
-    <Option value="classic">Classic</Option>
-    <Option value="compact1">Compact</Option>
-  </Select>
-  <div class="tracker-blurb">
-    <span>
-      {#if trackerLayout === 'classic'}
-        A wider layout with all references to help you complete a seed.
-      {:else}
-        A compact layout for a runner more familiar with the regions and point values.
-      {/if}
-    </span>
-  </div>
+  <LayoutChooser bind:trackerLayout={trackerLayout} />
   <br /><br />
   <Select bind:value={revealOrdering} variant="outlined" label="Region Reveal Order" style="width: 220px;">
     <Option value="random">Random</Option>
@@ -78,7 +71,23 @@
   </Button>
   {#if showNetworking}
     <br /><br /><hr /><br />
-    This is the networking section.
+    <Textfield
+      bind:value={playerName}
+      label="Player Name"
+      variant="outlined"
+    />
+    <br />
+    <Textfield
+      bind:value={gameName}
+      label="Game Name"
+      variant="outlined"
+    />
+    <Textfield
+      bind:value={hostID}
+      label="Host ID"
+      variant="outlined"
+    />
+    <br />
   {/if}
 </div>
 <br /><br /><br />
@@ -93,15 +102,6 @@
 </Button>
 
 <style>
-  .tracker-blurb {
-    display: inline-block;
-    font-size: 0.8rem;
-    line-height: 1.5;
-    margin-left: 10px;
-    vertical-align: middle;
-    width: 240px;
-  }
-
   .settings-wrapper {
     border: 1px solid grey;
     padding: 1rem;
