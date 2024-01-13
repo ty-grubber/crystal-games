@@ -42,6 +42,9 @@
   let gameName = '';
   let hostID = getRandomHostID();
   let joinID = '';
+  let isConnecting = false;
+
+  let currentPeer;
 
   function openSettingsDialog() {
     settingsDialogOpen = true;
@@ -82,6 +85,17 @@
       } = await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering));
 
       revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
+
+      if (activeTab === 'Host' && !currentPeer && playerName && gameName) {
+        currentPeer = new Peer(`PCPT-${hostID}`, { debug: 3 });
+        isConnecting = true;
+        currentPeer.on('open', function(id) {
+          isConnecting = false;
+          settingsDialogOpen = false;
+          alert(`Hosting ${gameName} with id: ${id}`);
+        });
+        return;
+      }
       settingsDialogOpen = false;
     }
   }
@@ -176,6 +190,7 @@
           openCustomPointsDialog={openCustomPointsDialog}
           showNetworking={true}
           hostID={hostID}
+          isConnecting={isConnecting}
           bind:playerName={playerName}
           bind:gameName={gameName}
         />

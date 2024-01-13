@@ -10,6 +10,7 @@
   export let openCustomPointsDialog;
 
   export let showNetworking = false;
+  export let isConnecting = false;
   export let playerName = '';
   export let gameName = '';
   export let hostID = '';
@@ -94,8 +95,12 @@
     <br />
   {/if}
 </div>
-<br /><br /><br />
-<Button color="primary" on:click={onStartClick} disabled={!spoilerFile} variant="raised">
+<br /><br />
+{#if isConnecting}
+<span>Setting up connection...</span>
+{/if}
+<br />
+<Button color="primary" on:click={onStartClick} disabled={!spoilerFile || isConnecting} variant="raised">
   <Label>Start Game</Label>
 </Button>
 <Button color="secondary" on:click={openHowToDialog} variant="raised">
