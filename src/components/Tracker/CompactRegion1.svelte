@@ -14,6 +14,8 @@
   export let revealRegionPoints = false;
   export let showSolution = false;
 
+  export let connectionInfo;
+
   export let checkToExposeRegion = () => {};
   export let openInGameMenu = () => {};
 
@@ -352,8 +354,10 @@
       </div>
     </div>
   {/if}
-  <GameConnectionInfo />
-  {#if spoilerFile}
+  {#if connectionInfo}
+    <GameConnectionInfo connectionInfo={connectionInfo} />
+  {/if}
+  {#if spoilerFile && !connectionInfo}
     <p>
       Spoiler file name: {spoilerFile.name}
     </p>

@@ -21,6 +21,9 @@
   export let spoilerFile = {};
   export let showSolution = false;
   export let revealRegionPoints = false;
+
+  export let connectionInfo;
+
   export let checkToExposeRegion = () => {};
   export let openInGameMenu = () => {};
 
@@ -225,7 +228,9 @@
           {/each}
         </Body>
       </DataTable>
-      <GameConnectionInfo />
+      {#if connectionInfo}
+        <GameConnectionInfo connectionInfo={connectionInfo} />
+      {/if}
       {#if spoilerFile}
         <p>
           Spoiler file name: {spoilerFile.name}

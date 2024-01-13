@@ -45,6 +45,7 @@
   let isConnecting = false;
 
   let currentPeer;
+  let connectionInfo;
 
   function openSettingsDialog() {
     settingsDialogOpen = true;
@@ -90,10 +91,16 @@
         currentPeer = new Peer(`PCPT-${hostID}`, { debug: 3 });
         isConnecting = true;
         currentPeer.on('open', function(id) {
+          connectionInfo = {
+            gameName,
+            hostName: playerName,
+            players: [playerName],
+          };
           isConnecting = false;
           settingsDialogOpen = false;
-          alert(`Hosting ${gameName} with id: ${id}`); // TODO: remove this when we have connection info box in layouts
         });
+
+        // TODO: on('connection'), send all vars above this if block and connection info to connector
         return;
       }
       settingsDialogOpen = false;
@@ -113,7 +120,9 @@
   function onConnect() {}
 
   function handleStartNewGame() {
+    // TODO: Include a message that starting a new game will kill the existing connection, then run peer.destroy before reloading the page
     if(confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
+      // TODO: just reload the page to reset all these?
       spoilerFile = null;
       regionPoints = null;
       baskets = [];
@@ -269,6 +278,7 @@
         checkToExposeRegion={handleCheckToExposeRegion}
         openInGameMenu={openInGameMenu}
         keyItemPointValues={keyItemPointValues}
+        connectionInfo={connectionInfo}
       />
     {:else}
       <ClassicRegion
@@ -281,6 +291,7 @@
         checkToExposeRegion={handleCheckToExposeRegion}
         openInGameMenu={openInGameMenu}
         keyItemPointValues={keyItemPointValues}
+        connectionInfo={connectionInfo}
       />
     {/if}
   {/if}

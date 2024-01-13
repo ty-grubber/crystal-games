@@ -84,7 +84,7 @@
       variant="outlined"
     />
     <div class="field-blurb">
-      <span>Public game name all players can see</span>
+      <span>Public game name all players can see (ex: 'Max Shopsanity Race')</span>
     </div>
     <br /><br />
     <Textfield

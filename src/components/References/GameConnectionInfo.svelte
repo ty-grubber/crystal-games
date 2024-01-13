@@ -1,18 +1,26 @@
+<script>
+  /**
+	 * @type {{ gameName: string; hostName: string; players: string[]; }}
+	 */
+  export let connectionInfo;
+</script>
+
 <div class="game-info">
-  <b>Game Name:</b>
+  <b>Game Name: </b>{connectionInfo.gameName}
   <br />
-  <b>Host: </b>Test Host
+  <b>Host: </b>{connectionInfo.hostName}
   <br />
   <b>Players:</b>
   <br />
   <ul class="player-list">
-    <li class="player">Test Host</li>
+    {#each connectionInfo.players as player, playerIndex}
+      <li class="player">{player}{playerIndex === 0 ? ' (Host)' : ''}</li>
+    {/each}
     <li class="player">Player 1</li>
     <li class="player">Really Long Player Name just because</li>
     <li class="player">Player 3</li>
     <li class="player">Player 4</li>
     <li class="player">Player 5</li>
-    <li class="player">Player 6</li>
   </ul>
 </div>
 
