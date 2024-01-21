@@ -228,20 +228,20 @@
           {/each}
         </Body>
       </DataTable>
-      {#if connectionInfo}
-        <GameConnectionInfo connectionInfo={connectionInfo} />
-      {/if}
-      {#if spoilerFile}
-        <p>
-          Spoiler file name: {spoilerFile.name}
-        </p>
-      {/if}
       {#if regionPoints}
         <div class='floating-menu'>
           <Button color="primary" on:click={openInGameMenu} variant="raised">
             <Label>Menu</Label>
           </Button>
         </div>
+      {/if}
+      {#if connectionInfo}
+        <GameConnectionInfo connectionInfo={connectionInfo} />
+      {/if}
+      {#if spoilerFile && !connectionInfo}
+        <p>
+          Spoiler file name: {spoilerFile.name}
+        </p>
       {/if}
       <p class="credits">
         Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
@@ -422,6 +422,7 @@
   @media(max-width: 1024px) {
     .floating-menu {
       position: unset;
+      margin-top: 1rem;
     }
   }
 

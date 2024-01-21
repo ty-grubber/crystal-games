@@ -8,19 +8,12 @@
 <div class="game-info">
   <b>Game Name: </b>{connectionInfo.gameName}
   <br />
-  <b>Host: </b>{connectionInfo.hostName}
-  <br />
   <b>Players:</b>
   <br />
   <ul class="player-list">
     {#each connectionInfo.players as player, playerIndex}
       <li class="player">{player}{playerIndex === 0 ? ' (Host)' : ''}</li>
     {/each}
-    <li class="player">Player 1</li>
-    <li class="player">Really Long Player Name just because</li>
-    <li class="player">Player 3</li>
-    <li class="player">Player 4</li>
-    <li class="player">Player 5</li>
   </ul>
 </div>
 
@@ -36,6 +29,7 @@
     flex-wrap: wrap;
     margin-top: 0.25rem;
     margin-bottom: 0;
+    min-width: 400px;
   }
 
   .player {

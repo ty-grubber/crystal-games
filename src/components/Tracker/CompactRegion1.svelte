@@ -531,4 +531,8 @@
     right: 0;
     font-size: 1.5rem;
   }
+
+  .credits {
+    font-size: 12px;
+  }
 </style>

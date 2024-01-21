@@ -16,6 +16,8 @@
   import CompactRegion1 from '../../components/Tracker/CompactRegion1.svelte';
   import KEY_ITEMS from '../../constants/keyItemPresets';
 
+  const HOST_ID_PREFIX = 'PCPT-';
+
   let regionPoints;
 
   let baskets = [];
@@ -45,6 +47,7 @@
   let isConnecting = false;
 
   let currentPeer;
+  let peerConnection;
   let connectionInfo;
 
   function openSettingsDialog() {
@@ -88,7 +91,7 @@
       revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
 
       if (activeTab === 'Host' && !currentPeer && playerName && gameName) {
-        currentPeer = new Peer(`PCPT-${hostID}`, { debug: 3 });
+        currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, { debug: 3 });
         isConnecting = true;
         currentPeer.on('open', function(id) {
           connectionInfo = {
@@ -100,7 +103,31 @@
           settingsDialogOpen = false;
         });
 
-        // TODO: on('connection'), send all vars above this if block and connection info to connector
+        // Send all vars above this if block and connection info to connector
+        currentPeer.on('connection', function(conn) {
+          peerConnection = conn;
+          conn.on('open', function(id) {
+            conn.send({
+              connectionInfo,
+              gameInfo: {
+                baskets,
+                keyItemPointValues,
+                regionRevealOrder,
+                regionPoints,
+                revealedRegions,
+              }
+            });
+          })
+          conn.on('data', function(data) {
+            console.log('Received data: ', data);
+            if (data.playerName) {
+              connectionInfo.players = [...connectionInfo.players, data.playerName];
+              conn.send({
+                connectionInfo,
+              });
+            }
+          });
+        });
         return;
       }
       settingsDialogOpen = false;
@@ -117,24 +144,52 @@
     onStartClick();
   }
 
-  function onConnect() {}
+  function onConnectClick() {
+    isConnecting = true;
+    currentPeer = new Peer('test', { debug: '3'});
+    currentPeer.on('open', function() {
+      peerConnection = currentPeer.connect(`${HOST_ID_PREFIX}${joinID}`);
+
+      peerConnection.on('open', function() {
+        peerConnection.send({
+          playerName,
+        });
+
+        peerConnection.on('data', function(data) {
+          console.log('Received data: ', data);
+          connectionInfo = data.connectionInfo;
+          if (data.gameInfo) {
+            ({
+              baskets,
+              keyItemPointValues,
+              regionRevealOrder,
+              regionPoints,
+              revealedRegions,
+            } = data.gameInfo);
+          }
+          isConnecting = false;
+          settingsDialogOpen = false;
+        });
+      });
+    });
+  }
 
   function handleStartNewGame() {
-    // TODO: Include a message that starting a new game will kill the existing connection, then run peer.destroy before reloading the page
-    if(confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
-      // TODO: just reload the page to reset all these?
-      spoilerFile = null;
-      regionPoints = null;
-      baskets = [];
-      regionRevealOrder = [];
-      revealedRegions = [];
-      revealOrdering = 'random';
-      showSolution = false;
-      revealRegionPoints = false;
-      initialRevealedRegions = 1;
-      howToDialogOpen = false;
-      inGameMenuOpen = false;
-      settingsDialogOpen = true;
+    let confirmAction = 'and end your current one';
+
+    if (joinID) {
+      confirmAction = 'and end your connection to the current one'
+    } else if (hostID) {
+      confirmAction = 'and end all connections to the current one'
+    }
+
+    const confirmMessage = `Starting a new game will refresh the page ${confirmAction}. Are you sure you wish to start a new game?`
+
+    if(confirm(confirmMessage)) {
+      if (currentPeer) {
+        currentPeer.destroy();
+      }
+      window.location.reload();
     }
   }
 
@@ -225,7 +280,7 @@
           <LayoutChooser bind:trackerLayout={trackerLayout} />
         </div>
         <br /><br /><br />
-        <Button color="primary" on:click={onConnect} variant="raised">
+        <Button color="primary" on:click={onConnectClick} variant="raised">
           <Label>Connect</Label>
         </Button>
         <Button color="secondary" on:click={openHowToDialog} variant="raised">
