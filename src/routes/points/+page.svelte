@@ -91,7 +91,7 @@
       revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
 
       if (activeTab === 'Host' && !currentPeer && playerName && gameName) {
-        currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, { debug: 3 });
+        currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`);
         isConnecting = true;
         currentPeer.on('open', function(id) {
           connectionInfo = {
@@ -119,7 +119,6 @@
             });
           })
           conn.on('data', function(data) {
-            console.log('Received data: ', data);
             if (data.playerName) {
               connectionInfo.players = [...connectionInfo.players, data.playerName];
               conn.send({
@@ -146,7 +145,7 @@
 
   function onConnectClick() {
     isConnecting = true;
-    currentPeer = new Peer('test', { debug: '3'});
+    currentPeer = new Peer();
     currentPeer.on('open', function() {
       peerConnection = currentPeer.connect(`${HOST_ID_PREFIX}${joinID}`);
 
@@ -156,7 +155,6 @@
         });
 
         peerConnection.on('data', function(data) {
-          console.log('Received data: ', data);
           connectionInfo = data.connectionInfo;
           if (data.gameInfo) {
             ({
