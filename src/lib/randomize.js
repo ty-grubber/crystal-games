@@ -49,7 +49,14 @@ function randomTiesSorting(arr, direction, seed) {
   });
 }
 
+function getRandomHostID() {
+  const randomAppend = (seedrandom()() * 100000000).toFixed(0).toString().padStart(8, '00000000');
+  const now = new Date(Date.now());
+  return `${now.getHours().toString().padStart(2, '00')}${now.getMinutes().toString().padStart(2, '00')}${randomAppend}`;
+}
+
 export {
+  getRandomHostID,
   randomizeArray,
   randomTiesSorting
 }
