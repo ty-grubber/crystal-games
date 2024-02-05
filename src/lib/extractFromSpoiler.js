@@ -155,7 +155,6 @@ async function extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrderin
     return {
       baskets,
       regionPoints,
-      keyItemPointValues,
       regionRevealOrder: regionsWithTotalPoints.map(r => r.id),
     }
   }

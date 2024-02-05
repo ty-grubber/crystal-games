@@ -38,13 +38,13 @@
   let spoilerFile;
 
   let keyItems = [ ...KEY_ITEMS];
-  let keyItemPointValues = [9, 7, 5, 3];
 
   let playerName = '';
   let gameName = '';
   let hostID = getRandomHostID();
   let joinID = '';
   let isConnecting = false;
+  let confirmOnRefresh = true;
 
   let currentPeer;
   let peerConnection;
@@ -83,7 +83,6 @@
     if (spoilerFile != null) {
       ({
         baskets,
-        keyItemPointValues,
         regionRevealOrder,
         regionPoints
       } = await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering));
@@ -111,7 +110,6 @@
               connectionInfo,
               gameInfo: {
                 baskets,
-                keyItemPointValues,
                 regionRevealOrder,
                 regionPoints,
                 revealedRegions,
@@ -159,7 +157,6 @@
           if (data.gameInfo) {
             ({
               baskets,
-              keyItemPointValues,
               regionRevealOrder,
               regionPoints,
               revealedRegions,
@@ -187,6 +184,7 @@
       if (currentPeer) {
         currentPeer.destroy();
       }
+      confirmOnRefresh = false;
       window.location.reload();
     }
   }
@@ -202,7 +200,7 @@
   }
 
   function beforeUnload(event) {
-    if (regionPoints) {
+    if (regionPoints && confirmOnRefresh) {
       event.preventDefault();
       return (event.returnValue = '');
     }
@@ -298,6 +296,11 @@
   <Dialog bind:open={inGameMenuOpen} surface$style="width: 450px">
     <Title id="inGameMenuTitle">Tracker Menu</Title>
     <Content id="inGameMenuContent">
+      {#if spoilerFile && !connectionInfo}
+        <p>
+          Spoiler file name: {spoilerFile.name}
+        </p>
+      {/if}
       <Button color="primary" variant="outlined" on:click={toggleRevealAllRegions}>
         <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
       </Button>
@@ -313,6 +316,16 @@
       <Button color="primary" on:click={handleStartNewGame} variant="raised">
         <Label>Start New Game</Label>
       </Button>
+      <br /><br />
+      <h3>Credits</h3>
+      <p class="credits">
+        Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.&nbsp;
+        {#if trackerLayout === 'classic'}
+          Region map images created by Kovolta.
+        {:else}
+          Region ID images created by TyGr.
+        {/if}
+      </p>
       <Actions>
         <Button>Close</Button>
       </Actions>
@@ -323,28 +336,24 @@
     {#if trackerLayout === 'compact1'}
       <CompactRegion1
         bind:baskets
-        spoilerFile={spoilerFile}
-        regionPoints={regionPoints}
-        revealedRegions={revealedRegions}
-        revealRegionPoints={revealRegionPoints}
-        showSolution={showSolution}
-        checkToExposeRegion={handleCheckToExposeRegion}
-        openInGameMenu={openInGameMenu}
-        keyItemPointValues={keyItemPointValues}
         connectionInfo={connectionInfo}
+        handleCheckToExposeRegion={handleCheckToExposeRegion}
+        openInGameMenu={openInGameMenu}
+        regionPoints={regionPoints}
+        revealRegionPoints={revealRegionPoints}
+        revealedRegions={revealedRegions}
+        showSolution={showSolution}
       />
     {:else}
       <ClassicRegion
-        spoilerFile={spoilerFile}
-        regionPoints={regionPoints}
         bind:baskets
+        connectionInfo={connectionInfo}
+        handleCheckToExposeRegion={handleCheckToExposeRegion}
+        openInGameMenu={openInGameMenu}
+        regionPoints={regionPoints}
+        revealRegionPoints={revealRegionPoints}
         revealedRegions={revealedRegions}
         showSolution={showSolution}
-        revealRegionPoints={revealRegionPoints}
-        checkToExposeRegion={handleCheckToExposeRegion}
-        openInGameMenu={openInGameMenu}
-        keyItemPointValues={keyItemPointValues}
-        connectionInfo={connectionInfo}
       />
     {/if}
   {/if}
@@ -354,5 +363,8 @@
   .join-wrapper {
     border: 1px solid grey;
     padding: 1rem;
+  }
+  .credits {
+    font-size: 12px;
   }
 </style>

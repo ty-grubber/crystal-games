@@ -8,15 +8,14 @@
   export let baskets = [];
   export let regionPoints = [];
   export let revealedRegions = [];
-  export let keyItemPointValues = [];
 
-  export let spoilerFile = {};
   export let revealRegionPoints = false;
   export let showSolution = false;
 
   export let connectionInfo;
 
-  export let checkToExposeRegion = () => {};
+  // TODO: After this is called and we are currently in a hosted game, send info to the host
+  export let handleCheckToExposeRegion = () => {};
   export let openInGameMenu = () => {};
 
   let hoveringOverBasket;
@@ -93,7 +92,7 @@
       targetBasket.items.push(item);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, item);
+      handleCheckToExposeRegion(originalBasket, targetBasket, item);
 
       hoveringOverBasket = null;
       selectedAvailableItem = {};
@@ -132,7 +131,7 @@
       targetBasket.items.push(freedItem);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, freedItem);
+      handleCheckToExposeRegion(originalBasket, targetBasket, freedItem);
     }
 
     selectedAvailableItem = {};
@@ -167,7 +166,7 @@
     updateRegionFoundFromRegionTransfer(removedItem, undefined, basketIndex);
     baskets = baskets;
 
-    checkToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
+    handleCheckToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
     selectedAvailableItem = {};
     selectedFoundItem = {};
   }
@@ -201,8 +200,7 @@
   function handleOutsideRegionTableClick(e) {
     if (
       e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
-      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button' &&
-      !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)
+      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button'
     ) {
       selectedAvailableItem = {};
       selectedFoundItem = {};
@@ -357,15 +355,6 @@
   {#if connectionInfo}
     <GameConnectionInfo connectionInfo={connectionInfo} />
   {/if}
-  {#if spoilerFile && !connectionInfo}
-    <p>
-      Spoiler file name: {spoilerFile.name}
-    </p>
-  {/if}
-  <p class="credits">
-    Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
-    Region ID images created by TyGr.
-  </p>
 </div>
 
 <style>
@@ -530,9 +519,5 @@
     top: 0;
     right: 0;
     font-size: 1.5rem;
-  }
-
-  .credits {
-    font-size: 12px;
   }
 </style>

@@ -16,20 +16,21 @@
   export let regionPoints = [];
   export let baskets = [];
   export let revealedRegions = [];
-  export let keyItemPointValues = [];
 
-  export let spoilerFile = {};
   export let showSolution = false;
   export let revealRegionPoints = false;
 
   export let connectionInfo;
 
-  export let checkToExposeRegion = () => {};
+  // TODO: After this is called and we are currently in a hosted game, send info to the host
+  export let handleCheckToExposeRegion = () => {};
   export let openInGameMenu = () => {};
 
   let hoveringOverBasket;
   let selectedAvailableItem = {};
   let selectedFoundItem = {};
+
+  const keyItemPointValues = baskets?.filter(basket => basket.type === 'item').map(basket => basket.name) || [];
 
   /**
 	 * @param {DragEvent & { currentTarget: EventTarget & HTMLLIElement; }} event
@@ -73,7 +74,7 @@
       targetBasket.items.push(item);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, item);
+      handleCheckToExposeRegion(originalBasket, targetBasket, item);
 
       hoveringOverBasket = null;
       selectedAvailableItem = {};
@@ -106,7 +107,7 @@
       targetBasket.items.push(freedItem);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, freedItem);
+      handleCheckToExposeRegion(originalBasket, targetBasket, freedItem);
     }
 
     selectedAvailableItem = {};
@@ -238,15 +239,6 @@
       {#if connectionInfo}
         <GameConnectionInfo connectionInfo={connectionInfo} />
       {/if}
-      {#if spoilerFile && !connectionInfo}
-        <p>
-          Spoiler file name: {spoilerFile.name}
-        </p>
-      {/if}
-      <p class="credits">
-        Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
-        Region map images created by Kovolta.
-      </p>
     </div>
   </div>
   <div class="available-items">
@@ -424,9 +416,5 @@
       position: unset;
       margin-top: 1rem;
     }
-  }
-
-  .credits {
-    font-size: 12px;
   }
 </style>
