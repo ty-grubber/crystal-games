@@ -56,5 +56,10 @@ export const SPECTATOR = [
   SOUL,
   MARSH,
   VOLCANO,
-  EARTH
+  EARTH,
+  TM08,
+  HEADBUTT,
+  TM12,
+  WATER_STONE,
+  WATER_STONE
 ];
