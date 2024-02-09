@@ -20,13 +20,14 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
   const spoilerLines = spoilerFileText.split('\r\n');
   const rngSeed = spoilerLines.find(line => line.includes('RNG Seed:'))?.replace('RNG Seed: ', '');
   const solutionStartIndex = spoilerLines.findIndex(line => line.includes('Solution:'));
-  const solutionEndIndex = spoilerLines.findIndex(line => line.includes('Useless Stuff:'));
+  const solutionEndIndex = spoilerLines.findIndex(line => line.includes('Zephyr Badge:')) + 1;
+  const uselessStuffStartIndex = spoilerLines.findIndex(line => line.includes('Useless Stuff:'));
   const modifierStartIndex = spoilerLines.findIndex(line => line.includes('Modifiers:'));
   const modifierEndIndex = spoilerLines.findIndex(line => line.includes('RNG Seed:'));
   const modifierLines = spoilerLines.slice(modifierStartIndex, modifierEndIndex).join('').replace(/\s\s/g, ' ');
   const solutionLines = `${spoilerLines.slice(solutionStartIndex, solutionEndIndex).join(';;')};`;
   const uselessStuffLines = `${spoilerLines.slice(
-    solutionEndIndex,
+    uselessStuffStartIndex,
     spoilerLines.findIndex(line => line.includes('Xtra Stuff:')),
   ).join(';;')};`;
   // This is likely not needed anymore but keeping it around just in case
