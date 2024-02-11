@@ -45,6 +45,8 @@
   let joinID = '';
   let isConnecting = false;
   let confirmOnRefresh = true;
+  let isHost = false;
+  let hostIsSpectator = true; // TODO: set this back to false when we have the checkbox in the form
 
   let currentPeer;
   let peerConnection;
@@ -96,7 +98,10 @@
           connectionInfo = {
             gameName,
             hostName: playerName,
-            players: [playerName],
+            players: [{
+              name: playerName,
+              gameData: {},
+            }],
           };
           isConnecting = false;
           settingsDialogOpen = false;
@@ -117,11 +122,24 @@
             });
           })
           conn.on('data', function(data) {
-            if (data.playerName) {
-              connectionInfo.players = [...connectionInfo.players, data.playerName];
+            const {playerToAdd, playerToUpdate, ...rest} = data;
+            if (playerToAdd) {
+              connectionInfo.players = [
+                ...connectionInfo.players,
+                {
+                  name: playerToAdd,
+                  gameData: {},
+                },
+              ];
               conn.send({
                 connectionInfo,
               });
+            } else if (playerToUpdate) {
+              // we're getting updated game data
+              if (isHost && hostIsSpectator) {
+                const indexToUpdate = connectionInfo.players.findIndex(player => player.name === playerToUpdate)
+                connectionInfo.players[indexToUpdate].gameData = rest;
+              }
             }
           });
         });
@@ -132,6 +150,7 @@
   }
 
   function handleSettingsSubmit(settings) {
+    isHost = activeTab === 'Host';
     ({
       trackerLayout,
       revealOrdering,
@@ -149,7 +168,7 @@
 
       peerConnection.on('open', function() {
         peerConnection.send({
-          playerName,
+          playerToAdd: playerName,
         });
 
         peerConnection.on('data', function(data) {
@@ -197,6 +216,18 @@
       regionRevealOrder,
       revealedRegions
     ));
+
+    // Send the new data to our host spectator
+    // TODO? Should we delay the send with a timeout in case multiple come at once?
+    if (connectionInfo && !isHost && hostIsSpectator) {
+      peerConnection.send({
+        playerToUpdate: playerName,
+        baskets,
+        regionRevealOrder,
+        regionPoints,
+        revealedRegions,
+      });
+    }
   }
 
   function beforeUnload(event) {

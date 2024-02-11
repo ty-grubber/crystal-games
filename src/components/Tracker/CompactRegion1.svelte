@@ -12,6 +12,9 @@
   export let revealRegionPoints = false;
   export let showSolution = false;
 
+  /**
+	 * @type {{ gameName: string; hostName: string; players: string[]; }}
+	 */
   export let connectionInfo;
 
   // TODO: After this is called and we are currently in a hosted game, send info to the host
@@ -199,6 +202,7 @@
 
   function handleOutsideRegionTableClick(e) {
     if (
+      e.explicitOriginalTarget &&
       e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
       e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button'
     ) {
