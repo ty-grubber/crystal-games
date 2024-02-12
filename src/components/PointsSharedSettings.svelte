@@ -59,16 +59,14 @@
     <br /><br />
     <Textfield
       bind:value={gameName}
-      label="Game Name"
+      label="Public Game Name (ex: 'Max Shopsanity Race')"
+      style="width: 100%;"
       variant="outlined"
     />
-    <div class="field-blurb">
-      <span>Public game name all players can see (ex: 'Max Shopsanity Race')</span>
-    </div>
     <br /><br />
     <Textfield
       value={hostID}
-      label="Host ID"
+      label="Private Host ID"
       variant="outlined"
       disabled
     />

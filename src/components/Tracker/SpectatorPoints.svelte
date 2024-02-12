@@ -27,6 +27,25 @@
   let activeRegionIndex = 0;
 
   /**
+   * Set the active region to the region where the clicked item is found, if it has been found
+   * @param {string} status
+   */
+  function handleEmoItemClick(status) {
+    if (status.startsWith('found:')) {
+      const regionToShow = status.split(':')[1];
+      activeRegionIndex = regionPoints.findIndex(rp => rp.regionId.toString() === regionToShow);
+    }
+  }
+
+  /**
+   * Set the active region to the clicked region
+   * @param {number} regionIndex
+   */
+  function handleRegionClick(regionIndex) {
+    activeRegionIndex = regionIndex;
+  }
+
+  /**
    * Map our basket items to the Spectator Layout items
    */
   $: emoItems = SPECTATOR.map(specItem => {
@@ -60,7 +79,7 @@
     // Determine the item's status based on the type of basket it is found in
     // @ts-ignore
     if (currBasket?.type === 'region') {
-      itemStatus = 'found';
+      itemStatus = `found:${currBasket.name}`;
     // @ts-ignore
     } else if (currBasket?.type === 'item') {
       itemStatus = 'not-found';
@@ -87,9 +106,14 @@
   <div class="wrapper">
     <span class="name">{playerName}</span>
     {#each emoItems as emoItem, i (`${emoItem.id}_${i}`)}
-      <div class="emo-item">
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div
+        class="emo-item"
+        on:click={() => handleEmoItemClick(emoItem.itemStatus)}
+        on:keydown={() => handleEmoItemClick(emoItem.itemStatus)}
+      >
         <img
-          class={`item-icon ${emoItem.itemStatus}`}
+          class={`item-icon ${emoItem.itemStatus.split(':')[0]}`}
           src={`/keyItems/${emoItem.id}.png`}
           alt={emoItem.name}
           title={`${emoItem.name} - ${emoItem.points}pts`}
@@ -100,7 +124,13 @@
       {totalPointsRemaining} / {totalPointsAvailable}
     </div>
     {#each regionPoints as rp, i (`${rp.regionId}_${i}`)}
-      <div class="region" class:active={i === activeRegionIndex}>
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div
+        class="region"
+        class:active={i === activeRegionIndex}
+        on:click={() => handleRegionClick(i)}
+        on:keydown={() => handleRegionClick(i)}
+      >
         <div class="region-image">
           <img class="region-icon" src={`/regions/${rp.regionId}.png`} alt={rp.name} />
         </div>
@@ -191,6 +221,7 @@
 
   .emo-item > .item-icon.found {
     opacity: 1;
+    cursor: pointer;
   }
 
   .emo-item > .item-icon.missing {
@@ -205,6 +236,7 @@
   .region {
     background-color: #222;
     border: 1px solid white;
+    cursor: pointer;
     display: flex;
     flex-basis: 24%;
   }

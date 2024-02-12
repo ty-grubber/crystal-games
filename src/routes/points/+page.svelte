@@ -370,7 +370,8 @@
 
   {#if regionPoints?.length > 0}
     {#if trackerLayout === 'spectator'}
-      {#if !connectionInfo || connectionInfo.players.length <= 0 }
+      <h1>{gameName}</h1>
+      {#if !connectionInfo || connectionInfo.players.length <= 0}
         Waiting for players to connect...
       {:else}
         {#each connectionInfo.players as player, i (player.name)}
