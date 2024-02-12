@@ -26,14 +26,46 @@
    */
   let activeRegionIndex = 0;
 
+  /**
+   * Map our basket items to the Spectator Layout items
+   */
   $: emoItems = SPECTATOR.map(specItem => {
     let itemStatus = 'missing';
-    const currBasket = baskets.find(basket => basket.items.find(item => item.id === specItem.id));
+    let currBasket;
+
+    // Find basket where this item is currently located to determine its status
+    // @ts-ignore
+    if (specItem.extra > 0) {
+      const allBasketsItemFoundIn = baskets.filter(basket => basket.items.filter(item => item.id === specItem.id).length > 0);
+
+      // Duplicate items might be in the same basket, so dupe baskets as necessary to make sure we're looking at the correct duplicate item's basket
+      // @ts-ignore
+      const dupedBaskets = allBasketsItemFoundIn.reduce((acc, curr) => {
+        const occurrences = curr.items.filter(item => item.id === specItem.id).length;
+        for (let i = 0; i < occurrences; i++) {
+          // @ts-ignore
+          acc.push({
+            ...curr,
+          });
+        }
+        return acc;
+      }, []);
+      // @ts-ignore
+      currBasket = dupedBaskets[specItem.extra];
+    } else {
+      // Not a duplicate item, so just find the first basket that it appears in
+      currBasket = baskets.find(basket => basket.items.find(item => item.id === specItem.id));
+    }
+
+    // Determine the item's status based on the type of basket it is found in
+    // @ts-ignore
     if (currBasket?.type === 'region') {
       itemStatus = 'found';
+    // @ts-ignore
     } else if (currBasket?.type === 'item') {
       itemStatus = 'not-found';
     }
+
     return {
       ...specItem,
       itemStatus,
@@ -82,7 +114,7 @@
         </div>
       </div>
     {/each}
-    {#if activeRegionIndex}
+    {#if activeRegionIndex >= 0}
       <!-- * ar = Active Region -->
       {@const ar = regionPoints[activeRegionIndex]}
       <div class="region-details">
@@ -97,16 +129,16 @@
         <div class="pts-remaining">
           <span class="pts-remaining-text">
             {revealedRegions.includes(ar.regionId)
-              ? ar.points - baskets[activeRegionIndex].items.reduce((acc, curr) => acc + curr.points, 0)
+              ? ar.points - baskets[activeRegionIndex]?.items.reduce((acc, curr) => acc + curr.points, 0)
               : '??'
             }
           </span>
         </div>
         <div
           class="basket-items"
-          class:big-list={baskets[activeRegionIndex].items.length > 11}
+          class:big-list={baskets[activeRegionIndex]?.items.length > 11}
         >
-          {#each baskets[activeRegionIndex].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+          {#each baskets[activeRegionIndex]?.items as item, itemIndex (`${item.id}_${itemIndex}`)}
             <img
               class="item-icon"
               src={`/keyItems/${item.id}.png`}
@@ -116,8 +148,8 @@
           {/each}
         </div>
         <div class="found-region-points">
-          {#if baskets[activeRegionIndex].items.length > 0}
-            {baskets[activeRegionIndex].items.reduce((sum, curr) => sum + curr.points, 0)}
+          {#if baskets[activeRegionIndex]?.items.length > 0}
+            {baskets[activeRegionIndex]?.items.reduce((sum, curr) => sum + curr.points, 0)}
           {/if}
         </div>
       </div>
@@ -129,6 +161,7 @@
   .wrapper {
     display: flex;
     flex-wrap: wrap;
+    margin: 1rem;
     width: 360px;
   }
 
@@ -158,6 +191,10 @@
 
   .emo-item > .item-icon.found {
     opacity: 1;
+  }
+
+  .emo-item > .item-icon.missing {
+    visibility: hidden;
   }
 
   .progress-info {
@@ -219,8 +256,8 @@
   }
 
   .basket-items.big-list > .item-icon {
-    max-height: 19px;
-    max-width: 19px;
+    max-height: 24px;
+    max-width: 24px;
   }
 
   .found-region-points {

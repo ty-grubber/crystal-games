@@ -7,13 +7,14 @@
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Tab, { Label as TabLabel } from '@smui/tab';
   import TabBar from '@smui/tab-bar';
-	import Textfield from '@smui/textfield';
+  import Textfield from '@smui/textfield';
   import CustomPtsDialog from '../../components/CustomPts.svelte';
   import PointsHintDialog from '../../components/HowTos/PointsHintDialog.svelte';
-	import LayoutChooser from '../../components/LayoutChooser.svelte';
+  import LayoutChooser from '../../components/LayoutChooser.svelte';
   import PointsSharedSettings from '../../components/PointsSharedSettings.svelte';
   import ClassicRegion from '../../components/Tracker/ClassicRegion.svelte';
   import CompactRegion1 from '../../components/Tracker/CompactRegion1.svelte';
+  import SpectatorPoints from '../../components/Tracker/SpectatorPoints.svelte';
   import KEY_ITEMS from '../../constants/keyItemPresets';
 
   const HOST_ID_PREFIX = 'PCPT-';
@@ -98,10 +99,10 @@
           connectionInfo = {
             gameName,
             hostName: playerName,
-            players: [{
+            players: trackerLayout !== 'spectator' ? [{
               name: playerName,
               gameData: {},
-            }],
+            }] : [],
           };
           isConnecting = false;
           settingsDialogOpen = false;
@@ -128,7 +129,12 @@
                 ...connectionInfo.players,
                 {
                   name: playerToAdd,
-                  gameData: {},
+                  gameData: {
+                    baskets,
+                    regionRevealOrder,
+                    regionPoints,
+                    revealedRegions,
+                  },
                 },
               ];
               conn.send({
@@ -363,7 +369,20 @@
   </Dialog>
 
   {#if regionPoints?.length > 0}
-    {#if trackerLayout === 'compact1'}
+    {#if trackerLayout === 'spectator'}
+      {#if !connectionInfo || connectionInfo.players.length <= 0 }
+        Waiting for players to connect...
+      {:else}
+        {#each connectionInfo.players as player, i (player.name)}
+          <SpectatorPoints
+            baskets={player.gameData.baskets}
+            playerName={player.name}
+            regionPoints={regionPoints}
+            revealedRegions={player.gameData.revealedRegions}
+          />
+        {/each}
+      {/if}
+    {:else if trackerLayout === 'compact1'}
       <CompactRegion1
         bind:baskets
         connectionInfo={connectionInfo}
@@ -391,7 +410,7 @@
 
 <style>
   .join-wrapper {
-    border: 1px solid grey;
+    border: 1px solid #ff3e00;
     padding: 1rem;
   }
   .credits {
