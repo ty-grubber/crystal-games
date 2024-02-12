@@ -72,12 +72,10 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
     //   - push the item into the randomizedItems array (so we know it is placeable)
     matchedRegionIds.forEach(matchedId => {
       const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedId);
-      // @ts-ignore
       const shouldUpgradeItem = item.upgradeModifier && modifierLines.includes(item.upgradeModifier);
 
       const addedItem = {
         ...item,
-        // @ts-ignore
         points: item.points + (shouldUpgradeItem ? item.upgradeAmt : 0),
       };
 

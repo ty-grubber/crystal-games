@@ -224,7 +224,6 @@
         playerToUpdate: playerName,
         baskets,
         regionRevealOrder,
-        regionPoints,
         revealedRegions,
       });
     }

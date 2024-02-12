@@ -284,7 +284,7 @@
           {#if showSolution}
             {#each missingSolutionItems as solutionItem, sItemIndex (`${solutionItem.id}_${sItemIndex}`)}
               <!-- TODO: Adding an item to a region when solution is up does not refresh missing solution items -->
-              <!-- Can just toggle the button in the menu to get it to refresh -->
+              <!-- * Can just toggle the button in the menu to get it to refresh -->
               <img
                 alt={solutionItem.name}
                 src={`/keyItems/${solutionItem.id}.png`}
