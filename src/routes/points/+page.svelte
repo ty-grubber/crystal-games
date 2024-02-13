@@ -105,6 +105,7 @@
           connectionInfo = {
             gameName,
             hostName: playerName,
+            hostIsSpectator,
             players: trackerLayout !== 'spectator' ? [{
               name: playerName,
               gameData: {},
@@ -197,6 +198,7 @@
               revealedRegions,
             } = data.gameInfo);
           }
+          ({ hostIsSpectator } = connectionInfo);
           isConnecting = false;
           settingsDialogOpen = false;
         });
@@ -392,7 +394,7 @@
   </Dialog>
 
   {#if regionPoints?.length > 0}
-    {#if hostIsSpectator}
+    {#if isHost && hostIsSpectator}
       <h1>{gameName}</h1>
       {#if !connectionInfo || connectionInfo.players.length <= 0}
         Waiting for players to connect...

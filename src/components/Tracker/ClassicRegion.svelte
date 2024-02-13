@@ -133,6 +133,7 @@
 
   function handleOutsideRegionTableClick(e) {
     if (
+      e.explicitOriginalTarget &&
       e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
       e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button' &&
       !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)
