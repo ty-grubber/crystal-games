@@ -207,7 +207,7 @@
     <Select
       label={`${playerName}:  ${totalPointsRemaining} Left, ${revealedRegions.length} RR`}
       on:SMUISelect:change={handleSwitch}
-      style="width: 350px;"
+      style="width: 350px; margin: 5px 5px 5px 0;"
       variant="outlined"
     >
       <Option value="0">Set To Left Tracker</Option>

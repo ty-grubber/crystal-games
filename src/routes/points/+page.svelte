@@ -28,6 +28,7 @@
 
   let settingsDialogOpen = true;
   let howToDialogOpen = false;
+  let howToSpectatorOpen = false;
   let customPtsMenuOpen = false;
   let inGameMenuOpen = false;
   let activeTab = 'Solo';
@@ -47,7 +48,7 @@
   let isConnecting = false;
   let confirmOnRefresh = true;
   let isHost = false;
-  let hostIsSpectator = true; // TODO: set this back to false when we have the checkbox in the form
+  let hostIsSpectator = false;
 
   let currentPeer;
   let hostConnection;
@@ -60,6 +61,10 @@
 
   function openHowToDialog() {
     howToDialogOpen = true;
+  }
+
+  function openSpectatorDialog() {
+    howToSpectatorOpen = true;
   }
 
   function openCustomPointsDialog() {
@@ -167,6 +172,7 @@
       initialRevealedRegions,
       spoilerFile
     } = settings);
+    hostIsSpectator = trackerLayout === 'spectator';
     onStartClick();
   }
 
@@ -228,7 +234,6 @@
     ));
 
     // Send the new data to our host spectator
-    // TODO? Should we delay the send with a timeout in case multiple come at once?
     if (connectionInfo && !isHost && hostIsSpectator) {
       hostConnection.send({
         playerToUpdate: playerName,
@@ -343,7 +348,7 @@
 
   <CustomPtsDialog bind:isOpen={customPtsMenuOpen} onConfirmPts={handleUpdatePointValues} />
 
-  <PointsHintDialog bind:isOpen={howToDialogOpen} />
+  <PointsHintDialog bind:isOpen={howToDialogOpen} bind:spectatorTrackerDialogOpen={howToSpectatorOpen} />
 
   <Dialog bind:open={inGameMenuOpen} surface$style="width: 450px">
     <Title id="inGameMenuTitle">Tracker Menu</Title>
@@ -387,7 +392,7 @@
   </Dialog>
 
   {#if regionPoints?.length > 0}
-    {#if trackerLayout === 'spectator'}
+    {#if hostIsSpectator}
       <h1>{gameName}</h1>
       {#if !connectionInfo || connectionInfo.players.length <= 0}
         Waiting for players to connect...
@@ -421,6 +426,10 @@
           </div>
         {/if}
       {/if}
+      <br /><br />
+      <Button color="secondary" on:click={openSpectatorDialog} variant="raised">
+        <Label>Spectator Host Help</Label>
+      </Button>
     {:else if trackerLayout === 'compact1'}
       <CompactRegion1
         bind:baskets
@@ -455,6 +464,11 @@
 
   .spectator-trackers {
     display: flex;
+  }
+
+  .other-players {
+    max-width: 800px;
+    margin: 1rem;
   }
 
   .other-players b {
