@@ -22,7 +22,6 @@
 
   export let connectionInfo;
 
-  // TODO: After this is called and we are currently in a hosted game, send info to the host
   export let handleCheckToExposeRegion = () => {};
   export let openInGameMenu = () => {};
 

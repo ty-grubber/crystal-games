@@ -50,7 +50,8 @@
   let hostIsSpectator = true; // TODO: set this back to false when we have the checkbox in the form
 
   let currentPeer;
-  let peerConnection;
+  let hostConnection;
+  let peerConnections = [];
   let connectionInfo;
 
   function openSettingsDialog() {
@@ -110,7 +111,8 @@
 
         // Send all vars above this if block and connection info to connector
         currentPeer.on('connection', function(conn) {
-          peerConnection = conn;
+          peerConnections.push(conn);
+          peerConnections = peerConnections;
           conn.on('open', function(id) {
             conn.send({
               connectionInfo,
@@ -137,8 +139,10 @@
                   },
                 },
               ];
-              conn.send({
-                connectionInfo,
+              peerConnections.forEach(connection => {
+                connection.send({
+                  connectionInfo,
+                });
               });
             } else if (playerToUpdate) {
               // we're getting updated game data
@@ -170,14 +174,14 @@
     isConnecting = true;
     currentPeer = new Peer();
     currentPeer.on('open', function() {
-      peerConnection = currentPeer.connect(`${HOST_ID_PREFIX}${joinID}`);
+      hostConnection = currentPeer.connect(`${HOST_ID_PREFIX}${joinID}`);
 
-      peerConnection.on('open', function() {
-        peerConnection.send({
+      hostConnection.on('open', function() {
+        hostConnection.send({
           playerToAdd: playerName,
         });
 
-        peerConnection.on('data', function(data) {
+        hostConnection.on('data', function(data) {
           connectionInfo = data.connectionInfo;
           if (data.gameInfo) {
             ({
@@ -226,13 +230,25 @@
     // Send the new data to our host spectator
     // TODO? Should we delay the send with a timeout in case multiple come at once?
     if (connectionInfo && !isHost && hostIsSpectator) {
-      peerConnection.send({
+      hostConnection.send({
         playerToUpdate: playerName,
         baskets,
         regionRevealOrder,
         revealedRegions,
       });
     }
+  }
+
+  function handleActivatePlayer(swapInPlayerName, activeSlot) {
+    const newPlayerOrder = [...connectionInfo.players];
+    const swapInPlayerIndex = newPlayerOrder.findIndex(player => player.name === swapInPlayerName);
+    const swapOutPlayer = newPlayerOrder[parseInt(activeSlot, 10)];
+    const swapInPlayer = newPlayerOrder[swapInPlayerIndex];
+
+    newPlayerOrder[parseInt(activeSlot, 10)] = swapInPlayer;
+    newPlayerOrder[swapInPlayerIndex] = swapOutPlayer;
+
+    connectionInfo.players = newPlayerOrder;
   }
 
   function beforeUnload(event) {
@@ -337,14 +353,16 @@
           Spoiler file name: {spoilerFile.name}
         </p>
       {/if}
-      <Button color="primary" variant="outlined" on:click={toggleRevealAllRegions}>
-        <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
-      </Button>
-      <t />
-      <Button color="primary" variant="outlined" on:click={handleShowSolution}>
-        <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
-      </Button>
-      <br /><br />
+      {#if !connectionInfo}
+        <Button color="primary" variant="outlined" on:click={toggleRevealAllRegions}>
+          <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
+        </Button>
+        <t />
+        <Button color="primary" variant="outlined" on:click={handleShowSolution}>
+          <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
+        </Button>
+        <br /><br />
+      {/if}
       <Button color="secondary" on:click={openHowToDialog} variant="raised">
         <Label>How To Play</Label>
       </Button>
@@ -374,14 +392,34 @@
       {#if !connectionInfo || connectionInfo.players.length <= 0}
         Waiting for players to connect...
       {:else}
-        {#each connectionInfo.players as player, i (player.name)}
-          <SpectatorPoints
-            baskets={player.gameData.baskets}
-            playerName={player.name}
-            regionPoints={regionPoints}
-            revealedRegions={player.gameData.revealedRegions}
-          />
-        {/each}
+        <div class="spectator-trackers">
+          {#each connectionInfo.players.slice(0, 2) as player, i (player.name)}
+            <SpectatorPoints
+              baskets={player.gameData.baskets}
+              onActivatePlayer={handleActivatePlayer}
+              playerName={player.name}
+              regionPoints={regionPoints}
+              revealedRegions={player.gameData.revealedRegions}
+            />
+          {/each}
+        </div>
+        {#if connectionInfo.players.length > 2}
+          <div class="other-players">
+            <br />
+            <b>Other Players:</b>
+            <br />
+            {#each connectionInfo.players.slice(2) as player, i (player.name)}
+              <SpectatorPoints
+                baskets={player.gameData.baskets}
+                isActive={false}
+                onActivatePlayer={handleActivatePlayer}
+                playerName={player.name}
+                regionPoints={regionPoints}
+                revealedRegions={player.gameData.revealedRegions}
+              />
+            {/each}
+          </div>
+        {/if}
       {/if}
     {:else if trackerLayout === 'compact1'}
       <CompactRegion1
@@ -414,6 +452,15 @@
     border: 1px solid #ff3e00;
     padding: 1rem;
   }
+
+  .spectator-trackers {
+    display: flex;
+  }
+
+  .other-players b {
+    font-size: 20px;
+  }
+
   .credits {
     font-size: 12px;
   }

@@ -1,10 +1,18 @@
 <script>
+  import Select, { Option } from '@smui/select';
 	import { SPECTATOR } from '../../constants/keyItemLayouts';
 
   /**
    * @type {{type: string, name: string, items: {id: string, name: string, points: number, regionFound: string}[]}[]}
    */
   export let baskets = [];
+
+  /**
+   * @type {boolean}
+   */
+  export let isActive = true;
+
+  export let onActivatePlayer = () => {};
 
   /**
    * @type {{regionId: number, name: string, description: string, points: number, items: {id: string, name: string, points: number, regionFound: string}[]}[]}
@@ -14,7 +22,7 @@
   /**
 	 * @type {number[]}
 	 */
-   export let revealedRegions = [];
+  export let revealedRegions = [];
 
   /**
 	 * @type {string}
@@ -43,6 +51,15 @@
    */
   function handleRegionClick(regionIndex) {
     activeRegionIndex = regionIndex;
+  }
+
+  /**
+   * Tell the parent to make this player an active player
+   * @param {CustomEvent} e
+   */
+  function handleSwitch(e) {
+    // @ts-ignore
+    onActivatePlayer(playerName, e?.detail?.value);
   }
 
   /**
@@ -103,88 +120,100 @@
 </script>
 
 {#if regionPoints && baskets}
-  <div class="wrapper">
-    <span class="name">{playerName}</span>
-    {#each emoItems as emoItem, i (`${emoItem.id}_${i}`)}
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <div
-        class="emo-item"
-        on:click={() => handleEmoItemClick(emoItem.itemStatus)}
-        on:keydown={() => handleEmoItemClick(emoItem.itemStatus)}
-      >
-        <img
-          class={`item-icon ${emoItem.itemStatus.split(':')[0]}`}
-          src={`/keyItems/${emoItem.id}.png`}
-          alt={emoItem.name}
-          title={`${emoItem.name} - ${emoItem.points}pts`}
-        />
-      </div>
-    {/each}
-    <div class="progress-info">
-      {totalPointsRemaining} / {totalPointsAvailable}
-    </div>
-    {#each regionPoints as rp, i (`${rp.regionId}_${i}`)}
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <div
-        class="region"
-        class:active={i === activeRegionIndex}
-        on:click={() => handleRegionClick(i)}
-        on:keydown={() => handleRegionClick(i)}
-      >
-        <div class="region-image">
-          <img class="region-icon" src={`/regions/${rp.regionId}.png`} alt={rp.name} />
-        </div>
-        <div class="region-pts-count">
-          <span class="region-pts-left" class:recent={rp.regionId === revealedRegions[0]}>
-            {revealedRegions.includes(rp.regionId)
-              ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
-              : '??'
-            }
-          </span>
-        </div>
-      </div>
-    {/each}
-    {#if activeRegionIndex >= 0}
-      <!-- * ar = Active Region -->
-      {@const ar = regionPoints[activeRegionIndex]}
-      <div class="region-details">
-        <div class="region-details-image">
+  {#if isActive}
+    <div class="wrapper">
+      <span class="name">{playerName}</span>
+      {#each emoItems as emoItem, i (`${emoItem.id}_${i}`)}
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div
+          class="emo-item"
+          on:click={() => handleEmoItemClick(emoItem.itemStatus)}
+          on:keydown={() => handleEmoItemClick(emoItem.itemStatus)}
+        >
           <img
-            class="region-details-icon"
-            src={`/regions/${ar.regionId}.png`}
-            alt={ar.name}
-            title={`Region ${ar.regionId} - ${ar.name}: ${ar.description}`}
+            class={`item-icon ${emoItem.itemStatus.split(':')[0]}`}
+            src={`/keyItems/${emoItem.id}.png`}
+            alt={emoItem.name}
+            title={`${emoItem.name} - ${emoItem.points}pts`}
           />
         </div>
-        <div class="pts-remaining">
-          <span class="pts-remaining-text">
-            {revealedRegions.includes(ar.regionId)
-              ? ar.points - baskets[activeRegionIndex]?.items.reduce((acc, curr) => acc + curr.points, 0)
-              : '??'
-            }
-          </span>
-        </div>
-        <div
-          class="basket-items"
-          class:big-list={baskets[activeRegionIndex]?.items.length > 11}
-        >
-          {#each baskets[activeRegionIndex]?.items as item, itemIndex (`${item.id}_${itemIndex}`)}
-            <img
-              class="item-icon"
-              src={`/keyItems/${item.id}.png`}
-              alt={item.name}
-              title={`${item.name} - ${item.points}pts`}
-            />
-          {/each}
-        </div>
-        <div class="found-region-points">
-          {#if baskets[activeRegionIndex]?.items.length > 0}
-            {baskets[activeRegionIndex]?.items.reduce((sum, curr) => sum + curr.points, 0)}
-          {/if}
-        </div>
+      {/each}
+      <div class="progress-info">
+        {totalPointsRemaining} / {totalPointsAvailable}
       </div>
-    {/if}
-  </div>
+      {#each regionPoints as rp, i (`${rp.regionId}_${i}`)}
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div
+          class="region"
+          class:active={i === activeRegionIndex}
+          on:click={() => handleRegionClick(i)}
+          on:keydown={() => handleRegionClick(i)}
+        >
+          <div class="region-image">
+            <img class="region-icon" src={`/regions/${rp.regionId}.png`} alt={rp.name} />
+          </div>
+          <div class="region-pts-count">
+            <span class="region-pts-left" class:recent={rp.regionId === revealedRegions[0]}>
+              {revealedRegions.includes(rp.regionId)
+                ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
+                : '??'
+              }
+            </span>
+          </div>
+        </div>
+      {/each}
+      {#if activeRegionIndex >= 0}
+        <!-- * ar = Active Region -->
+        {@const ar = regionPoints[activeRegionIndex]}
+        <div class="region-details">
+          <div class="region-details-image">
+            <img
+              class="region-details-icon"
+              src={`/regions/${ar.regionId}.png`}
+              alt={ar.name}
+              title={`Region ${ar.regionId} - ${ar.name}: ${ar.description}`}
+            />
+          </div>
+          <div class="pts-remaining">
+            <span class="pts-remaining-text">
+              {revealedRegions.includes(ar.regionId)
+                ? ar.points - baskets[activeRegionIndex]?.items.reduce((acc, curr) => acc + curr.points, 0)
+                : '??'
+              }
+            </span>
+          </div>
+          <div
+            class="basket-items"
+            class:big-list={baskets[activeRegionIndex]?.items.length > 11}
+          >
+            {#each baskets[activeRegionIndex]?.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+              <img
+                class="item-icon"
+                src={`/keyItems/${item.id}.png`}
+                alt={item.name}
+                title={`${item.name} - ${item.points}pts`}
+              />
+            {/each}
+          </div>
+          <div class="found-region-points">
+            {#if baskets[activeRegionIndex]?.items.length > 0}
+              {baskets[activeRegionIndex]?.items.reduce((sum, curr) => sum + curr.points, 0)}
+            {/if}
+          </div>
+        </div>
+      {/if}
+    </div>
+  {:else}
+    <Select
+      label={`${playerName}:  ${totalPointsRemaining} Left, ${revealedRegions.length} RR`}
+      on:SMUISelect:change={handleSwitch}
+      style="width: 350px;"
+      variant="outlined"
+    >
+      <Option value="0">Set To Left Tracker</Option>
+      <Option value="1">Set To Right Tracker</Option>
+    </Select>
+  {/if}
 {/if}
 
 <style>
@@ -278,7 +307,10 @@
     align-items: center;
     display: flex;
     flex-wrap: wrap;
+    height: 60px;
     object-fit: contain;
+    padding-left: 3px;
+    width: 230px;
   }
 
   .basket-items > .item-icon {
