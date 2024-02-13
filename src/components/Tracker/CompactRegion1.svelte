@@ -8,15 +8,16 @@
   export let baskets = [];
   export let regionPoints = [];
   export let revealedRegions = [];
-  export let keyItemPointValues = [];
 
-  export let spoilerFile = {};
   export let revealRegionPoints = false;
   export let showSolution = false;
 
+  /**
+	 * @type {{ gameName: string; hostName: string; players: string[]; }}
+	 */
   export let connectionInfo;
 
-  export let checkToExposeRegion = () => {};
+  export let handleCheckToExposeRegion = () => {};
   export let openInGameMenu = () => {};
 
   let hoveringOverBasket;
@@ -93,7 +94,7 @@
       targetBasket.items.push(item);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, item);
+      handleCheckToExposeRegion(originalBasket, targetBasket, item);
 
       hoveringOverBasket = null;
       selectedAvailableItem = {};
@@ -132,7 +133,7 @@
       targetBasket.items.push(freedItem);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, freedItem);
+      handleCheckToExposeRegion(originalBasket, targetBasket, freedItem);
     }
 
     selectedAvailableItem = {};
@@ -167,7 +168,7 @@
     updateRegionFoundFromRegionTransfer(removedItem, undefined, basketIndex);
     baskets = baskets;
 
-    checkToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
+    handleCheckToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
     selectedAvailableItem = {};
     selectedFoundItem = {};
   }
@@ -200,9 +201,9 @@
 
   function handleOutsideRegionTableClick(e) {
     if (
+      e.explicitOriginalTarget &&
       e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
-      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button' &&
-      !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)
+      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button'
     ) {
       selectedAvailableItem = {};
       selectedFoundItem = {};
@@ -282,7 +283,7 @@
           {#if showSolution}
             {#each missingSolutionItems as solutionItem, sItemIndex (`${solutionItem.id}_${sItemIndex}`)}
               <!-- TODO: Adding an item to a region when solution is up does not refresh missing solution items -->
-              <!-- Can just toggle the button in the menu to get it to refresh -->
+              <!-- * Can just toggle the button in the menu to get it to refresh -->
               <img
                 alt={solutionItem.name}
                 src={`/keyItems/${solutionItem.id}.png`}
@@ -357,15 +358,6 @@
   {#if connectionInfo}
     <GameConnectionInfo connectionInfo={connectionInfo} />
   {/if}
-  {#if spoilerFile && !connectionInfo}
-    <p>
-      Spoiler file name: {spoilerFile.name}
-    </p>
-  {/if}
-  <p class="credits">
-    Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
-    Region ID images created by TyGr.
-  </p>
 </div>
 
 <style>
@@ -530,9 +522,5 @@
     top: 0;
     right: 0;
     font-size: 1.5rem;
-  }
-
-  .credits {
-    font-size: 12px;
   }
 </style>

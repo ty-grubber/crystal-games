@@ -7,13 +7,14 @@
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Tab, { Label as TabLabel } from '@smui/tab';
   import TabBar from '@smui/tab-bar';
-	import Textfield from '@smui/textfield';
+  import Textfield from '@smui/textfield';
   import CustomPtsDialog from '../../components/CustomPts.svelte';
   import PointsHintDialog from '../../components/HowTos/PointsHintDialog.svelte';
-	import LayoutChooser from '../../components/LayoutChooser.svelte';
+  import LayoutChooser from '../../components/LayoutChooser.svelte';
   import PointsSharedSettings from '../../components/PointsSharedSettings.svelte';
   import ClassicRegion from '../../components/Tracker/ClassicRegion.svelte';
   import CompactRegion1 from '../../components/Tracker/CompactRegion1.svelte';
+  import SpectatorPoints from '../../components/Tracker/SpectatorPoints.svelte';
   import KEY_ITEMS from '../../constants/keyItemPresets';
 
   const HOST_ID_PREFIX = 'PCPT-';
@@ -27,6 +28,7 @@
 
   let settingsDialogOpen = true;
   let howToDialogOpen = false;
+  let howToSpectatorOpen = false;
   let customPtsMenuOpen = false;
   let inGameMenuOpen = false;
   let activeTab = 'Solo';
@@ -38,16 +40,19 @@
   let spoilerFile;
 
   let keyItems = [ ...KEY_ITEMS];
-  let keyItemPointValues = [9, 7, 5, 3];
 
   let playerName = '';
   let gameName = '';
   let hostID = getRandomHostID();
   let joinID = '';
   let isConnecting = false;
+  let confirmOnRefresh = true;
+  let isHost = false;
+  let hostIsSpectator = false;
 
   let currentPeer;
-  let peerConnection;
+  let hostConnection;
+  let peerConnections = [];
   let connectionInfo;
 
   function openSettingsDialog() {
@@ -56,6 +61,10 @@
 
   function openHowToDialog() {
     howToDialogOpen = true;
+  }
+
+  function openSpectatorDialog() {
+    howToSpectatorOpen = true;
   }
 
   function openCustomPointsDialog() {
@@ -83,7 +92,6 @@
     if (spoilerFile != null) {
       ({
         baskets,
-        keyItemPointValues,
         regionRevealOrder,
         regionPoints
       } = await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering));
@@ -97,7 +105,11 @@
           connectionInfo = {
             gameName,
             hostName: playerName,
-            players: [playerName],
+            hostIsSpectator,
+            players: trackerLayout !== 'spectator' ? [{
+              name: playerName,
+              gameData: {},
+            }] : [],
           };
           isConnecting = false;
           settingsDialogOpen = false;
@@ -105,13 +117,13 @@
 
         // Send all vars above this if block and connection info to connector
         currentPeer.on('connection', function(conn) {
-          peerConnection = conn;
+          peerConnections.push(conn);
+          peerConnections = peerConnections;
           conn.on('open', function(id) {
             conn.send({
               connectionInfo,
               gameInfo: {
                 baskets,
-                keyItemPointValues,
                 regionRevealOrder,
                 regionPoints,
                 revealedRegions,
@@ -119,11 +131,31 @@
             });
           })
           conn.on('data', function(data) {
-            if (data.playerName) {
-              connectionInfo.players = [...connectionInfo.players, data.playerName];
-              conn.send({
-                connectionInfo,
+            const {playerToAdd, playerToUpdate, ...rest} = data;
+            if (playerToAdd) {
+              connectionInfo.players = [
+                ...connectionInfo.players,
+                {
+                  name: playerToAdd,
+                  gameData: {
+                    baskets,
+                    regionRevealOrder,
+                    regionPoints,
+                    revealedRegions,
+                  },
+                },
+              ];
+              peerConnections.forEach(connection => {
+                connection.send({
+                  connectionInfo,
+                });
               });
+            } else if (playerToUpdate) {
+              // we're getting updated game data
+              if (isHost && hostIsSpectator) {
+                const indexToUpdate = connectionInfo.players.findIndex(player => player.name === playerToUpdate)
+                connectionInfo.players[indexToUpdate].gameData = rest;
+              }
             }
           });
         });
@@ -134,12 +166,14 @@
   }
 
   function handleSettingsSubmit(settings) {
+    isHost = activeTab === 'Host';
     ({
       trackerLayout,
       revealOrdering,
       initialRevealedRegions,
       spoilerFile
     } = settings);
+    hostIsSpectator = trackerLayout === 'spectator';
     onStartClick();
   }
 
@@ -147,24 +181,24 @@
     isConnecting = true;
     currentPeer = new Peer();
     currentPeer.on('open', function() {
-      peerConnection = currentPeer.connect(`${HOST_ID_PREFIX}${joinID}`);
+      hostConnection = currentPeer.connect(`${HOST_ID_PREFIX}${joinID}`);
 
-      peerConnection.on('open', function() {
-        peerConnection.send({
-          playerName,
+      hostConnection.on('open', function() {
+        hostConnection.send({
+          playerToAdd: playerName,
         });
 
-        peerConnection.on('data', function(data) {
+        hostConnection.on('data', function(data) {
           connectionInfo = data.connectionInfo;
           if (data.gameInfo) {
             ({
               baskets,
-              keyItemPointValues,
               regionRevealOrder,
               regionPoints,
               revealedRegions,
             } = data.gameInfo);
           }
+          ({ hostIsSpectator } = connectionInfo);
           isConnecting = false;
           settingsDialogOpen = false;
         });
@@ -187,6 +221,7 @@
       if (currentPeer) {
         currentPeer.destroy();
       }
+      confirmOnRefresh = false;
       window.location.reload();
     }
   }
@@ -199,10 +234,32 @@
       regionRevealOrder,
       revealedRegions
     ));
+
+    // Send the new data to our host spectator
+    if (connectionInfo && !isHost && hostIsSpectator) {
+      hostConnection.send({
+        playerToUpdate: playerName,
+        baskets,
+        regionRevealOrder,
+        revealedRegions,
+      });
+    }
+  }
+
+  function handleActivatePlayer(swapInPlayerName, activeSlot) {
+    const newPlayerOrder = [...connectionInfo.players];
+    const swapInPlayerIndex = newPlayerOrder.findIndex(player => player.name === swapInPlayerName);
+    const swapOutPlayer = newPlayerOrder[parseInt(activeSlot, 10)];
+    const swapInPlayer = newPlayerOrder[swapInPlayerIndex];
+
+    newPlayerOrder[parseInt(activeSlot, 10)] = swapInPlayer;
+    newPlayerOrder[swapInPlayerIndex] = swapOutPlayer;
+
+    connectionInfo.players = newPlayerOrder;
   }
 
   function beforeUnload(event) {
-    if (regionPoints) {
+    if (regionPoints && confirmOnRefresh) {
       event.preventDefault();
       return (event.returnValue = '');
     }
@@ -293,19 +350,26 @@
 
   <CustomPtsDialog bind:isOpen={customPtsMenuOpen} onConfirmPts={handleUpdatePointValues} />
 
-  <PointsHintDialog bind:isOpen={howToDialogOpen} />
+  <PointsHintDialog bind:isOpen={howToDialogOpen} bind:spectatorTrackerDialogOpen={howToSpectatorOpen} />
 
   <Dialog bind:open={inGameMenuOpen} surface$style="width: 450px">
     <Title id="inGameMenuTitle">Tracker Menu</Title>
     <Content id="inGameMenuContent">
-      <Button color="primary" variant="outlined" on:click={toggleRevealAllRegions}>
-        <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
-      </Button>
-      <t />
-      <Button color="primary" variant="outlined" on:click={handleShowSolution}>
-        <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
-      </Button>
-      <br /><br />
+      {#if spoilerFile && !connectionInfo}
+        <p>
+          Spoiler file name: {spoilerFile.name}
+        </p>
+      {/if}
+      {#if !connectionInfo}
+        <Button color="primary" variant="outlined" on:click={toggleRevealAllRegions}>
+          <Label>{revealRegionPoints ? 'Hide' : 'Show'} Region Points</Label>
+        </Button>
+        <t />
+        <Button color="primary" variant="outlined" on:click={handleShowSolution}>
+          <Label>{showSolution ? 'Hide' : 'Show'} Solution</Label>
+        </Button>
+        <br /><br />
+      {/if}
       <Button color="secondary" on:click={openHowToDialog} variant="raised">
         <Label>How To Play</Label>
       </Button>
@@ -313,6 +377,16 @@
       <Button color="primary" on:click={handleStartNewGame} variant="raised">
         <Label>Start New Game</Label>
       </Button>
+      <br /><br />
+      <h3>Credits</h3>
+      <p class="credits">
+        Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.&nbsp;
+        {#if trackerLayout === 'classic'}
+          Region map images created by Kovolta.
+        {:else}
+          Region ID images created by TyGr.
+        {/if}
+      </p>
       <Actions>
         <Button>Close</Button>
       </Actions>
@@ -320,31 +394,65 @@
   </Dialog>
 
   {#if regionPoints?.length > 0}
-    {#if trackerLayout === 'compact1'}
+    {#if isHost && hostIsSpectator}
+      <h1>{gameName}</h1>
+      {#if !connectionInfo || connectionInfo.players.length <= 0}
+        Waiting for players to connect...
+      {:else}
+        <div class="spectator-trackers">
+          {#each connectionInfo.players.slice(0, 2) as player, i (player.name)}
+            <SpectatorPoints
+              baskets={player.gameData.baskets}
+              onActivatePlayer={handleActivatePlayer}
+              playerName={player.name}
+              regionPoints={regionPoints}
+              revealedRegions={player.gameData.revealedRegions}
+            />
+          {/each}
+        </div>
+        {#if connectionInfo.players.length > 2}
+          <div class="other-players">
+            <br />
+            <b>Other Players:</b>
+            <br />
+            {#each connectionInfo.players.slice(2) as player, i (player.name)}
+              <SpectatorPoints
+                baskets={player.gameData.baskets}
+                isActive={false}
+                onActivatePlayer={handleActivatePlayer}
+                playerName={player.name}
+                regionPoints={regionPoints}
+                revealedRegions={player.gameData.revealedRegions}
+              />
+            {/each}
+          </div>
+        {/if}
+      {/if}
+      <br /><br />
+      <Button color="secondary" on:click={openSpectatorDialog} variant="raised">
+        <Label>Spectator Host Help</Label>
+      </Button>
+    {:else if trackerLayout === 'compact1'}
       <CompactRegion1
         bind:baskets
-        spoilerFile={spoilerFile}
-        regionPoints={regionPoints}
-        revealedRegions={revealedRegions}
-        revealRegionPoints={revealRegionPoints}
-        showSolution={showSolution}
-        checkToExposeRegion={handleCheckToExposeRegion}
-        openInGameMenu={openInGameMenu}
-        keyItemPointValues={keyItemPointValues}
         connectionInfo={connectionInfo}
+        handleCheckToExposeRegion={handleCheckToExposeRegion}
+        openInGameMenu={openInGameMenu}
+        regionPoints={regionPoints}
+        revealRegionPoints={revealRegionPoints}
+        revealedRegions={revealedRegions}
+        showSolution={showSolution}
       />
     {:else}
       <ClassicRegion
-        spoilerFile={spoilerFile}
-        regionPoints={regionPoints}
         bind:baskets
+        connectionInfo={connectionInfo}
+        handleCheckToExposeRegion={handleCheckToExposeRegion}
+        openInGameMenu={openInGameMenu}
+        regionPoints={regionPoints}
+        revealRegionPoints={revealRegionPoints}
         revealedRegions={revealedRegions}
         showSolution={showSolution}
-        revealRegionPoints={revealRegionPoints}
-        checkToExposeRegion={handleCheckToExposeRegion}
-        openInGameMenu={openInGameMenu}
-        keyItemPointValues={keyItemPointValues}
-        connectionInfo={connectionInfo}
       />
     {/if}
   {/if}
@@ -352,7 +460,24 @@
 
 <style>
   .join-wrapper {
-    border: 1px solid grey;
+    border: 1px solid #ff3e00;
     padding: 1rem;
+  }
+
+  .spectator-trackers {
+    display: flex;
+  }
+
+  .other-players {
+    max-width: 800px;
+    margin: 1rem;
+  }
+
+  .other-players b {
+    font-size: 20px;
+  }
+
+  .credits {
+    font-size: 12px;
   }
 </style>

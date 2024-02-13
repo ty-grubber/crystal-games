@@ -15,6 +15,7 @@
   export let gameName = '';
   export let hostID = '';
 
+  let isSpectatorMode = false;
   let trackerLayout = 'classic';
   let revealOrdering = 'random';
   let initialRevealedRegions = 1;
@@ -25,16 +26,55 @@
       initialRevealedRegions,
       revealOrdering,
       spoilerFile,
-      trackerLayout,
+      trackerLayout: isSpectatorMode ? 'spectator' : trackerLayout,
     });
   }
 
   function handleSpoilerFileChange(e) {
     spoilerFile = e.target.files[0];
   }
+
+  function toggleSpectatorMode() {
+    isSpectatorMode = !isSpectatorMode;
+  }
 </script>
 
 <div class="settings-wrapper">
+  {#if showNetworking}
+    <Textfield
+      bind:value={playerName}
+      label="Player Name"
+      variant="outlined"
+    />
+    <input
+      id="spectatorCheckbox"
+      type="checkbox"
+      class="checkbox"
+      on:click={() => toggleSpectatorMode()}
+      value={isSpectatorMode}
+    />
+    <label for="spectatorCheckbox" style="vertical-align: text-bottom;">
+      Host Game as Spectator
+    </label>
+    <br /><br />
+    <Textfield
+      bind:value={gameName}
+      label="Public Game Name (ex: 'Max Shopsanity Race')"
+      style="width: 100%;"
+      variant="outlined"
+    />
+    <br /><br />
+    <Textfield
+      value={hostID}
+      label="Private Host ID"
+      variant="outlined"
+      disabled
+    />
+    <div class="field-blurb">
+      <span>Share this ID with other players so they can connect to your game</span>
+    </div>
+    <br /><br /><hr /><br />
+  {/if}
   <label for="spoiler">
     {!spoilerFile ? 'Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
   </label>
@@ -45,22 +85,24 @@
     on:change={handleSpoilerFileChange}
     style="margin-right: 1rem;"
   />
+  {#if !isSpectatorMode}
+    <br /><br />
+    <LayoutChooser bind:trackerLayout={trackerLayout} />
+  {/if}
   <br /><br />
-  <LayoutChooser bind:trackerLayout={trackerLayout} />
-  <br /><br />
-  <Select bind:value={revealOrdering} variant="outlined" label="Region Reveal Order" style="width: 220px;">
+  <Select bind:value={revealOrdering} variant="outlined" label="Game Region Reveal Order" style="width: 214px;">
     <Option value="random">Random</Option>
     <Option value="desc">Highest First</Option>
     <Option value="asc">Lowest First</Option>
   </Select>
   <Textfield
     bind:value={initialRevealedRegions}
-    label="Initial Revealed Regions"
+    label="Game Initial Revealed Regions"
     variant="outlined"
     type="number"
     input$min="0"
     input$max="16"
-    style="margin-left: 1rem;"
+    style="margin-left: 1rem; width: 214px;"
   />
   <br /><br />
   <Button
@@ -70,34 +112,6 @@
   >
     Customize Item Points
   </Button>
-  {#if showNetworking}
-    <br /><br /><hr /><br />
-    <Textfield
-      bind:value={playerName}
-      label="Player Name"
-      variant="outlined"
-    />
-    <br /><br />
-    <Textfield
-      bind:value={gameName}
-      label="Game Name"
-      variant="outlined"
-    />
-    <div class="field-blurb">
-      <span>Public game name all players can see (ex: 'Max Shopsanity Race')</span>
-    </div>
-    <br /><br />
-    <Textfield
-      value={hostID}
-      label="Host ID"
-      variant="outlined"
-      disabled
-    />
-    <div class="field-blurb">
-      <span>Share this ID with other players so they can connect to your game</span>
-    </div>
-    <br />
-  {/if}
 </div>
 <br /><br />
 {#if isConnecting}
@@ -116,7 +130,7 @@
 
 <style>
   .settings-wrapper {
-    border: 1px solid grey;
+    border: 1px solid #ff3e00;
     padding: 1rem;
   }
 
@@ -124,8 +138,16 @@
     display: inline-block;
     font-size: 0.8rem;
     line-height: 1.5;
-    margin-left: 10px;
+    margin-left: 1rem;
     vertical-align: middle;
     width: 225px;
+  }
+
+  .checkbox {
+    accent-color: #ff3e00;
+    border: 2px solid black;
+    height: 18px;
+    width: 18px;
+    margin: 5px 5px 5px 1rem;
   }
 </style>

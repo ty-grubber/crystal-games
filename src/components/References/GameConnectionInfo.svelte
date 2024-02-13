@@ -1,6 +1,6 @@
 <script>
   /**
-	 * @type {{ gameName: string; hostName: string; players: string[]; }}
+	 * @type {{ gameName: string; hostName: string; players: {name: string; gameData: object}[]; }}
 	 */
   export let connectionInfo;
 </script>
@@ -8,11 +8,15 @@
 <div class="game-info">
   <b>Game Name: </b>{connectionInfo.gameName}
   <br />
+  {#if connectionInfo.hostName !== connectionInfo.players[0]?.name}
+    <b>Host Name: </b>{connectionInfo.hostName}
+    <br />
+  {/if}
   <b>Players:</b>
   <br />
   <ul class="player-list">
     {#each connectionInfo.players as player, playerIndex}
-      <li class="player">{player}{playerIndex === 0 ? ' (Host)' : ''}</li>
+      <li class="player">{player.name}{player.name === connectionInfo.hostName ? ' (Host)' : ''}</li>
     {/each}
   </ul>
 </div>

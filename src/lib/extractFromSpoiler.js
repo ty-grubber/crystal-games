@@ -21,13 +21,14 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
   const spoilerLines = spoilerFileText.split('\r\n');
   const rngSeed = spoilerLines.find(line => line.includes('RNG Seed:'))?.replace('RNG Seed: ', '');
   const solutionStartIndex = spoilerLines.findIndex(line => line.includes('Solution:'));
-  const solutionEndIndex = spoilerLines.findIndex(line => line.includes('Useless Stuff:'));
+  const solutionEndIndex = spoilerLines.findIndex(line => line.includes('Zephyr Badge:')) + 1;
+  const uselessStuffStartIndex = spoilerLines.findIndex(line => line.includes('Useless Stuff:'));
   const modifierStartIndex = spoilerLines.findIndex(line => line.includes('Modifiers:'));
   const modifierEndIndex = spoilerLines.findIndex(line => line.includes('RNG Seed:'));
   const modifierLines = spoilerLines.slice(modifierStartIndex, modifierEndIndex).join('').replace(/\s\s/g, ' ');
   const solutionLines = `${spoilerLines.slice(solutionStartIndex, solutionEndIndex).join(';;')};`;
   const uselessStuffLines = `${spoilerLines.slice(
-    solutionEndIndex,
+    uselessStuffStartIndex,
     spoilerLines.findIndex(line => line.includes('Xtra Stuff:')),
   ).join(';;')};`;
   // This is likely not needed anymore but keeping it around just in case
@@ -71,12 +72,10 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
     //   - push the item into the randomizedItems array (so we know it is placeable)
     matchedRegionIds.forEach(matchedId => {
       const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedId);
-      // @ts-ignore
       const shouldUpgradeItem = item.upgradeModifier && modifierLines.includes(item.upgradeModifier);
 
       const addedItem = {
         ...item,
-        // @ts-ignore
         points: item.points + (shouldUpgradeItem ? item.upgradeAmt : 0),
       };
 
@@ -155,7 +154,6 @@ async function extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrderin
     return {
       baskets,
       regionPoints,
-      keyItemPointValues,
       regionRevealOrder: regionsWithTotalPoints.map(r => r.id),
     }
   }

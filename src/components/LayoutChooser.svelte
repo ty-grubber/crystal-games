@@ -4,7 +4,7 @@
   export let trackerLayout = 'classic';
 </script>
 
-<Select bind:value={trackerLayout} variant="outlined" label="Tracker Layout Style" style="width: 220px;">
+<Select bind:value={trackerLayout} variant="outlined" label="My Tracker Layout Style" style="width: 214px;">
   <Option value="classic">Classic</Option>
   <Option value="compact1">Compact</Option>
 </Select>
@@ -23,8 +23,8 @@
     display: inline-block;
     font-size: 0.8rem;
     line-height: 1.5;
-    margin-left: 10px;
+    margin-left: 1rem;
     vertical-align: middle;
-    width: 240px;
+    width: 230px;
   }
 </style>
