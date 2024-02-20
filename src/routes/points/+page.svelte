@@ -16,6 +16,7 @@
   import CompactRegion1 from '../../components/Tracker/CompactRegion1.svelte';
   import SpectatorPoints from '../../components/Tracker/SpectatorPoints.svelte';
   import KEY_ITEMS from '../../constants/keyItemPresets';
+  import { peerJSConnectionConfig } from '../../constants/network';
 
   const HOST_ID_PREFIX = 'PCPT-';
 
@@ -99,7 +100,10 @@
       revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
 
       if (activeTab === 'Host' && !currentPeer && playerName && gameName) {
-        currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`);
+        currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
+          config: peerJSConnectionConfig,
+          debug: 2, // TODO: reset to 0 when we go to production
+        });
         isConnecting = true;
         currentPeer.on('open', function(id) {
           connectionInfo = {
@@ -179,7 +183,10 @@
 
   function onConnectClick() {
     isConnecting = true;
-    currentPeer = new Peer();
+    currentPeer = new Peer({
+      config: peerJSConnectionConfig,
+      debug: 2, // TODO: Reset this to 0 when we go to production
+    });
     currentPeer.on('open', function() {
       hostConnection = currentPeer.connect(`${HOST_ID_PREFIX}${joinID}`);
 
