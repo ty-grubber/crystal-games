@@ -342,7 +342,12 @@
           <LayoutChooser bind:trackerLayout={trackerLayout} />
         </div>
         <br /><br /><br />
-        <Button color="primary" on:click={onConnectClick} variant="raised">
+        <Button
+          color="primary"
+          disabled={!playerName || !joinID || isConnecting }
+          on:click={onConnectClick}
+          variant="raised"
+        >
           <Label>Connect</Label>
         </Button>
         <Button color="secondary" on:click={openHowToDialog} variant="raised">

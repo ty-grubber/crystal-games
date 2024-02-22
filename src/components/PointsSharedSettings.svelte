@@ -37,13 +37,17 @@
   function toggleSpectatorMode() {
     isSpectatorMode = !isSpectatorMode;
   }
+
+  $: disableStartButton = showNetworking
+    ? !spoilerFile || !playerName || !gameName || isConnecting
+    : !spoilerFile;
 </script>
 
 <div class="settings-wrapper">
   {#if showNetworking}
     <Textfield
       bind:value={playerName}
-      label="Player Name"
+      label="*Player Name"
       variant="outlined"
     />
     <input
@@ -59,7 +63,7 @@
     <br /><br />
     <Textfield
       bind:value={gameName}
-      label="Public Game Name (ex: 'Max Shopsanity Race')"
+      label="*Public Game Name (ex: 'Max Shopsanity Race')"
       style="width: 100%;"
       variant="outlined"
     />
@@ -76,7 +80,7 @@
     <br /><br /><hr /><br />
   {/if}
   <label for="spoiler">
-    {!spoilerFile ? 'Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
+    {!spoilerFile ? '*Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
   </label>
   <input
     id="spoiler"
@@ -118,7 +122,12 @@
 <span>Setting up connection...</span>
 {/if}
 <br />
-<Button color="primary" on:click={onStartClick} disabled={!spoilerFile || isConnecting} variant="raised">
+<Button
+  color="primary"
+  on:click={onStartClick}
+  disabled={disableStartButton}
+  variant="raised"
+>
   <Label>Start Game</Label>
 </Button>
 <Button color="secondary" on:click={openHowToDialog} variant="raised">
