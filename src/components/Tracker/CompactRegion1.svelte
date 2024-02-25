@@ -16,9 +16,12 @@
 	 * @type {{ gameName: string; hostName: string; players: string[]; }}
 	 */
   export let connectionInfo;
+  export let isHost;
 
   export let handleCheckToExposeRegion = () => {};
   export let openInGameMenu = () => {};
+  export let onDisconnect = () => {};
+  export let onReconnect = () => {};
 
   let hoveringOverBasket;
   let selectedAvailableItem = {};
@@ -356,7 +359,12 @@
     </div>
   {/if}
   {#if connectionInfo}
-    <GameConnectionInfo connectionInfo={connectionInfo} />
+    <GameConnectionInfo
+      connectionInfo={connectionInfo}
+      isHost={isHost}
+      onDisconnect={onDisconnect}
+      onReconnect={onReconnect}
+    />
   {/if}
 </div>
 

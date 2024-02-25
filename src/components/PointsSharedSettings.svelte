@@ -76,18 +76,19 @@
       variant="outlined"
     />
     <br /><br />
-    <Textfield
-      disabled
-      label="Private Host ID"
-      on:click={copyHostID}
-      style="cursor: copy; pointer-events: unset;"
-      value={hostID}
-      variant="outlined"
-    />
-    <div class="field-blurb">
-      <span>
-        {copiedHostId ? 'Copied!!!' : 'Share this ID with other players so they can connect to your game'}
-      </span>
+    <div >
+      <Textfield
+        disabled
+        label="Private Host ID"
+        value={hostID}
+        variant="outlined"
+      />
+      <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+      <div class="field-blurb" on:click={copyHostID}>
+        <span>
+          {copiedHostId ? 'Copied!!!' : 'Click here to copy this ID for players to connect to your game'}
+        </span>
+      </div>
     </div>
     <br /><br /><hr /><br />
   {/if}
@@ -156,6 +157,7 @@
   }
 
   .field-blurb {
+    cursor: copy;
     display: inline-block;
     font-size: 0.8rem;
     line-height: 1.5;
