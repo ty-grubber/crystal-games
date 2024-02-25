@@ -16,6 +16,7 @@
   export let hostID = '';
 
   let isSpectatorMode = false;
+  let copiedHostId = false;
   let trackerLayout = 'classic';
   let revealOrdering = 'random';
   let initialRevealedRegions = 1;
@@ -36,6 +37,13 @@
 
   function toggleSpectatorMode() {
     isSpectatorMode = !isSpectatorMode;
+  }
+
+  function copyHostID() {
+    navigator.clipboard.writeText(hostID);
+    copiedHostId = true;
+
+    setTimeout(() => copiedHostId = false, 5000);
   }
 
   $: disableStartButton = showNetworking
@@ -69,13 +77,17 @@
     />
     <br /><br />
     <Textfield
-      value={hostID}
-      label="Private Host ID"
-      variant="outlined"
       disabled
+      label="Private Host ID"
+      on:click={copyHostID}
+      style="cursor: copy; pointer-events: unset;"
+      value={hostID}
+      variant="outlined"
     />
     <div class="field-blurb">
-      <span>Share this ID with other players so they can connect to your game</span>
+      <span>
+        {copiedHostId ? 'Copied!!!' : 'Share this ID with other players so they can connect to your game'}
+      </span>
     </div>
     <br /><br /><hr /><br />
   {/if}
