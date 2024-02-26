@@ -407,6 +407,8 @@
         />
       {:else}
         <div class="join-wrapper">
+          <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
+          <br /><br />
           <Textfield
             bind:value={playerName}
             label="Player Name"
@@ -488,6 +490,7 @@
     <Title>Create New Host Connection</Title>
     <Content>
       <!-- This is duplicated from PointsSharedSettings and should be moved in a separate component -->
+      <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
       <br /><br />
       <Textfield
         disabled

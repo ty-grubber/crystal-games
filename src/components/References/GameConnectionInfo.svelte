@@ -69,6 +69,7 @@
 <Dialog bind:open={reconnectDialogOpen} surface$style="min-height: 200px">
   <Title>Reconnect To Host</Title>
   <Content>
+    <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
     <br /><br />
     <Textfield
       bind:value={reconnectJoinID}

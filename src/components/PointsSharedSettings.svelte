@@ -53,6 +53,8 @@
 
 <div class="settings-wrapper">
   {#if showNetworking}
+    <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
+    <br /><br />
     <Textfield
       bind:value={playerName}
       label="*Player Name"
