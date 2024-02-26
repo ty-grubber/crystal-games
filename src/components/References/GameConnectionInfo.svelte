@@ -19,7 +19,7 @@
   /**
 	 * @type {string}
 	 */
-  let reconnectJoinID;
+  let reconnectJoinID = '';
 
   function handleConnectButtonClicked() {
     if (connectionInfo.isConnected && !isHost) {
@@ -32,6 +32,8 @@
       }
     } else if (!isHost) {
       reconnectDialogOpen = true;
+    } else {
+      onReconnect();
     }
   }
 
@@ -64,9 +66,10 @@
   </Button>
 </div>
 
-<Dialog bind:open={reconnectDialogOpen}>
+<Dialog bind:open={reconnectDialogOpen} surface$style="min-height: 200px">
   <Title>Reconnect To Host</Title>
   <Content>
+    <br /><br />
     <Textfield
       bind:value={reconnectJoinID}
       label="Host ID"

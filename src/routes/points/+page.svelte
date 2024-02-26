@@ -124,8 +124,16 @@
 
     // Send all vars above this if block and connection info to connector
     currentPeer.on('connection', function(conn) {
-      peerConnections.push(conn);
+      // see if this is an existing player re-connecting
+      const existingConnectionIndex = peerConnections.findIndex(pc => pc.peer === conn.peer);
+      const connectionExists = existingConnectionIndex < 0;
+      if (connectionExists) {
+        peerConnections.push(conn);
+      } else {
+        peerConnections[existingConnectionIndex] = conn;
+      }
       peerConnections = peerConnections;
+
       conn.on('open', function(id) {
         conn.send({
           connectionInfo,
@@ -140,23 +148,26 @@
       conn.on('data', function(data) {
         const {playerToAdd, playerToUpdate, ...rest} = data;
         if (playerToAdd) {
-          connectionInfo.players = [
-            ...connectionInfo.players,
-            {
-              name: playerToAdd,
-              gameData: {
-                baskets,
-                regionRevealOrder,
-                regionPoints,
-                revealedRegions,
+          // Only add the player if they don't already exist (ie. if they've reconnected)
+          if (connectionInfo.players.findIndex(player => player.name === playerToAdd) < 0) {
+            connectionInfo.players = [
+              ...connectionInfo.players,
+              {
+                name: playerToAdd,
+                gameData: {
+                  baskets,
+                  regionRevealOrder,
+                  regionPoints,
+                  revealedRegions,
+                },
               },
-            },
-          ];
-          peerConnections.forEach(connection => {
-            connection.send({
-              connectionInfo,
+            ];
+            peerConnections.forEach(connection => {
+              connection.send({
+                connectionInfo,
+              });
             });
-          });
+          }
         } else if (playerToUpdate) {
           // we're getting updated game data
           if (isHost && hostIsSpectator) {
@@ -231,7 +242,7 @@
 
   function onConnectClick() {
     isConnecting = true;
-    currentPeer = new Peer({
+    currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
       config: peerJSConnectionConfig,
       debug: 2, // TODO: Reset this to 0 when we go to production
     });
@@ -241,7 +252,9 @@
   }
 
   function onDisconnectClick() {
-    hostConnection.close();
+    if (!isHost) {
+      hostConnection.close();
+    }
     currentPeer.disconnect();
   }
 
@@ -253,7 +266,7 @@
         establishConnectionToHost(id);
       } else {
         // re-create a connection to the PeerServer so we can reconnect to the host
-        currentPeer = new Peer({
+        currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
           config: peerJSConnectionConfig,
           debug: 2, // TODO: Reset this to 0 when we go to production
         });
@@ -471,10 +484,11 @@
     </Content>
   </Dialog>
 
-  <Dialog bind:open={newHostConnectionDialogOpen}>
+  <Dialog bind:open={newHostConnectionDialogOpen} surface$style="min-height: 200px">
     <Title>Create New Host Connection</Title>
     <Content>
       <!-- This is duplicated from PointsSharedSettings and should be moved in a separate component -->
+      <br /><br />
       <Textfield
         disabled
         label="New Private Host ID"
