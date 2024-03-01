@@ -54,6 +54,7 @@
   let confirmOnRefresh = true;
   let isHost = false;
   let hostIsSpectator = false;
+  let revealHostID = false;
 
   let currentPeer;
   let hostConnection;
@@ -78,6 +79,11 @@
 
   function openInGameMenu() {
     inGameMenuOpen = true;
+    revealHostID = false;
+  }
+
+  function showHostID() {
+    revealHostID = true;
   }
 
   function handleShowSolution() {
@@ -288,10 +294,10 @@
   function handleStartNewGame() {
     let confirmAction = 'and end your current one';
 
-    if (joinID) {
-      confirmAction = 'and end your connection to the current one'
-    } else if (hostID) {
+    if (isHost) {
       confirmAction = 'and end all connections to the current one'
+    } else if (joinID) {
+      confirmAction = 'and end your connection to the current one'
     }
 
     const confirmMessage = `Starting a new game will refresh the page ${confirmAction}. Are you sure you wish to start a new game?`
@@ -463,9 +469,30 @@
         </Button>
         <br /><br />
       {/if}
-      <Button color="secondary" on:click={openHowToDialog} variant="raised">
-        <Label>How To Play</Label>
-      </Button>
+      {#if connectionInfo && isHost && hostID}
+        <p>
+          My Host ID:&nbsp;
+          <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+          <span on:click={showHostID}>
+            {#if revealHostID}
+              <b><i>{hostID}</i></b>
+            {:else}
+              <u><i>Click To Reveal</i></u>
+            {/if}
+          </span>
+          <br />
+          <span><small>Do not stream this ID as unwanted players will be able to join</small></span>
+        </p>
+      {/if}
+      {#if isHost && hostIsSpectator}
+        <Button color="secondary" on:click={openSpectatorDialog} variant="raised">
+          <Label>Spectator Host Help</Label>
+        </Button>
+      {:else}
+        <Button color="secondary" on:click={openHowToDialog} variant="raised">
+          <Label>How To Play</Label>
+        </Button>
+      {/if}
       <br /><br />
       <Button color="primary" on:click={handleStartNewGame} variant="raised">
         <Label>Start New Game</Label>
@@ -533,6 +560,11 @@
               revealedRegions={player.gameData.revealedRegions}
             />
           {/each}
+          <div class="spectator-actions">
+            <Button color="secondary" on:click={openInGameMenu} variant="raised">
+              <Label>Menu</Label>
+            </Button>
+          </div>
         </div>
         {#if connectionInfo.players.length > 2}
           <div class="other-players">
@@ -553,9 +585,6 @@
         {/if}
       {/if}
       <br /><br />
-      <Button color="secondary" on:click={openSpectatorDialog} variant="raised">
-        <Label>Spectator Host Help</Label>
-      </Button>
     {:else if trackerLayout === 'compact1'}
       <CompactRegion1
         bind:baskets
@@ -596,6 +625,11 @@
 
   .spectator-trackers {
     display: flex;
+  }
+
+  .spectator-actions {
+    display: flex;
+    margin: 1rem 2rem;
   }
 
   .other-players {
