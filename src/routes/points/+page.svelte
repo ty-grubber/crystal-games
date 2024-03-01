@@ -34,6 +34,10 @@
   let inGameMenuOpen = false;
   let activeTab = 'Solo';
 
+  let newHostConnectionDialogOpen = false;
+  let newHostConnectionID = '';
+  let copiedHostId = false;
+
   let revealRegionPoints = false;
   let trackerLayout;
   let revealOrdering;
@@ -50,6 +54,7 @@
   let confirmOnRefresh = true;
   let isHost = false;
   let hostIsSpectator = false;
+  let revealHostID = false;
 
   let currentPeer;
   let hostConnection;
@@ -74,6 +79,11 @@
 
   function openInGameMenu() {
     inGameMenuOpen = true;
+    revealHostID = false;
+  }
+
+  function showHostID() {
+    revealHostID = true;
   }
 
   function handleShowSolution() {
@@ -89,6 +99,92 @@
     customPtsMenuOpen = false;
   }
 
+  function establishHostConnections() {
+    currentPeer = new Peer(`${HOST_ID_PREFIX}${newHostConnectionID || hostID}`, {
+      config: peerJSConnectionConfig,
+      debug: 2, // TODO: reset to 0 when we go to production
+    });
+    isConnecting = true;
+    currentPeer.on('open', function(id) {
+      connectionInfo = {
+        gameName,
+        hostName: playerName,
+        hostIsSpectator,
+        isConnected: true,
+        players: trackerLayout !== 'spectator' ? [{
+          name: playerName,
+          gameData: {},
+        }] : [],
+      };
+      isConnecting = false;
+      settingsDialogOpen = false;
+    });
+
+    currentPeer.on('close', function() {
+      connectionInfo.isConnected = false;
+    });
+
+    currentPeer.on('disconnected', function() {
+      connectionInfo.isConnected = false;
+    })
+
+    // Send all vars above this if block and connection info to connector
+    currentPeer.on('connection', function(conn) {
+      // see if this is an existing player re-connecting
+      const existingConnectionIndex = peerConnections.findIndex(pc => pc.peer === conn.peer);
+      const connectionExists = existingConnectionIndex < 0;
+      if (connectionExists) {
+        peerConnections.push(conn);
+      } else {
+        peerConnections[existingConnectionIndex] = conn;
+      }
+      peerConnections = peerConnections;
+
+      conn.on('open', function(id) {
+        conn.send({
+          connectionInfo,
+          gameInfo: {
+            baskets,
+            regionRevealOrder,
+            regionPoints,
+            revealedRegions,
+          }
+        });
+      });
+      conn.on('data', function(data) {
+        const {playerToAdd, playerToUpdate, ...rest} = data;
+        if (playerToAdd) {
+          // Only add the player if they don't already exist (ie. if they've reconnected)
+          if (connectionInfo.players.findIndex(player => player.name === playerToAdd) < 0) {
+            connectionInfo.players = [
+              ...connectionInfo.players,
+              {
+                name: playerToAdd,
+                gameData: {
+                  baskets,
+                  regionRevealOrder,
+                  regionPoints,
+                  revealedRegions,
+                },
+              },
+            ];
+            peerConnections.forEach(connection => {
+              connection.send({
+                connectionInfo,
+              });
+            });
+          }
+        } else if (playerToUpdate) {
+          // we're getting updated game data
+          if (isHost && hostIsSpectator) {
+            const indexToUpdate = connectionInfo.players.findIndex(player => player.name === playerToUpdate)
+            connectionInfo.players[indexToUpdate].gameData = rest;
+          }
+        }
+      });
+    });
+  }
+
   async function onStartClick() {
     if (spoilerFile != null) {
       ({
@@ -100,69 +196,7 @@
       revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
 
       if (activeTab === 'Host' && !currentPeer && playerName && gameName) {
-        currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
-          config: peerJSConnectionConfig,
-          debug: 2, // TODO: reset to 0 when we go to production
-        });
-        isConnecting = true;
-        currentPeer.on('open', function(id) {
-          connectionInfo = {
-            gameName,
-            hostName: playerName,
-            hostIsSpectator,
-            players: trackerLayout !== 'spectator' ? [{
-              name: playerName,
-              gameData: {},
-            }] : [],
-          };
-          isConnecting = false;
-          settingsDialogOpen = false;
-        });
-
-        // Send all vars above this if block and connection info to connector
-        currentPeer.on('connection', function(conn) {
-          peerConnections.push(conn);
-          peerConnections = peerConnections;
-          conn.on('open', function(id) {
-            conn.send({
-              connectionInfo,
-              gameInfo: {
-                baskets,
-                regionRevealOrder,
-                regionPoints,
-                revealedRegions,
-              }
-            });
-          })
-          conn.on('data', function(data) {
-            const {playerToAdd, playerToUpdate, ...rest} = data;
-            if (playerToAdd) {
-              connectionInfo.players = [
-                ...connectionInfo.players,
-                {
-                  name: playerToAdd,
-                  gameData: {
-                    baskets,
-                    regionRevealOrder,
-                    regionPoints,
-                    revealedRegions,
-                  },
-                },
-              ];
-              peerConnections.forEach(connection => {
-                connection.send({
-                  connectionInfo,
-                });
-              });
-            } else if (playerToUpdate) {
-              // we're getting updated game data
-              if (isHost && hostIsSpectator) {
-                const indexToUpdate = connectionInfo.players.findIndex(player => player.name === playerToUpdate)
-                connectionInfo.players[indexToUpdate].gameData = rest;
-              }
-            }
-          });
-        });
+        establishHostConnections();
         return;
       }
       settingsDialogOpen = false;
@@ -181,45 +215,89 @@
     onStartClick();
   }
 
+  function establishConnectionToHost(id) {
+    hostConnection = currentPeer.connect(`${HOST_ID_PREFIX}${id || joinID}`);
+
+    hostConnection.on('open', function() {
+      hostConnection.send({
+        playerToAdd: playerName,
+      });
+
+      hostConnection.on('data', function(data) {
+        connectionInfo = data.connectionInfo;
+        // Don't need to update our existing game data if we already have the info from the spoiler (ie. we reconnected to the host)
+        if (data.gameInfo && !regionPoints) {
+          ({
+            baskets,
+            regionRevealOrder,
+            regionPoints,
+            revealedRegions,
+          } = data.gameInfo);
+        }
+        ({ hostIsSpectator } = connectionInfo);
+        connectionInfo.isConnected = true;
+        isConnecting = false;
+        settingsDialogOpen = false;
+      });
+    });
+
+    hostConnection.on('close', function() {
+      connectionInfo.isConnected = false;
+    });
+  }
+
   function onConnectClick() {
     isConnecting = true;
-    currentPeer = new Peer({
+    currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
       config: peerJSConnectionConfig,
       debug: 2, // TODO: Reset this to 0 when we go to production
     });
     currentPeer.on('open', function() {
-      hostConnection = currentPeer.connect(`${HOST_ID_PREFIX}${joinID}`);
-
-      hostConnection.on('open', function() {
-        hostConnection.send({
-          playerToAdd: playerName,
-        });
-
-        hostConnection.on('data', function(data) {
-          connectionInfo = data.connectionInfo;
-          if (data.gameInfo) {
-            ({
-              baskets,
-              regionRevealOrder,
-              regionPoints,
-              revealedRegions,
-            } = data.gameInfo);
-          }
-          ({ hostIsSpectator } = connectionInfo);
-          isConnecting = false;
-          settingsDialogOpen = false;
-        });
-      });
+      establishConnectionToHost();
     });
+  }
+
+  function onDisconnectClick() {
+    if (!isHost) {
+      hostConnection.close();
+    }
+    currentPeer.disconnect();
+  }
+
+  function onReconnect(id) {
+    if (!isHost) {
+      isConnecting = true;
+      if (currentPeer.disconnected) {
+        currentPeer.reconnect();
+        establishConnectionToHost(id);
+      } else {
+        // re-create a connection to the PeerServer so we can reconnect to the host
+        currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
+          config: peerJSConnectionConfig,
+          debug: 2, // TODO: Reset this to 0 when we go to production
+        });
+        currentPeer.on('open', function() {
+          establishConnectionToHost(id);
+        });
+      }
+    } else {
+      if (currentPeer.disconnected) {
+        currentPeer.reconnect();
+      } else {
+        // Create a new connection to the PeerServer and the players will have to reconnect to the new host
+        newHostConnectionDialogOpen = true;
+        newHostConnectionID = getRandomHostID();
+      }
+    }
   }
 
   function handleStartNewGame() {
     let confirmAction = 'and end your current one';
 
-    if (joinID) {
-      confirmAction = 'and end your connection to the current one'
-    } else if (hostID) {
+    if (isHost) {
       confirmAction = 'and end all connections to the current one'
+    } else if (joinID) {
+      confirmAction = 'and end your connection to the current one'
     }
 
     const confirmMessage = `Starting a new game will refresh the page ${confirmAction}. Are you sure you wish to start a new game?`
@@ -243,7 +321,7 @@
     ));
 
     // Send the new data to our host spectator
-    if (connectionInfo && !isHost && hostIsSpectator) {
+    if (connectionInfo?.isConnected && !isHost && hostIsSpectator) {
       hostConnection.send({
         playerToUpdate: playerName,
         baskets,
@@ -263,6 +341,13 @@
     newPlayerOrder[swapInPlayerIndex] = swapOutPlayer;
 
     connectionInfo.players = newPlayerOrder;
+  }
+
+  function copyNewHostID() {
+    navigator.clipboard.writeText(newHostConnectionID);
+    copiedHostId = true;
+
+    setTimeout(() => copiedHostId = false, 5000);
   }
 
   function beforeUnload(event) {
@@ -328,6 +413,8 @@
         />
       {:else}
         <div class="join-wrapper">
+          <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
+          <br /><br />
           <Textfield
             bind:value={playerName}
             label="Player Name"
@@ -382,9 +469,30 @@
         </Button>
         <br /><br />
       {/if}
-      <Button color="secondary" on:click={openHowToDialog} variant="raised">
-        <Label>How To Play</Label>
-      </Button>
+      {#if connectionInfo && isHost && hostID}
+        <p>
+          My Host ID:&nbsp;
+          <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+          <span on:click={showHostID}>
+            {#if revealHostID}
+              <b><i>{hostID}</i></b>
+            {:else}
+              <u><i>Click To Reveal</i></u>
+            {/if}
+          </span>
+          <br />
+          <span><small>Do not stream this ID as unwanted players will be able to join</small></span>
+        </p>
+      {/if}
+      {#if isHost && hostIsSpectator}
+        <Button color="secondary" on:click={openSpectatorDialog} variant="raised">
+          <Label>Spectator Host Help</Label>
+        </Button>
+      {:else}
+        <Button color="secondary" on:click={openHowToDialog} variant="raised">
+          <Label>How To Play</Label>
+        </Button>
+      {/if}
       <br /><br />
       <Button color="primary" on:click={handleStartNewGame} variant="raised">
         <Label>Start New Game</Label>
@@ -405,6 +513,37 @@
     </Content>
   </Dialog>
 
+  <Dialog bind:open={newHostConnectionDialogOpen} surface$style="min-height: 200px">
+    <Title>Create New Host Connection</Title>
+    <Content>
+      <!-- This is duplicated from PointsSharedSettings and should be moved in a separate component -->
+      <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
+      <br /><br />
+      <Textfield
+        disabled
+        label="New Private Host ID"
+        style="cursor: copy; pointer-events: unset;"
+        value={newHostConnectionID}
+        variant="outlined"
+      />
+      <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+      <div class="field-blurb" on:click={copyNewHostID}>
+        <span>
+          {copiedHostId ? 'Copied!!!' : 'Click here to copy this ID for players to connect to your game'}
+        </span>
+      </div>
+      <br /><br />
+      <Button
+        color="primary"
+        disabled={!newHostConnectionID}
+        on:click={establishHostConnections}
+        variant="raised"
+      >
+        <Label>Create New Host</Label>
+      </Button>
+    </Content>
+  </Dialog>
+
   {#if regionPoints?.length > 0}
     {#if isHost && hostIsSpectator}
       <h1>{gameName}</h1>
@@ -421,6 +560,11 @@
               revealedRegions={player.gameData.revealedRegions}
             />
           {/each}
+          <div class="spectator-actions">
+            <Button color="secondary" on:click={openInGameMenu} variant="raised">
+              <Label>Menu</Label>
+            </Button>
+          </div>
         </div>
         {#if connectionInfo.players.length > 2}
           <div class="other-players">
@@ -441,14 +585,14 @@
         {/if}
       {/if}
       <br /><br />
-      <Button color="secondary" on:click={openSpectatorDialog} variant="raised">
-        <Label>Spectator Host Help</Label>
-      </Button>
     {:else if trackerLayout === 'compact1'}
       <CompactRegion1
         bind:baskets
         connectionInfo={connectionInfo}
         handleCheckToExposeRegion={handleCheckToExposeRegion}
+        isHost={isHost}
+        onDisconnect={onDisconnectClick}
+        onReconnect={onReconnect}
         openInGameMenu={openInGameMenu}
         regionPoints={regionPoints}
         revealRegionPoints={revealRegionPoints}
@@ -460,6 +604,9 @@
         bind:baskets
         connectionInfo={connectionInfo}
         handleCheckToExposeRegion={handleCheckToExposeRegion}
+        isHost={isHost}
+        onDisconnect={onDisconnectClick}
+        onReconnect={onReconnect}
         openInGameMenu={openInGameMenu}
         regionPoints={regionPoints}
         revealRegionPoints={revealRegionPoints}
@@ -480,6 +627,11 @@
     display: flex;
   }
 
+  .spectator-actions {
+    display: flex;
+    margin: 1rem 2rem;
+  }
+
   .other-players {
     max-width: 800px;
     margin: 1rem;
@@ -491,5 +643,15 @@
 
   .credits {
     font-size: 12px;
+  }
+
+  .field-blurb {
+    cursor: copy;
+    display: inline-block;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    margin-left: 1rem;
+    vertical-align: middle;
+    width: 225px;
   }
 </style>

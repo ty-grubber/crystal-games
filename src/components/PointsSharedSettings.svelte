@@ -16,6 +16,7 @@
   export let hostID = '';
 
   let isSpectatorMode = false;
+  let copiedHostId = false;
   let trackerLayout = 'classic';
   let revealOrdering = 'random';
   let initialRevealedRegions = 1;
@@ -38,6 +39,13 @@
     isSpectatorMode = !isSpectatorMode;
   }
 
+  function copyHostID() {
+    navigator.clipboard.writeText(hostID);
+    copiedHostId = true;
+
+    setTimeout(() => copiedHostId = false, 5000);
+  }
+
   $: disableStartButton = showNetworking
     ? !spoilerFile || !playerName || !gameName || isConnecting
     : !spoilerFile;
@@ -45,6 +53,8 @@
 
 <div class="settings-wrapper">
   {#if showNetworking}
+    <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
+    <br /><br />
     <Textfield
       bind:value={playerName}
       label="*Player Name"
@@ -68,14 +78,19 @@
       variant="outlined"
     />
     <br /><br />
-    <Textfield
-      value={hostID}
-      label="Private Host ID"
-      variant="outlined"
-      disabled
-    />
-    <div class="field-blurb">
-      <span>Share this ID with other players so they can connect to your game</span>
+    <div >
+      <Textfield
+        disabled
+        label="Private Host ID"
+        value={hostID}
+        variant="outlined"
+      />
+      <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+      <div class="field-blurb" on:click={copyHostID}>
+        <span>
+          {copiedHostId ? 'Copied!!!' : 'Click here to copy this ID for players to connect to your game'}
+        </span>
+      </div>
     </div>
     <br /><br /><hr /><br />
   {/if}
@@ -144,6 +159,7 @@
   }
 
   .field-blurb {
+    cursor: copy;
     display: inline-block;
     font-size: 0.8rem;
     line-height: 1.5;

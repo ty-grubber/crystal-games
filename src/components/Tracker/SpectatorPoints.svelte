@@ -227,7 +227,7 @@
   .name {
     flex-basis: 100%;
     font-size: 1.5rem;
-    line-height: 2;
+    line-height: 1.5;
   }
 
   .emo-item, .region-image, .region-pts-count {
