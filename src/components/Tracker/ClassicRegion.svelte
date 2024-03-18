@@ -182,7 +182,7 @@
                     : '??'
                   }
                 </Cell>
-                <Cell style="white-space: normal; padding-right: 0;">
+                <Cell style="white-space: normal; padding-right: 10px; position: relative;">
                   <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                   <ul
                     class:hovering={
@@ -220,6 +220,11 @@
                       </li>
                     {/each}
                   </ul>
+                  {#if baskets[i].items.length > 0}
+                    <div class="found-region-points">
+                      {baskets[i].items.reduce((sum, curr) => sum + curr.points, 0)}
+                    </div>
+                  {/if}
                 </Cell>
                 {#if showSolution}
                   <Cell>
@@ -249,8 +254,8 @@
       {/if}
     </div>
   </div>
-  <div class="available-items">
-    <DataTable style="width: 350px; margin-left: 3rem;">
+  <div class="available-items-and-refs">
+    <DataTable style="width: 350px;">
       <Body>
         {#each baskets.filter(basket => basket.type === 'item') as basket, basketIndex (basket)}
           <Row style="height: 85px !important;">
@@ -299,9 +304,7 @@
       </Body>
     </DataTable>
     <br /><br />
-    <div style="margin-left: 3rem;">
-      <RegionRefs />
-    </div>
+    <RegionRefs />
   </div>
 </div>
 
@@ -403,6 +406,13 @@
     width: unset;
   }
 
+  .found-region-points {
+    bottom: 1%;
+    font-size: 0.8rem;
+    position: absolute;
+    right: 1%;
+  }
+
   img.selected {
     border-color: black;
   }
@@ -410,6 +420,10 @@
   img.solution-item {
     padding-top: 4px;
     margin-bottom: -2px;
+  }
+
+  .available-items-and-refs {
+    margin-left: 2.5rem;
   }
 
   .floating-menu {
