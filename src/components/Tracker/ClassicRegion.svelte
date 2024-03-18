@@ -134,6 +134,22 @@
     selectedFoundItem = {};
   }
 
+  function toggleHighlightItem(event, basketIndex, itemIndex) {
+    event.preventDefault();
+
+    let highlightedItem = {
+      ...baskets[basketIndex].items[itemIndex],
+    };
+
+    highlightedItem = {
+      ...highlightedItem,
+      highlighted: !highlightedItem.highlighted,
+    };
+
+    baskets[basketIndex].items[itemIndex] = highlightedItem;
+    baskets = baskets;
+  }
+
   function handleOutsideRegionTableClick(e) {
     if (
       e.explicitOriginalTarget &&
@@ -153,6 +169,8 @@
   $: totalPointsRemaining = baskets.filter(basket => basket.type === 'item').reduce((sum, curr) => {
     return sum + curr.items.reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0);
   }, 0);
+
+  $: totalBadgesFound = 16 - baskets.find(basket => basket.type === 'item' && basket.name === '9').items.length;
 </script>
 
 
@@ -197,7 +215,7 @@
                     }
                     on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
                     on:dragleave={() => hoveringOverBasket = null}
-                    on:drop={event => drop(event, i)}
+                    on:drop={(e) => drop(e, i)}
                     on:click={() => setSelectedItemIntoBasket(i)}
                     on:keypress={() => setSelectedItemIntoBasket(i)}
                     ondragover="return false;"
@@ -207,12 +225,14 @@
                       <li
                         class="draggableIcon"
                         draggable={true}
-                        on:dragstart={event => dragStart(event, i, itemIndex)}
+                        on:dragstart={(e) => dragStart(e, i, itemIndex)}
                         on:click={(e) => handleFoundItemClick(e, item, i)}
                         on:keypress={(e) => handleFoundItemClick(e, item, i)}
+                        on:contextmenu={(e) => toggleHighlightItem(e, i, itemIndex)}
                       >
                         <img
                           class:selected={selectedFoundItem?.id === item.id}
+                          class:highlighted={item.highlighted}
                           src={`/keyItems/${item.id}.png`}
                           alt={item.name}
                           title={`${item.name} - ${item.points}`}
@@ -238,6 +258,13 @@
         </Body>
       </DataTable>
       {#if regionPoints}
+        <div class="found-info">
+          <p style="padding: 5px 0; font-size: 1.25rem;">
+            <b>Points Remaining:</b> {totalPointsRemaining} / {totalPointsAvailable}
+            <br />
+            <b>Badges Found:</b> {totalBadgesFound}
+          </p>
+        </div>
         <div class='floating-menu'>
           <Button color="primary" on:click={openInGameMenu} variant="raised">
             <Label>Menu</Label>
@@ -295,12 +322,6 @@
             </Cell>
           </Row>
         {/each}
-        <Row>
-          <Cell>&nbsp;</Cell>
-          <Cell style="padding: 5px 0; font-size: 1.25rem;">
-            {totalPointsRemaining} / {totalPointsAvailable}
-          </Cell>
-        </Row>
       </Body>
     </DataTable>
     <br /><br />
@@ -411,6 +432,10 @@
     font-size: 0.8rem;
     position: absolute;
     right: 1%;
+  }
+
+  img.highlighted {
+    border-color: orangered;
   }
 
   img.selected {
