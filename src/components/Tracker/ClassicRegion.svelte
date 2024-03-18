@@ -169,6 +169,8 @@
   $: totalPointsRemaining = baskets.filter(basket => basket.type === 'item').reduce((sum, curr) => {
     return sum + curr.items.reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0);
   }, 0);
+
+  $: totalBadgesFound = 16 - baskets.find(basket => basket.type === 'item' && basket.name === '9').items.length;
 </script>
 
 
@@ -256,6 +258,13 @@
         </Body>
       </DataTable>
       {#if regionPoints}
+        <div class="found-info">
+          <p style="padding: 5px 0; font-size: 1.25rem;">
+            <b>Points Remaining:</b> {totalPointsRemaining} / {totalPointsAvailable}
+            <br />
+            <b>Badges Found:</b> {totalBadgesFound}
+          </p>
+        </div>
         <div class='floating-menu'>
           <Button color="primary" on:click={openInGameMenu} variant="raised">
             <Label>Menu</Label>
@@ -313,12 +322,6 @@
             </Cell>
           </Row>
         {/each}
-        <Row>
-          <Cell>&nbsp;</Cell>
-          <Cell style="padding: 5px 0; font-size: 1.25rem;">
-            {totalPointsRemaining} / {totalPointsAvailable}
-          </Cell>
-        </Row>
       </Body>
     </DataTable>
     <br /><br />
