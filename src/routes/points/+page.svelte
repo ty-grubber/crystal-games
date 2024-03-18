@@ -21,10 +21,13 @@
   const HOST_ID_PREFIX = 'PCPT-';
 
   let regionPoints;
-
+  let startingRegionPoints = [];
   let baskets = [];
+  let startingBaskets = [];
   let regionRevealOrder = [];
+  let startingRegionRevealOrder = [];
   let revealedRegions = [];
+  let startingRevealedRegions = [];
   let showSolution = false;
 
   let settingsDialogOpen = true;
@@ -144,10 +147,10 @@
         conn.send({
           connectionInfo,
           gameInfo: {
-            baskets,
-            regionRevealOrder,
-            regionPoints,
-            revealedRegions,
+            baskets: startingBaskets,
+            regionRevealOrder: startingRegionRevealOrder,
+            regionPoints: startingRegionPoints,
+            revealedRegions: startingRevealedRegions,
           }
         });
       });
@@ -161,10 +164,10 @@
               {
                 name: playerToAdd,
                 gameData: {
-                  baskets,
-                  regionRevealOrder,
-                  regionPoints,
-                  revealedRegions,
+                  baskets: startingBaskets,
+                  regionRevealOrder: startingRegionRevealOrder,
+                  regionPoints: startingRegionPoints,
+                  revealedRegions: startingRevealedRegions,
                 },
               },
             ];
@@ -188,12 +191,18 @@
   async function onStartClick() {
     if (spoilerFile != null) {
       ({
-        baskets,
-        regionRevealOrder,
-        regionPoints
+        baskets: startingBaskets,
+        regionRevealOrder: startingRegionRevealOrder,
+        regionPoints: startingRegionPoints
       } = await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering));
 
-      revealedRegions = regionRevealOrder.splice(0, initialRevealedRegions);
+      startingRevealedRegions = startingRegionRevealOrder.splice(0, initialRevealedRegions);
+
+      // Make copies so we don't affect the originals
+      baskets = startingBaskets.map(basket => ({ ...basket, items: [...basket.items] }));
+      regionRevealOrder = startingRegionRevealOrder.map(rro => rro);
+      regionPoints = startingRegionPoints.map(rp => ({ ...rp }));
+      revealedRegions = startingRevealedRegions.map(rr => rr);
 
       if (activeTab === 'Host' && !currentPeer && playerName && gameName) {
         establishHostConnections();
