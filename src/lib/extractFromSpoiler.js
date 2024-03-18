@@ -1,4 +1,5 @@
 import REGIONS from '../constants/regions';
+import { randomTiesSorting, randomizeArray } from './randomize';
 
 /**
  * @param {string} spoilerFileText
@@ -71,12 +72,10 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
     //   - push the item into the randomizedItems array (so we know it is placeable)
     matchedRegionIds.forEach(matchedId => {
       const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedId);
-      // @ts-ignore
       const shouldUpgradeItem = item.upgradeModifier && modifierLines.includes(item.upgradeModifier);
 
       const addedItem = {
         ...item,
-        // @ts-ignore
         points: item.points + (shouldUpgradeItem ? item.upgradeAmt : 0),
       };
 
@@ -96,4 +95,71 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
   };
 }
 
-export default extractRegionsFromSpoiler;
+/**
+ * @param {any} spoilerFile
+ * @param {any[]} keyItems
+ * @param {string} revealOrdering
+ */
+async function extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering) {
+  const file = spoilerFile;
+  if (file != null) {
+    const spoilerText = await file.text();
+
+    const extraction = extractRegionsFromSpoiler(spoilerText, keyItems);
+    const regionPoints = extraction.regionPointsArray;
+
+    const keyItemPointValues = [
+      ...new Set(extraction.randomizedItems.map(item => item.points)),
+    ].sort((a, b) => b - a);
+
+    // Make our starting baskets
+    const newBaskets = [
+      { type: 'region', name: '1', items: []},
+      { type: 'region', name: '2', items: []},
+      { type: 'region', name: '3', items: []},
+      { type: 'region', name: '4', items: []},
+      { type: 'region', name: '5', items: []},
+      { type: 'region', name: '6', items: []},
+      { type: 'region', name: '7', items: []},
+      { type: 'region', name: '8', items: []},
+      { type: 'region', name: '9', items: []},
+      { type: 'region', name: '10', items: []},
+      { type: 'region', name: '11', items: []},
+      { type: 'region', name: '12', items: []},
+      { type: 'region', name: '13', items: []},
+      { type: 'region', name: '14', items: []},
+      { type: 'region', name: '15', items: []},
+      { type: 'region', name: '16', items: []},
+    ];
+
+    const itemBaskets = keyItemPointValues.map(pointValue => ({
+      type: 'item',
+      name: pointValue.toString(),
+      items: extraction.randomizedItems.filter(item => item.points === pointValue),
+    }));
+
+    // @ts-ignore
+    const baskets = newBaskets.concat(itemBaskets);
+    let regionsWithTotalPoints = regionPoints.map(region => ({ id: region.regionId, points: region.points }));
+
+    const rngSeed = extraction.rngSeed || file.name;
+    switch (revealOrdering) {
+      case 'random':
+        regionsWithTotalPoints = randomizeArray(regionsWithTotalPoints, rngSeed);
+        break;
+      default:
+        regionsWithTotalPoints = randomTiesSorting(regionsWithTotalPoints, revealOrdering, rngSeed);
+    }
+
+    return {
+      baskets,
+      regionPoints,
+      regionRevealOrder: regionsWithTotalPoints.map(r => r.id),
+    }
+  }
+}
+
+export {
+  extractRegionsFromSpoiler,
+  extractPointsInfoFromSpoiler,
+};

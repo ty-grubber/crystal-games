@@ -3,6 +3,7 @@
   import { clickOutside } from '$lib/clickOutside';
   import Button, { Label } from '@smui/button';
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
+  import GameConnectionInfo from '../References/GameConnectionInfo.svelte';
 	import RegionRefs from '../References/RegionRefs.svelte';
 	import REGIONS, { regionColorClasses } from '../../constants/regions';
 
@@ -16,17 +17,22 @@
   export let baskets = [];
   export let revealedRegions = [];
 
-  export let selectedAvailableItem = {};
-  export let selectedFoundItem = {};
-
-  export let spoilerFile = {};
   export let showSolution = false;
   export let revealRegionPoints = false;
-  export let handleOutsideRegionTableClick = () => {};
-  export let checkToExposeRegion = () => {};
+
+  export let connectionInfo;
+  export let isHost;
+
+  export let handleCheckToExposeRegion = () => {};
   export let openInGameMenu = () => {};
+  export let onDisconnect = () => {};
+  export let onReconnect = () => {};
 
   let hoveringOverBasket;
+  let selectedAvailableItem = {};
+  let selectedFoundItem = {};
+
+  const keyItemPointValues = baskets?.filter(basket => basket.type === 'item').map(basket => basket.name) || [];
 
   /**
 	 * @param {DragEvent & { currentTarget: EventTarget & HTMLLIElement; }} event
@@ -70,7 +76,7 @@
       targetBasket.items.push(item);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, item);
+      handleCheckToExposeRegion(originalBasket, targetBasket, item);
 
       hoveringOverBasket = null;
       selectedAvailableItem = {};
@@ -103,7 +109,7 @@
       targetBasket.items.push(freedItem);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, freedItem);
+      handleCheckToExposeRegion(originalBasket, targetBasket, freedItem);
     }
 
     selectedAvailableItem = {};
@@ -126,6 +132,18 @@
       currBasketIndex,
     };
     selectedFoundItem = {};
+  }
+
+  function handleOutsideRegionTableClick(e) {
+    if (
+      e.explicitOriginalTarget &&
+      e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
+      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button' &&
+      !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)
+    ) {
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
+    }
   }
 
   const totalPointsAvailable = baskets.reduce((sum, curr) => {
@@ -164,7 +182,8 @@
                     : '??'
                   }
                 </Cell>
-                <Cell style="white-space: normal; padding-right: 0;">
+                <Cell style="white-space: normal; padding-right: 10px; position: relative;">
+                  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                   <ul
                     class:hovering={
                       (hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`)
@@ -184,6 +203,7 @@
                     ondragover="return false;"
                   >
                     {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+                      <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                       <li
                         class="draggableIcon"
                         draggable={true}
@@ -200,6 +220,11 @@
                       </li>
                     {/each}
                   </ul>
+                  {#if baskets[i].items.length > 0}
+                    <div class="found-region-points">
+                      {baskets[i].items.reduce((sum, curr) => sum + curr.points, 0)}
+                    </div>
+                  {/if}
                 </Cell>
                 {#if showSolution}
                   <Cell>
@@ -212,11 +237,6 @@
           {/each}
         </Body>
       </DataTable>
-      {#if spoilerFile}
-        <p>
-          Spoiler file name: {spoilerFile.name}
-        </p>
-      {/if}
       {#if regionPoints}
         <div class='floating-menu'>
           <Button color="primary" on:click={openInGameMenu} variant="raised">
@@ -224,14 +244,18 @@
           </Button>
         </div>
       {/if}
-      <p class="credits">
-        Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
-        Region map images created by Kovolta.
-      </p>
+      {#if connectionInfo}
+        <GameConnectionInfo
+          connectionInfo={connectionInfo}
+          isHost={isHost}
+          onDisconnect={onDisconnect}
+          onReconnect={onReconnect}
+        />
+      {/if}
     </div>
   </div>
-  <div class="available-items">
-    <DataTable style="width: 350px; margin-left: 3rem;">
+  <div class="available-items-and-refs">
+    <DataTable style="width: 350px;">
       <Body>
         {#each baskets.filter(basket => basket.type === 'item') as basket, basketIndex (basket)}
           <Row style="height: 85px !important;">
@@ -251,6 +275,7 @@
                 ondragover="return false;"
               >
                 {#each basket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+                  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                   <li
                     class="draggableIcon"
                     draggable={true}
@@ -279,9 +304,7 @@
       </Body>
     </DataTable>
     <br /><br />
-    <div style="margin-left: 3rem;">
-      <RegionRefs />
-    </div>
+    <RegionRefs />
   </div>
 </div>
 
@@ -383,6 +406,13 @@
     width: unset;
   }
 
+  .found-region-points {
+    bottom: 1%;
+    font-size: 0.8rem;
+    position: absolute;
+    right: 1%;
+  }
+
   img.selected {
     border-color: black;
   }
@@ -390,6 +420,10 @@
   img.solution-item {
     padding-top: 4px;
     margin-bottom: -2px;
+  }
+
+  .available-items-and-refs {
+    margin-left: 2.5rem;
   }
 
   .floating-menu {
@@ -402,10 +436,7 @@
   @media(max-width: 1024px) {
     .floating-menu {
       position: unset;
+      margin-top: 1rem;
     }
-  }
-
-  .credits {
-    font-size: 12px;
   }
 </style>

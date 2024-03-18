@@ -3,22 +3,29 @@
   import { clickOutside } from '$lib/clickOutside';
   import Button, { Label } from '@smui/button';
 	import REGIONS from '../../constants/regions';
+  import GameConnectionInfo from '../References/GameConnectionInfo.svelte';
 
   export let baskets = [];
   export let regionPoints = [];
   export let revealedRegions = [];
 
-  export let spoilerFile = {};
-  export let selectedAvailableItem = {};
-  export let selectedFoundItem = {};
   export let revealRegionPoints = false;
   export let showSolution = false;
 
-  export let handleOutsideRegionTableClick = () => {};
-  export let checkToExposeRegion = () => {};
+  /**
+	 * @type {{ gameName: string; hostName: string; players: string[]; }}
+	 */
+  export let connectionInfo;
+  export let isHost;
+
+  export let handleCheckToExposeRegion = () => {};
   export let openInGameMenu = () => {};
+  export let onDisconnect = () => {};
+  export let onReconnect = () => {};
 
   let hoveringOverBasket;
+  let selectedAvailableItem = {};
+  let selectedFoundItem = {};
 
   function updateRegionFoundFromRegionTransfer(movedItem, newRegionFoundValue, originalBasketIndex) {
     const movedItemAvailableBasketIndex = baskets.findIndex(basket => basket.type === 'item' && basket.name === movedItem.points.toString());
@@ -90,7 +97,7 @@
       targetBasket.items.push(item);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, item);
+      handleCheckToExposeRegion(originalBasket, targetBasket, item);
 
       hoveringOverBasket = null;
       selectedAvailableItem = {};
@@ -129,7 +136,7 @@
       targetBasket.items.push(freedItem);
       baskets = baskets;
 
-      checkToExposeRegion(originalBasket, targetBasket, freedItem);
+      handleCheckToExposeRegion(originalBasket, targetBasket, freedItem);
     }
 
     selectedAvailableItem = {};
@@ -164,7 +171,7 @@
     updateRegionFoundFromRegionTransfer(removedItem, undefined, basketIndex);
     baskets = baskets;
 
-    checkToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
+    handleCheckToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
     selectedAvailableItem = {};
     selectedFoundItem = {};
   }
@@ -195,6 +202,17 @@
     }, []);
   }
 
+  function handleOutsideRegionTableClick(e) {
+    if (
+      e.explicitOriginalTarget &&
+      e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
+      e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button'
+    ) {
+      selectedAvailableItem = {};
+      selectedFoundItem = {};
+    }
+  }
+
   $: totalPointsAvailable = baskets.filter(basket => basket.type === 'item').reduce((sum, curr) => {
     return sum + curr.items.reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0);
   }, 0);
@@ -212,6 +230,7 @@
   <div class="region-boxes">
     {#each regionPoints as rp, i (rp.regionId)}
     {@const missingSolutionItems = showSolution ? getRemainingSolutionItems(i) : []}
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="box"
         class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
@@ -246,6 +265,7 @@
         </div>
         <div class={`items ${baskets[i].items.concat(missingSolutionItems).length > 11 ? 'big-list' : ''}`}>
           {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
+            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
             <img
               src={`/keyItems/${item.id}.png`}
               alt={item.name}
@@ -266,7 +286,7 @@
           {#if showSolution}
             {#each missingSolutionItems as solutionItem, sItemIndex (`${solutionItem.id}_${sItemIndex}`)}
               <!-- TODO: Adding an item to a region when solution is up does not refresh missing solution items -->
-              <!-- Can just toggle the button in the menu to get it to refresh -->
+              <!-- * Can just toggle the button in the menu to get it to refresh -->
               <img
                 alt={solutionItem.name}
                 src={`/keyItems/${solutionItem.id}.png`}
@@ -291,6 +311,7 @@
       <div class="point-label">{itemBasket.items[0].points}</div>
       <div class="item-row">
         {#each itemBasket.items as item, itemIndex (`${item.id}_${itemIndex}`)}
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div
             class="item-wrapper"
             class:draggable={!item.regionFound || item.regionFound === 'P'}
@@ -337,15 +358,14 @@
       </div>
     </div>
   {/if}
-  {#if spoilerFile}
-    <p>
-      Spoiler file name: {spoilerFile.name}
-    </p>
+  {#if connectionInfo}
+    <GameConnectionInfo
+      connectionInfo={connectionInfo}
+      isHost={isHost}
+      onDisconnect={onDisconnect}
+      onReconnect={onReconnect}
+    />
   {/if}
-  <p class="credits">
-    Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.<br />
-    Region ID images created by TyGr.
-  </p>
 </div>
 
 <style>
