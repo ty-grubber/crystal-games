@@ -5,14 +5,14 @@
  * @returns
  */
 function convertTo2DArray(arr, columns) {
-  var arr1d = [...arr];
-  var arr2d = [];
+	var arr1d = [...arr];
+	var arr2d = [];
 
-  while (arr1d.length > 0) {
-    arr2d.push(arr1d.splice(0, columns))
-  }
+	while (arr1d.length > 0) {
+		arr2d.push(arr1d.splice(0, columns));
+	}
 
-  return arr2d;
+	return arr2d;
 }
 
 /**
@@ -21,9 +21,9 @@ function convertTo2DArray(arr, columns) {
  * @returns
  */
 function flatten2DArray(arr2d) {
-  return arr2d.reduce((prev, next) => {
-    return prev.concat(next);
-  });
+	return arr2d.reduce((prev, next) => {
+		return prev.concat(next);
+	});
 }
 
 /**
@@ -33,10 +33,10 @@ function flatten2DArray(arr2d) {
  * @returns
  */
 function convertIndexTo2DIndex(index, columns) {
-  const i = Math.floor(index / columns);
-  const j = index % columns;
+	const i = Math.floor(index / columns);
+	const j = index % columns;
 
-  return { i, j };
+	return { i, j };
 }
 
 /**
@@ -46,12 +46,7 @@ function convertIndexTo2DIndex(index, columns) {
  * @returns
  */
 function convert2DIndexToIndex(ddIndex, columns) {
-  return ddIndex.i * columns + ddIndex.j;
+	return ddIndex.i * columns + ddIndex.j;
 }
 
-export {
-  convert2DIndexToIndex,
-  convertIndexTo2DIndex,
-  convertTo2DArray,
-  flatten2DArray,
-}
+export { convert2DIndexToIndex, convertIndexTo2DIndex, convertTo2DArray, flatten2DArray };
