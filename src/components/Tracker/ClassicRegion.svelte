@@ -116,27 +116,7 @@
     selectedFoundItem = {};
   }
 
-  function handleFoundItemClick(event, item, currBasketIndex) {
-    event.stopPropagation();
-    selectedAvailableItem = {};
-    selectedFoundItem = {
-      ...item,
-      currBasketIndex,
-    };
-  }
-
-  function handleAvailableItemClick(event, item, currBasketIndex) {
-    event.stopPropagation();
-    selectedAvailableItem = {
-      ...item,
-      currBasketIndex,
-    };
-    selectedFoundItem = {};
-  }
-
-  function toggleHighlightItem(event, basketIndex, itemIndex) {
-    event.preventDefault();
-
+  function toggleHighlightItem(basketIndex, itemIndex) {
     let highlightedItem = {
       ...baskets[basketIndex].items[itemIndex],
     };
@@ -148,6 +128,46 @@
 
     baskets[basketIndex].items[itemIndex] = highlightedItem;
     baskets = baskets;
+  }
+
+  function handleFoundItemClick(event, item, currBasketIndex, currItemIndex) {
+    event.stopPropagation();
+    selectedAvailableItem = {};
+
+    if (selectedFoundItem?.id === item.id && selectedFoundItem?.currBasketIndex === currBasketIndex && selectedFoundItem?.currItemIndex === currItemIndex) {
+      toggleHighlightItem(currBasketIndex, currItemIndex);
+      selectedFoundItem = {};
+    } else {
+      selectedFoundItem = {
+        ...item,
+        currBasketIndex,
+        currItemIndex,
+      };
+    }
+  }
+
+  function handleAvailableItemClick(event, item, currBasketIndex) {
+    event.stopPropagation();
+    selectedAvailableItem = {
+      ...item,
+      currBasketIndex,
+    };
+    selectedFoundItem = {};
+  }
+
+  function handleClearItem(event, basketIndex, itemIndex) {
+    event.preventDefault();
+
+    const [removedItem] = baskets[basketIndex].items.splice(itemIndex, 1);
+    const targetBasket = baskets.find(basket => basket.type === 'item' && basket.name === removedItem.points.toString());
+
+    // Add the item to the drop target basket.
+    targetBasket.items.push(removedItem);
+    baskets = baskets;
+
+    handleCheckToExposeRegion(baskets[basketIndex], targetBasket, removedItem);
+    selectedAvailableItem = {};
+    selectedFoundItem = {};
   }
 
   function handleOutsideRegionTableClick(e) {
@@ -226,12 +246,16 @@
                         class="draggableIcon"
                         draggable={true}
                         on:dragstart={(e) => dragStart(e, i, itemIndex)}
-                        on:click={(e) => handleFoundItemClick(e, item, i)}
-                        on:keypress={(e) => handleFoundItemClick(e, item, i)}
-                        on:contextmenu={(e) => toggleHighlightItem(e, i, itemIndex)}
+                        on:click={(e) => handleFoundItemClick(e, item, i, itemIndex)}
+                        on:keypress={(e) => handleFoundItemClick(e, item, i, itemIndex)}
+                        on:contextmenu={(e) => handleClearItem(e, i, itemIndex)}
                       >
                         <img
-                          class:selected={selectedFoundItem?.id === item.id}
+                          class:selected={
+                            selectedFoundItem?.id === item.id &&
+                            selectedFoundItem?.currBasketIndex === i &&
+                            selectedFoundItem?.currItemIndex === itemIndex
+                          }
                           class:highlighted={item.highlighted}
                           src={`/keyItems/${item.id}.png`}
                           alt={item.name}
