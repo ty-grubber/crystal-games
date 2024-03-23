@@ -143,14 +143,35 @@
     selectedFoundItem = {};
   }
 
+  function toggleHighlightItem(basketIndex, itemIndex) {
+    let highlightedItem = {
+      ...baskets[basketIndex].items[itemIndex],
+    };
+
+    highlightedItem = {
+      ...highlightedItem,
+      highlighted: !highlightedItem.highlighted,
+    };
+
+    baskets[basketIndex].items[itemIndex] = highlightedItem;
+    baskets = baskets;
+  }
+
   function handleFoundItemClick(event, item, currBasketIndex, currItemIndex) {
     event.stopPropagation();
     selectedAvailableItem = {};
-    selectedFoundItem = {
-      ...item,
-      currBasketIndex,
-      currItemIndex,
-    };
+
+    if (selectedFoundItem?.id === item.id && selectedFoundItem?.currBasketIndex === currBasketIndex && selectedFoundItem?.currItemIndex === currItemIndex) {
+      // Highlight the item if they double click on the item
+      toggleHighlightItem(currBasketIndex, currItemIndex);
+      selectedFoundItem = {};
+    } else {
+      selectedFoundItem = {
+        ...item,
+        currBasketIndex,
+        currItemIndex,
+      };
+    }
   }
 
   function handleAvailableItemClick(event, item, currBasketIndex, currItemIndex) {
@@ -164,34 +185,16 @@
   }
 
   function handleClearItem(event, basketIndex, itemIndex) {
-    if (event.button === 1) {
-      event.preventDefault();
-
-      const [removedItem] = baskets[basketIndex].items.splice(itemIndex, 1);
-
-      updateRegionFoundFromRegionTransfer(removedItem, undefined, basketIndex);
-      baskets = baskets;
-
-      handleCheckToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
-      selectedAvailableItem = {};
-      selectedFoundItem = {};
-    }
-  }
-
-  function toggleHighlightItem(event, basketIndex, itemIndex) {
     event.preventDefault();
 
-    let highlightedItem = {
-      ...baskets[basketIndex].items[itemIndex],
-    };
+    const [removedItem] = baskets[basketIndex].items.splice(itemIndex, 1);
 
-    highlightedItem = {
-      ...highlightedItem,
-      highlighted: !highlightedItem.highlighted,
-    };
-
-    baskets[basketIndex].items[itemIndex] = highlightedItem;
+    updateRegionFoundFromRegionTransfer(removedItem, undefined, basketIndex);
     baskets = baskets;
+
+    handleCheckToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
+    selectedAvailableItem = {};
+    selectedFoundItem = {};
   }
 
   function assignToPokemon() {
@@ -299,8 +302,7 @@
               on:dragstart={(e) => dragStart(e, i, itemIndex)}
               on:click={(e) => handleFoundItemClick(e, item, i, itemIndex)}
               on:keypress={(e) => handleFoundItemClick(e, item, i, itemIndex)}
-              on:auxclick={(e) => handleClearItem(e, i, itemIndex)}
-              on:contextmenu={(e) => toggleHighlightItem(e, i, itemIndex)}
+              on:contextmenu={(e) => handleClearItem(e, i, itemIndex)}
             />
           {/each}
           {#if showSolution}
