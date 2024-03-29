@@ -18,7 +18,14 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
     items: [],
   }));
 
-  const spoilerLines = spoilerFileText.split('\r\n');
+  let spoilerLines = spoilerFileText.split('\r\n');
+  // Check if spoiler was generated without carriage return.
+  // There should be hundreds of spoiler lines...but only one if the carriage return is missing on each line
+  // Let's be safe in case some are mixed in somehow
+  if (spoilerLines.length < keyItems.length) {
+    spoilerLines = spoilerFileText.split('\n');
+  }
+
   const rngSeed = spoilerLines.find(line => line.includes('RNG Seed:'))?.replace('RNG Seed: ', '');
   const solutionStartIndex = spoilerLines.findIndex(line => line.includes('Solution:'));
   const solutionEndIndex = spoilerLines.findIndex(line => line.includes('Zephyr Badge:')) + 1;
