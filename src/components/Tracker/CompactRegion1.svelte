@@ -1,32 +1,75 @@
 <script>
-	// @ts-nocheck
+// @ts-nocheck
 	import { clickOutside } from '$lib/clickOutside';
 	import Button, { Label } from '@smui/button';
 	import REGIONS from '../../constants/regions';
 	import GameConnectionInfo from '../References/GameConnectionInfo.svelte';
 
+  /**
+   * @typedef {import("../../types/PointTracker").Connection} ConnectionInfo
+   * @typedef {import("../../types/PointTracker").Basket} Basket
+   * @typedef {import("../../types/PointTracker").BasketItem} BasketItem
+   * @typedef {import("../../types/PointTracker").Region} Region
+   */
+
+
+  /** @type {Basket[]} */
 	export let baskets = [];
+
+  /** @type {Region[]} */
 	export let regionPoints = [];
+
+  /** @type {number[]}*/
 	export let revealedRegions = [];
 
 	export let revealRegionPoints = false;
 	export let showSolution = false;
 
-	/**
-	 * @type {{ gameName: string; hostName: string; players: string[]; }}
-	 */
+	/** @type {ConnectionInfo} */
 	export let connectionInfo;
+
+  /** @type {boolean} */
 	export let isHost;
 
-	export let handleCheckToExposeRegion = () => {};
-	export let openInGameMenu = () => {};
-	export let onDisconnect = () => {};
-	export let onReconnect = () => {};
+  /**
+   * @type {function}
+   * @param {Basket} originalBasket
+   * @param {Basket} targetBasket
+   * @param {BasketItem} item
+  */
+	export let handleCheckToExposeRegion;
 
+  /** @type {function} */
+	export let openInGameMenu;
+  /** @type {function} */
+	export let onDisconnect;
+  /** @type {function} */
+	export let onReconnect;
+
+  /** @type {string|null} */
 	let hoveringOverBasket;
-	let selectedAvailableItem = {};
-	let selectedFoundItem = {};
+  /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
+	let selectedAvailableItem;
+  /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
+	let selectedFoundItem;
 
+  function getEmptyBasketItem() {
+    return {
+      highlighted: false,
+      id: '',
+      name: '',
+      points: 0,
+      regionFound: '',
+      currBasketIndex: -1,
+      currItemIndex: -1,
+    };
+  }
+
+  /**
+   * @param {BasketItem} movedItem
+   * @param {string} newRegionFoundValue
+   * @param {number} originalBasketIndex
+  */
 	function updateRegionFoundFromRegionTransfer(
 		movedItem,
 		newRegionFoundValue,
@@ -112,8 +155,8 @@
 			handleCheckToExposeRegion(originalBasket, targetBasket, item);
 
 			hoveringOverBasket = null;
-			selectedAvailableItem = {};
-			selectedFoundItem = {};
+			selectedAvailableItem = getEmptyBasketItem();
+			selectedFoundItem = getEmptyBasketItem();
 		}
 	}
 
@@ -165,10 +208,14 @@
 			handleCheckToExposeRegion(originalBasket, targetBasket, freedItem);
 		}
 
-		selectedAvailableItem = {};
-		selectedFoundItem = {};
+		selectedAvailableItem = getEmptyBasketItem();
+		selectedFoundItem = getEmptyBasketItem();
 	}
 
+  /**
+   * @param {number} basketIndex
+   * @param {number} itemIndex
+   */
 	function toggleHighlightItem(basketIndex, itemIndex) {
 		let highlightedItem = {
 			...baskets[basketIndex].items[itemIndex],
@@ -183,9 +230,15 @@
 		baskets = baskets;
 	}
 
+  /**
+   * @param {MouseEvent|KeyboardEvent} event
+   * @param {BasketItem} item
+   * @param {number} currBasketIndex
+   * @param {number} currItemIndex
+   */
 	function handleFoundItemClick(event, item, currBasketIndex, currItemIndex) {
 		event.stopPropagation();
-		selectedAvailableItem = {};
+		selectedAvailableItem = getEmptyBasketItem();
 
 		if (
 			selectedFoundItem?.id === item.id &&
@@ -194,7 +247,7 @@
 		) {
 			// Highlight the item if they double click on the item
 			toggleHighlightItem(currBasketIndex, currItemIndex);
-			selectedFoundItem = {};
+			selectedFoundItem = getEmptyBasketItem();
 		} else {
 			selectedFoundItem = {
 				...item,
@@ -204,6 +257,12 @@
 		}
 	}
 
+  /**
+   * @param {MouseEvent|KeyboardEvent} event
+   * @param {BasketItem} item
+   * @param {number} currBasketIndex
+   * @param {number} currItemIndex
+   */
 	function handleAvailableItemClick(event, item, currBasketIndex, currItemIndex) {
 		event.stopPropagation();
 		selectedAvailableItem = {
@@ -211,20 +270,25 @@
 			currBasketIndex,
 			currItemIndex,
 		};
-		selectedFoundItem = {};
+		selectedFoundItem = getEmptyBasketItem();
 	}
 
+  /**
+   * @param {CustomEvent} event
+   * @param {number} basketIndex
+   * @param {number} itemIndex
+   */
 	function handleClearItem(event, basketIndex, itemIndex) {
 		event.preventDefault();
 
 		const [removedItem] = baskets[basketIndex].items.splice(itemIndex, 1);
 
-		updateRegionFoundFromRegionTransfer(removedItem, undefined, basketIndex);
+		updateRegionFoundFromRegionTransfer(removedItem, '', basketIndex);
 		baskets = baskets;
 
 		handleCheckToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
-		selectedAvailableItem = {};
-		selectedFoundItem = {};
+		selectedAvailableItem = getEmptyBasketItem();
+		selectedFoundItem = getEmptyBasketItem();
 	}
 
 	function assignToPokemon() {
@@ -236,10 +300,13 @@
 				regionFound: 'P',
 			};
 			baskets = baskets;
-			selectedAvailableItem = {};
+			selectedAvailableItem = getEmptyBasketItem();
 		}
 	}
 
+  /**
+   * @param {number} rpIndex
+   */
 	function getRemainingSolutionItems(rpIndex) {
 		const solutionItems = regionPoints[rpIndex].items.map(item => item);
 		const basketItems = baskets[rpIndex].items.map(item => item.name);
@@ -251,6 +318,7 @@
 					1
 				);
 			} else {
+				// @ts-ignore
 				all.push(curr);
 			}
 
@@ -258,14 +326,17 @@
 		}, []);
 	}
 
+  /**
+   * @param {any} e
+   */
 	function handleOutsideRegionTableClick(e) {
 		if (
 			e.explicitOriginalTarget &&
 			e.explicitOriginalTarget.tagName.toLowerCase() !== 'img' &&
 			e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button'
 		) {
-			selectedAvailableItem = {};
-			selectedFoundItem = {};
+			selectedAvailableItem = getEmptyBasketItem();
+			selectedFoundItem = getEmptyBasketItem();
 		}
 	}
 
@@ -422,7 +493,7 @@
 			</Button>
 			<Button
 				color="primary"
-				on:click={e => assignToPokemon(e)}
+				on:click={() => assignToPokemon()}
 				variant="raised"
 				style={!selectedAvailableItem.points || !selectedAvailableItem.onPoke
 					? 'visibility: hidden'

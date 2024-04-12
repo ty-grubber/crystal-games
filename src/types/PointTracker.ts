@@ -1,4 +1,5 @@
 export type BasketItem = {
+  highlighted: boolean,
   id: string,
   name: string,
   points: number,
@@ -17,4 +18,14 @@ export type Region = {
   name: string,
   points: number,
   regionId: number,
+}
+
+export type Connection = {
+  hostName: string;
+  gameName: string;
+  isConnected: boolean;
+  players: {
+    name: string,
+    gameData: object,
+  }[];
 }
