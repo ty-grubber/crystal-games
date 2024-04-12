@@ -1,9 +1,17 @@
 <script>
-	// @ts-nocheck
 	import Button, { Label } from '@smui/button';
 	import DEFAULT_PRESET, { MAXIMUM } from '../constants/keyItemPresets';
 	import Dialog, { Actions, Content, Title } from '@smui/dialog';
 	import Select, { Option } from '@smui/select';
+
+  /**
+   * @typedef {import("../types/PointTracker").KeyItem} KeyItem
+  */
+
+  /**
+   * @type {function}
+   * @param {KeyItem[]} keyItems
+  */
 	export let onConfirmPts;
 	export let isOpen = false;
 

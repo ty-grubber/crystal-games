@@ -12,6 +12,15 @@ export type Basket = {
   items: BasketItem[],
 };
 
+export type KeyItem = {
+  id: string,
+  name: string,
+  onPoke: boolean,
+  points: number,
+  upgradeModifier: string,
+  upgradeAmt: number,
+}
+
 export type Region = {
   description: string,
   items: BasketItem[],

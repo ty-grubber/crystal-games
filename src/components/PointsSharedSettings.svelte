@@ -1,12 +1,14 @@
 <script>
-	// @ts-nocheck
 	import Button, { Label } from '@smui/button';
 	import Select, { Option } from '@smui/select';
 	import Textfield from '@smui/textfield';
 	import LayoutChooser from './LayoutChooser.svelte';
 
+  /** @type {function} */
 	export let onSubmit;
+  /** @type {function} */
 	export let openHowToDialog;
+  /** @type {function} */
 	export let openCustomPointsDialog;
 
 	export let showNetworking = false;
@@ -20,7 +22,7 @@
 	let trackerLayout = 'classic';
 	let revealOrdering = 'random';
 	let initialRevealedRegions = 1;
-	let spoilerFile;
+	let spoilerFile = '';
 
 	function onStartClick() {
 		onSubmit({
@@ -31,8 +33,11 @@
 		});
 	}
 
+  /**
+   * @param {any} e
+  */
 	function handleSpoilerFileChange(e) {
-		spoilerFile = e.target.files[0];
+		spoilerFile = e?.target?.files[0];
 	}
 
 	function toggleSpectatorMode() {
@@ -47,7 +52,7 @@
 	}
 
 	$: disableStartButton = showNetworking
-		? !spoilerFile || !playerName || !gameName || isConnecting
+		? (!spoilerFile || !playerName || !gameName || isConnecting)
 		: !spoilerFile;
 </script>
 
