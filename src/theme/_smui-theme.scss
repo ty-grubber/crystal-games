@@ -4,28 +4,28 @@
 
 // Svelte Colors!
 @use '@material/theme/index' as theme with (
-	$primary: #155c10,
-	$secondary: #676778,
-	$surface: #fff,
-	$background: #fff,
-	$error: color-palette.$red-900
+  $primary: #155c10,
+  $secondary: #676778,
+  $surface: #fff,
+  $background: #fff,
+  $error: color-palette.$red-900
 );
 
 html,
 body {
-	background-color: theme.$surface;
-	color: theme.$on-surface;
-	font-family: 'Roboto', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans',
-		Arial, sans-serif;
+  background-color: theme.$surface;
+  color: theme.$on-surface;
+  font-family: 'Roboto', 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans',
+    Arial, sans-serif;
 }
 
 a {
-	color: #40b3ff;
+  color: #40b3ff;
 }
 a:visited {
-	color: color.scale(#40b3ff, $lightness: -35%);
+  color: color.scale(#40b3ff, $lightness: -35%);
 }
 
 tr {
-	height: auto !important;
+  height: auto !important;
 }
