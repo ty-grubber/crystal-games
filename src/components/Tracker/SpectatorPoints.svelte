@@ -1,9 +1,13 @@
 <script>
 	import Select, { Option } from '@smui/select';
 	import { SPECTATOR } from '../../constants/keyItemLayouts';
+  /**
+   * @typedef {import("../../types/PointTracker").Basket} Basket
+   * @typedef {import("../../types/PointTracker").Region} Region
+   */
 
 	/**
-	 * @type {{type: string, name: string, items: {id: string, name: string, points: number, regionFound: string}[]}[]}
+	 * @type {Basket[]}
 	 */
 	export let baskets = [];
 
@@ -12,10 +16,15 @@
 	 */
 	export let isActive = true;
 
-	export let onActivatePlayer = () => {};
+  /**
+   * @type {function}
+   * @param {string} playerName
+   * @param {string} eventValue
+   */
+	export let onActivatePlayer;
 
 	/**
-	 * @type {{regionId: number, name: string, description: string, points: number, items: {id: string, name: string, points: number, regionFound: string}[]}[]}
+	 * @type {Region[]}
 	 */
 	export let regionPoints = [];
 
@@ -58,7 +67,6 @@
 	 * @param {CustomEvent} e
 	 */
 	function handleSwitch(e) {
-		// @ts-ignore
 		onActivatePlayer(playerName, e?.detail?.value);
 	}
 
@@ -70,25 +78,26 @@
 		let currBasket;
 
 		// Find basket where this item is currently located to determine its status
-		// @ts-ignore
-		if (specItem.extra > 0) {
+		if ('extra' in specItem && specItem.extra > 0) {
 			const allBasketsItemFoundIn = baskets.filter(
 				basket => basket.items.filter(item => item.id === specItem.id).length > 0
 			);
 
 			// Duplicate items might be in the same basket, so dupe baskets as necessary to make sure we're looking at the correct duplicate item's basket
-			// @ts-ignore
-			const dupedBaskets = allBasketsItemFoundIn.reduce((acc, curr) => {
+			/**
+			 * @type {Basket[]}
+			 */
+      const dupedBaskets = allBasketsItemFoundIn.reduce((acc, curr) => {
 				const occurrences = curr.items.filter(item => item.id === specItem.id).length;
 				for (let i = 0; i < occurrences; i++) {
-					// @ts-ignore
-					acc.push({
-						...curr,
-					});
+          // @ts-ignore
+          acc.push({
+            ...curr,
+          });
 				}
 				return acc;
 			}, []);
-			// @ts-ignore
+
 			currBasket = dupedBaskets[specItem.extra];
 		} else {
 			// Not a duplicate item, so just find the first basket that it appears in
@@ -96,10 +105,8 @@
 		}
 
 		// Determine the item's status based on the type of basket it is found in
-		// @ts-ignore
 		if (currBasket?.type === 'region') {
 			itemStatus = `found:${currBasket.name}`;
-			// @ts-ignore
 		} else if (currBasket?.type === 'item') {
 			itemStatus = 'not-found';
 		}
