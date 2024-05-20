@@ -1,6 +1,7 @@
 <script>
   // @ts-nocheck
   import { clickOutside } from '$lib/clickOutside';
+  import { getEmptyBasketItem } from '$lib/getEmptyBasketItem';
   import Button, { Label } from '@smui/button';
   import DataTable, { Body, Cell, Head, Row } from '@smui/data-table';
   import GameConnectionInfo from '../References/GameConnectionInfo.svelte';
@@ -54,18 +55,6 @@
   let selectedAvailableItem;
   /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
   let selectedFoundItem;
-
-  function getEmptyBasketItem() {
-    return {
-      highlighted: false,
-      id: '',
-      name: '',
-      points: 0,
-      regionFound: '',
-      currBasketIndex: -1,
-      currItemIndex: -1,
-    };
-  }
 
   const keyItemPointValues =
     baskets?.filter(basket => basket.type === 'item').map(basket => basket.name) || [];

@@ -1,6 +1,7 @@
 <script>
   // @ts-nocheck
   import { clickOutside } from '$lib/clickOutside';
+  import { getEmptyBasketItem } from '$lib/getEmptyBasketItem';
   import Button, { Label } from '@smui/button';
   import REGIONS from '../../constants/regions';
   import GameConnectionInfo from '../References/GameConnectionInfo.svelte';
@@ -51,18 +52,6 @@
   let selectedAvailableItem;
   /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
   let selectedFoundItem;
-
-  function getEmptyBasketItem() {
-    return {
-      highlighted: false,
-      id: '',
-      name: '',
-      points: 0,
-      regionFound: '',
-      currBasketIndex: -1,
-      currItemIndex: -1,
-    };
-  }
 
   /**
    * @param {BasketItem} movedItem
@@ -244,7 +233,6 @@
       selectedFoundItem?.currBasketIndex === currBasketIndex &&
       selectedFoundItem?.currItemIndex === currItemIndex
     ) {
-      // Highlight the item if they double click on the item
       toggleHighlightItem(currBasketIndex, currItemIndex);
       selectedFoundItem = getEmptyBasketItem();
     } else {
