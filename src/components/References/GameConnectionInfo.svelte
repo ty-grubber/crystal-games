@@ -4,21 +4,24 @@
   import Textfield from '@smui/textfield';
 
   /**
-   * @type {{ gameName: string; hostName: string; isConnected: boolean, players: {name: string; gameData: object}[]; }}
+   * @typedef {import("../../types/PointTracker").Connection} ConnectionInfo
    */
+
+  /** @type {ConnectionInfo} */
   export let connectionInfo;
-  /**
-   * @type boolean
-   */
+  /** @type {boolean} */
   export let isHost;
 
-  export let onReconnect = (/** @type {any} */ id) => {};
-  export let onDisconnect = () => {};
+  /**
+   * @type {function}
+   * @param {any} id
+  */
+  export let onReconnect;
+  /** @type {function} */
+  export let onDisconnect;
 
   let reconnectDialogOpen = false;
-  /**
-   * @type {string}
-   */
+  /** @type {string} */
   let reconnectJoinID = '';
 
   function handleConnectButtonClicked() {

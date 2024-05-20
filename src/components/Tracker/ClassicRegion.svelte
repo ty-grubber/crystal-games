@@ -7,31 +7,65 @@
   import RegionRefs from '../References/RegionRefs.svelte';
   import REGIONS, { regionColorClasses } from '../../constants/regions';
 
+  /**
+   * @typedef {import("../../types/PointTracker").Connection} ConnectionInfo
+   * @typedef {import("../../types/PointTracker").Basket} Basket
+   * @typedef {import("../../types/PointTracker").BasketItem} BasketItem
+   * @typedef {import("../../types/PointTracker").Region} Region
+   */
+
   const availableItemsPointCellStyles =
     'width: 65px !important; text-align: center; font-size: 24px;';
   const availableItemsItemCellStyles = 'padding: 0; width: 300px; white-space: normal;';
 
-  /**
-   * @type {{ regionId: number; points: number; items: any[]; name: string; }[]}
-   */
+  /** @type {Region[]} */
   export let regionPoints = [];
+
+  /** @type {Basket[]} */
   export let baskets = [];
+  /** @type {number[]} */
   export let revealedRegions = [];
 
   export let showSolution = false;
   export let revealRegionPoints = false;
 
+  /** @type {ConnectionInfo} */
   export let connectionInfo;
+  /** @type {boolean} */
   export let isHost;
 
-  export let handleCheckToExposeRegion = () => {};
-  export let openInGameMenu = () => {};
-  export let onDisconnect = () => {};
-  export let onReconnect = () => {};
+  /**
+   * @type {function}
+   * @param {Basket} originalBasket
+   * @param {Basket} targetBasket
+   * @param {BasketItem} item
+   */
+  export let handleCheckToExposeRegion;
+  /** @type {function} */
+  export let openInGameMenu;
+  /** @type {function} */
+  export let onDisconnect;
+  /** @type {function} */
+  export let onReconnect;
 
+  /** @type {string|null} */
   let hoveringOverBasket;
-  let selectedAvailableItem = {};
-  let selectedFoundItem = {};
+  /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
+  let selectedAvailableItem;
+  /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
+  let selectedFoundItem;
+
+  function getEmptyBasketItem() {
+    return {
+      highlighted: false,
+      id: '',
+      name: '',
+      points: 0,
+      regionFound: '',
+      currBasketIndex: -1,
+      currItemIndex: -1,
+    };
+  }
 
   const keyItemPointValues =
     baskets?.filter(basket => basket.type === 'item').map(basket => basket.name) || [];
@@ -69,7 +103,7 @@
         if (itemGettingDragged.points.toString() !== targetBasket.name) {
           targetBasket = baskets.find(
             basket => basket.type === 'item' && basket.name === itemGettingDragged.points.toString()
-          );
+          ) || targetBasket;
         }
       }
 
@@ -84,8 +118,8 @@
       handleCheckToExposeRegion(originalBasket, targetBasket, item);
 
       hoveringOverBasket = null;
-      selectedAvailableItem = {};
-      selectedFoundItem = {};
+      selectedAvailableItem = getEmptyBasketItem();
+      selectedFoundItem = getEmptyBasketItem();
     }
   }
 
@@ -105,7 +139,7 @@
         if (itemGettingPlaced.points.toString() !== targetBasket.name) {
           targetBasket = baskets.find(
             basket => basket.type === 'item' && basket.name === itemGettingPlaced.points.toString()
-          );
+          ) || targetBasket;
         }
       }
 
@@ -123,10 +157,14 @@
       handleCheckToExposeRegion(originalBasket, targetBasket, freedItem);
     }
 
-    selectedAvailableItem = {};
-    selectedFoundItem = {};
+    selectedAvailableItem = getEmptyBasketItem();
+    selectedFoundItem = getEmptyBasketItem();
   }
 
+  /**
+   * @param {number} basketIndex
+   * @param {number} itemIndex
+   */
   function toggleHighlightItem(basketIndex, itemIndex) {
     let highlightedItem = {
       ...baskets[basketIndex].items[itemIndex],
@@ -141,9 +179,15 @@
     baskets = baskets;
   }
 
+  /**
+   * @param {MouseEvent|KeyboardEvent} event
+   * @param {BasketItem} item
+   * @param {number} currBasketIndex
+   * @param {number} currItemIndex
+   */
   function handleFoundItemClick(event, item, currBasketIndex, currItemIndex) {
     event.stopPropagation();
-    selectedAvailableItem = {};
+    selectedAvailableItem = getEmptyBasketItem();
 
     if (
       selectedFoundItem?.id === item.id &&
@@ -151,7 +195,7 @@
       selectedFoundItem?.currItemIndex === currItemIndex
     ) {
       toggleHighlightItem(currBasketIndex, currItemIndex);
-      selectedFoundItem = {};
+      selectedFoundItem = getEmptyBasketItem();
     } else {
       selectedFoundItem = {
         ...item,
@@ -161,15 +205,27 @@
     }
   }
 
-  function handleAvailableItemClick(event, item, currBasketIndex) {
+  /**
+   * @param {MouseEvent|KeyboardEvent} event
+   * @param {BasketItem} item
+   * @param {number} currBasketIndex
+   * @param {number} currItemIndex
+   */
+  function handleAvailableItemClick(event, item, currBasketIndex, currItemIndex) {
     event.stopPropagation();
     selectedAvailableItem = {
       ...item,
       currBasketIndex,
+      currItemIndex,
     };
-    selectedFoundItem = {};
+    selectedFoundItem = getEmptyBasketItem();
   }
 
+  /**
+   * @param {CustomEvent} event
+   * @param {number} basketIndex
+   * @param {number} itemIndex
+   */
   function handleClearItem(event, basketIndex, itemIndex) {
     event.preventDefault();
 
@@ -178,15 +234,18 @@
       basket => basket.type === 'item' && basket.name === removedItem.points.toString()
     );
 
-    // Add the item to the drop target basket.
-    targetBasket.items.push(removedItem);
-    baskets = baskets;
+    if (targetBasket) {
+      // Add the item to the drop target basket.
+      targetBasket.items.push(removedItem);
+      baskets = baskets;
 
-    handleCheckToExposeRegion(baskets[basketIndex], targetBasket, removedItem);
-    selectedAvailableItem = {};
-    selectedFoundItem = {};
+      handleCheckToExposeRegion(baskets[basketIndex], targetBasket, removedItem);
+      selectedAvailableItem = getEmptyBasketItem();
+      selectedFoundItem = getEmptyBasketItem();
+    }
   }
 
+  /** @param {any} e */
   function handleOutsideRegionTableClick(e) {
     if (
       e.explicitOriginalTarget &&
@@ -194,8 +253,8 @@
       e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button' &&
       !keyItemPointValues.find(value => value.toString() === e.explicitOriginalTarget.innerHTML)
     ) {
-      selectedAvailableItem = {};
-      selectedFoundItem = {};
+      selectedAvailableItem = getEmptyBasketItem();
+      selectedFoundItem = getEmptyBasketItem();
     }
   }
 
@@ -210,7 +269,7 @@
     }, 0);
 
   $: totalBadgesFound =
-    16 - baskets.find(basket => basket.type === 'item' && basket.name === '9').items.length;
+    16 - (baskets.find(basket => basket.type === 'item' && basket.name === '9') || { items: [] }).items.length;
 </script>
 
 <div class="grid-area">
@@ -364,9 +423,10 @@
                     draggable={true}
                     on:dragstart={event =>
                       dragStart(event, REGIONS.length + basketIndex, itemIndex)}
-                    on:click={e => handleAvailableItemClick(e, item, REGIONS.length + basketIndex)}
+                    on:click={e =>
+                      handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
                     on:keypress={e =>
-                      handleAvailableItemClick(e, item, REGIONS.length + basketIndex)}
+                      handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
                   >
                     <img
                       class:selected={selectedAvailableItem?.id === item.id}
