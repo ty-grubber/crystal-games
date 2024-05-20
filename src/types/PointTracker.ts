@@ -29,12 +29,15 @@ export type Region = {
   regionId: number;
 };
 
+export type Player = {
+  gameData: object;
+  name: string;
+}
+
 export type Connection = {
-  hostName: string;
   gameName: string;
+  hostName: string;
+  hostIsSpectator: boolean;
   isConnected: boolean;
-  players: {
-    name: string;
-    gameData: object;
-  }[];
+  players: Player[];
 };

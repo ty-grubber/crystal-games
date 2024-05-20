@@ -18,16 +18,33 @@
   import KEY_ITEMS from '../../constants/keyItemPresets';
   import { peerJSConnectionConfig } from '../../constants/network';
 
+  /**
+   * @typedef {import("../../types/PointTracker").BasketItem} BasketItem
+   * @typedef {import("../../types/PointTracker").Basket} Basket
+   * @typedef {import("../../types/PointTracker").Connection} ConnectionInfo
+   * @typedef {import("../../types/PointTracker").KeyItem} KeyItem
+   * @typedef {import("../../types/PointTracker").Player} Player
+   * @typedef {import("../../types/PointTracker").Region} Region
+   */
+
   const HOST_ID_PREFIX = 'PCPT-';
 
+  /** @type {Region[]} */
   let regionPoints;
+  /** @type {Region[]} */
   let startingRegionPoints = [];
-  let baskets = [];
+  /** @type {Basket[]} */
+  let baskets;
+  /** @type {Basket[]} */
   let startingBaskets = [];
-  let regionRevealOrder = [];
-  let startingRegionRevealOrder = [];
-  let revealedRegions = [];
-  let startingRevealedRegions = [];
+  /** @type {number[]} */
+  let regionRevealOrder;
+  /** @type {number[]} */
+  let startingRegionRevealOrder;
+  /** @type {number[]} */
+  let revealedRegions;
+  /** @type {number[]} */
+  let startingRevealedRegions;
   let showSolution = false;
 
   let settingsDialogOpen = true;
@@ -42,9 +59,13 @@
   let copiedHostId = false;
 
   let revealRegionPoints = false;
+  /** @type {string} */
   let trackerLayout;
+  /** @type {string} */
   let revealOrdering;
+  /** @type {number} */
   let initialRevealedRegions;
+  /** @type {any} */
   let spoilerFile;
 
   let keyItems = [...KEY_ITEMS];
@@ -59,9 +80,13 @@
   let hostIsSpectator = false;
   let revealHostID = false;
 
+  /** @type {any} */
   let currentPeer;
+  /** @type {any} */
   let hostConnection;
-  let peerConnections = [];
+  /** @type {any[]} */
+  let peerConnections
+  /** @type {ConnectionInfo} */;
   let connectionInfo;
 
   function openSettingsDialog() {
@@ -97,18 +122,22 @@
     revealRegionPoints = !revealRegionPoints;
   }
 
+  /**
+   * @param {KeyItem[]} updatedKeyItems
+  */
   function handleUpdatePointValues(updatedKeyItems) {
     keyItems = [...updatedKeyItems];
     customPtsMenuOpen = false;
   }
 
   function establishHostConnections() {
+    // @ts-ignore
     currentPeer = new Peer(`${HOST_ID_PREFIX}${newHostConnectionID || hostID}`, {
       config: peerJSConnectionConfig,
-      debug: 2, // TODO: reset to 0 when we go to production
+      debug: 0,
     });
     isConnecting = true;
-    currentPeer.on('open', function (id) {
+    currentPeer.on('open', function () {
       connectionInfo = {
         gameName,
         hostName: playerName,
@@ -137,7 +166,7 @@
     });
 
     // Send all vars above this if block and connection info to connector
-    currentPeer.on('connection', function (conn) {
+    currentPeer.on('connection', function (/** @type {any} */conn) {
       // see if this is an existing player re-connecting
       const existingConnectionIndex = peerConnections.findIndex(pc => pc.peer === conn.peer);
       const connectionExists = existingConnectionIndex < 0;
@@ -148,7 +177,7 @@
       }
       peerConnections = peerConnections;
 
-      conn.on('open', function (id) {
+      conn.on('open', function () {
         conn.send({
           connectionInfo,
           gameInfo: {
@@ -159,11 +188,12 @@
           },
         });
       });
-      conn.on('data', function (data) {
+      conn.on('data', function (/** @type {any} */ data) {
         const { playerToAdd, playerToUpdate, ...rest } = data;
         if (playerToAdd) {
           // Only add the player if they don't already exist (ie. if they've reconnected)
-          if (connectionInfo.players.findIndex(player => player.name === playerToAdd) < 0) {
+          if (connectionInfo.players.findIndex(
+            (/** @type {Player} */ player) => player.name === playerToAdd) < 0) {
             connectionInfo.players = [
               ...connectionInfo.players,
               {
@@ -186,7 +216,7 @@
           // we're getting updated game data
           if (isHost && hostIsSpectator) {
             const indexToUpdate = connectionInfo.players.findIndex(
-              player => player.name === playerToUpdate
+                (/** @type {Player} */ player) => player.name === playerToUpdate
             );
             connectionInfo.players[indexToUpdate].gameData = rest;
           }
@@ -201,7 +231,8 @@
         baskets: startingBaskets,
         regionRevealOrder: startingRegionRevealOrder,
         regionPoints: startingRegionPoints,
-      } = await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering));
+      } = await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering)
+        || { baskets: [], regionRevealOrder: [], regionPoints: []});
 
       startingRevealedRegions = startingRegionRevealOrder.splice(0, initialRevealedRegions);
 
@@ -219,6 +250,9 @@
     }
   }
 
+  /**
+   * @param {{ trackerLayout: string; revealOrdering: string; initialRevealedRegions: number; spoilerFile: any; }} settings
+  */
   function handleSettingsSubmit(settings) {
     isHost = activeTab === 'Host';
     ({ trackerLayout, revealOrdering, initialRevealedRegions, spoilerFile } = settings);
@@ -226,6 +260,7 @@
     onStartClick();
   }
 
+  /** @param {string|void} id */
   function establishConnectionToHost(id) {
     hostConnection = currentPeer.connect(`${HOST_ID_PREFIX}${id || joinID}`);
 
@@ -234,7 +269,7 @@
         playerToAdd: playerName,
       });
 
-      hostConnection.on('data', function (data) {
+      hostConnection.on('data', function (/** @type {any} */ data) {
         connectionInfo = data.connectionInfo;
         // Don't need to update our existing game data if we already have the info from the spoiler (ie. we reconnected to the host)
         if (data.gameInfo && !regionPoints) {
@@ -254,6 +289,7 @@
 
   function onConnectClick() {
     isConnecting = true;
+    // @ts-ignore
     currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
       config: peerJSConnectionConfig,
       debug: 0,
@@ -270,6 +306,9 @@
     currentPeer.disconnect();
   }
 
+  /**
+   * @param {string} id
+   */
   function onReconnect(id) {
     if (!isHost) {
       isConnecting = true;
@@ -278,6 +317,7 @@
         establishConnectionToHost(id);
       } else {
         // re-create a connection to the PeerServer so we can reconnect to the host
+        // @ts-ignore
         currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
           config: peerJSConnectionConfig,
           debug: 0,
@@ -317,6 +357,11 @@
     }
   }
 
+  /**
+   * @param {Basket} originalBasket
+   * @param {Basket} targetBasket
+   * @param {BasketItem} movedItem
+  */
   function handleCheckToExposeRegion(originalBasket, targetBasket, movedItem) {
     ({ regionRevealOrder, revealedRegions } = checkToExposeRegion(
       originalBasket.type,
@@ -337,6 +382,10 @@
     }
   }
 
+  /**
+   * @param {string} swapInPlayerName
+   * @param {string} activeSlot
+  */
   function handleActivatePlayer(swapInPlayerName, activeSlot) {
     const newPlayerOrder = [...connectionInfo.players];
     const swapInPlayerIndex = newPlayerOrder.findIndex(player => player.name === swapInPlayerName);
@@ -356,6 +405,9 @@
     setTimeout(() => (copiedHostId = false), 5000);
   }
 
+  /**
+    * @param {any} event
+    */
   function beforeUnload(event) {
     if (regionPoints && confirmOnRefresh) {
       event.preventDefault();

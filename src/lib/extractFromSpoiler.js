@@ -115,6 +115,7 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
  * @param {any} spoilerFile
  * @param {any[]} keyItems
  * @param {string} revealOrdering
+ * @returns {Promise<{ baskets: import('../types/PointTracker').Basket[]; regionPoints: import('../types/PointTracker').Region[]; regionRevealOrder: number[]; }|undefined>}
  */
 async function extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering) {
   const file = spoilerFile;
