@@ -52,9 +52,9 @@
   /** @type {string|null} */
   let hoveringOverBasket;
   /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
-  let selectedAvailableItem;
+  let selectedAvailableItem = getEmptyBasketItem();
   /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
-  let selectedFoundItem;
+  let selectedFoundItem = getEmptyBasketItem();
 
   const keyItemPointValues =
     baskets?.filter(basket => basket.type === 'item').map(basket => basket.name) || [];

@@ -35,17 +35,17 @@
   /** @type {Region[]} */
   let startingRegionPoints = [];
   /** @type {Basket[]} */
-  let baskets;
+  let baskets = [];
   /** @type {Basket[]} */
   let startingBaskets = [];
   /** @type {number[]} */
-  let regionRevealOrder;
+  let regionRevealOrder = [];
   /** @type {number[]} */
-  let startingRegionRevealOrder;
+  let startingRegionRevealOrder = [];
   /** @type {number[]} */
-  let revealedRegions;
+  let revealedRegions = [];
   /** @type {number[]} */
-  let startingRevealedRegions;
+  let startingRevealedRegions = [];
   let showSolution = false;
 
   let settingsDialogOpen = true;
@@ -84,8 +84,8 @@
   /** @type {any} */
   let hostConnection;
   /** @type {any[]} */
-  let peerConnections;
-    /** @type {ConnectionInfo} */
+  let peerConnections = [];
+  /** @type {ConnectionInfo} */
   let connectionInfo;
 
   function openSettingsDialog() {

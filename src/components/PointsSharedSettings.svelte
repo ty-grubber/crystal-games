@@ -128,7 +128,7 @@
     style="margin-left: 1rem; width: 214px;"
   />
   <br /><br />
-  <Button color="primary" variant="outlined" on:click={openCustomPointsDialog}>
+  <Button color="primary" variant="outlined" on:click={() => openCustomPointsDialog()}>
     Customize Item Points
   </Button>
 </div>

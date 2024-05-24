@@ -49,9 +49,9 @@
   /** @type {string|null} */
   let hoveringOverBasket;
   /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
-  let selectedAvailableItem;
+  let selectedAvailableItem = getEmptyBasketItem();
   /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
-  let selectedFoundItem;
+  let selectedFoundItem = getEmptyBasketItem();
 
   /**
    * @param {BasketItem} movedItem
