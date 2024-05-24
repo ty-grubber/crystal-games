@@ -32,7 +32,7 @@ export type Region = {
 export type Player = {
   gameData: object;
   name: string;
-}
+};
 
 export type Connection = {
   gameName: string;

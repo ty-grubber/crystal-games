@@ -8,8 +8,9 @@
   import Tab, { Label as TabLabel } from '@smui/tab';
   import TabBar from '@smui/tab-bar';
   import Textfield from '@smui/textfield';
+  import PointsHowToPlayButton from '../../components/Buttons/PointsHowToPlay.svelte';
+  import PointsSpectatorHelpButton from '../../components/Buttons/PointsSpectatorHelp.svelte';
   import CustomPtsDialog from '../../components/CustomPts.svelte';
-  import PointsHintDialog from '../../components/HowTos/PointsHintDialog.svelte';
   import LayoutChooser from '../../components/LayoutChooser.svelte';
   import PointsSharedSettings from '../../components/PointsSharedSettings.svelte';
   import ClassicRegion from '../../components/Tracker/ClassicRegion.svelte';
@@ -48,8 +49,6 @@
   let showSolution = false;
 
   let settingsDialogOpen = true;
-  let howToDialogOpen = false;
-  let howToSpectatorOpen = false;
   let customPtsMenuOpen = false;
   let inGameMenuOpen = false;
   let activeTab = 'Solo';
@@ -85,20 +84,12 @@
   /** @type {any} */
   let hostConnection;
   /** @type {any[]} */
-  let peerConnections
-  /** @type {ConnectionInfo} */;
+  let peerConnections;
+    /** @type {ConnectionInfo} */
   let connectionInfo;
 
   function openSettingsDialog() {
     settingsDialogOpen = true;
-  }
-
-  function openHowToDialog() {
-    howToDialogOpen = true;
-  }
-
-  function openSpectatorDialog() {
-    howToSpectatorOpen = true;
   }
 
   function openCustomPointsDialog() {
@@ -124,7 +115,7 @@
 
   /**
    * @param {KeyItem[]} updatedKeyItems
-  */
+   */
   function handleUpdatePointValues(updatedKeyItems) {
     keyItems = [...updatedKeyItems];
     customPtsMenuOpen = false;
@@ -166,7 +157,7 @@
     });
 
     // Send all vars above this if block and connection info to connector
-    currentPeer.on('connection', function (/** @type {any} */conn) {
+    currentPeer.on('connection', function (/** @type {any} */ conn) {
       // see if this is an existing player re-connecting
       const existingConnectionIndex = peerConnections.findIndex(pc => pc.peer === conn.peer);
       const connectionExists = existingConnectionIndex < 0;
@@ -192,8 +183,11 @@
         const { playerToAdd, playerToUpdate, ...rest } = data;
         if (playerToAdd) {
           // Only add the player if they don't already exist (ie. if they've reconnected)
-          if (connectionInfo.players.findIndex(
-            (/** @type {Player} */ player) => player.name === playerToAdd) < 0) {
+          if (
+            connectionInfo.players.findIndex(
+              (/** @type {Player} */ player) => player.name === playerToAdd
+            ) < 0
+          ) {
             connectionInfo.players = [
               ...connectionInfo.players,
               {
@@ -216,7 +210,7 @@
           // we're getting updated game data
           if (isHost && hostIsSpectator) {
             const indexToUpdate = connectionInfo.players.findIndex(
-                (/** @type {Player} */ player) => player.name === playerToUpdate
+              (/** @type {Player} */ player) => player.name === playerToUpdate
             );
             connectionInfo.players[indexToUpdate].gameData = rest;
           }
@@ -231,8 +225,11 @@
         baskets: startingBaskets,
         regionRevealOrder: startingRegionRevealOrder,
         regionPoints: startingRegionPoints,
-      } = await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering)
-        || { baskets: [], regionRevealOrder: [], regionPoints: []});
+      } = (await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering)) || {
+        baskets: [],
+        regionRevealOrder: [],
+        regionPoints: [],
+      });
 
       startingRevealedRegions = startingRegionRevealOrder.splice(0, initialRevealedRegions);
 
@@ -252,7 +249,7 @@
 
   /**
    * @param {{ trackerLayout: string; revealOrdering: string; initialRevealedRegions: number; spoilerFile: any; }} settings
-  */
+   */
   function handleSettingsSubmit(settings) {
     isHost = activeTab === 'Host';
     ({ trackerLayout, revealOrdering, initialRevealedRegions, spoilerFile } = settings);
@@ -361,7 +358,7 @@
    * @param {Basket} originalBasket
    * @param {Basket} targetBasket
    * @param {BasketItem} movedItem
-  */
+   */
   function handleCheckToExposeRegion(originalBasket, targetBasket, movedItem) {
     ({ regionRevealOrder, revealedRegions } = checkToExposeRegion(
       originalBasket.type,
@@ -385,7 +382,7 @@
   /**
    * @param {string} swapInPlayerName
    * @param {string} activeSlot
-  */
+   */
   function handleActivatePlayer(swapInPlayerName, activeSlot) {
     const newPlayerOrder = [...connectionInfo.players];
     const swapInPlayerIndex = newPlayerOrder.findIndex(player => player.name === swapInPlayerName);
@@ -406,8 +403,8 @@
   }
 
   /**
-    * @param {any} event
-    */
+   * @param {any} event
+   */
   function beforeUnload(event) {
     if (regionPoints && confirmOnRefresh) {
       event.preventDefault();
@@ -438,9 +435,7 @@
     <Button color="primary" on:click={openSettingsDialog} variant="raised">
       <Label>New Game</Label>
     </Button>
-    <Button color="secondary" on:click={openHowToDialog} variant="raised">
-      <Label>How To Play</Label>
-    </Button>
+    <PointsHowToPlayButton />
     <Button color="secondary" href="/" variant="outlined">
       <Label>Games Home</Label>
     </Button>
@@ -458,7 +453,6 @@
       {#if activeTab === 'Host'}
         <PointsSharedSettings
           onSubmit={handleSettingsSubmit}
-          {openHowToDialog}
           {openCustomPointsDialog}
           showNetworking={true}
           {hostID}
@@ -467,11 +461,7 @@
           bind:gameName
         />
       {:else if activeTab === 'Solo'}
-        <PointsSharedSettings
-          onSubmit={handleSettingsSubmit}
-          {openHowToDialog}
-          {openCustomPointsDialog}
-        />
+        <PointsSharedSettings onSubmit={handleSettingsSubmit} {openCustomPointsDialog} />
       {:else}
         <div class="join-wrapper">
           <span>
@@ -492,9 +482,7 @@
         >
           <Label>Connect</Label>
         </Button>
-        <Button color="secondary" on:click={openHowToDialog} variant="raised">
-          <Label>How To Play</Label>
-        </Button>
+        <PointsHowToPlayButton />
         <Button color="secondary" href="/" variant="outlined">
           <Label>Games Home</Label>
         </Button>
@@ -503,11 +491,6 @@
   </Dialog>
 
   <CustomPtsDialog bind:isOpen={customPtsMenuOpen} onConfirmPts={handleUpdatePointValues} />
-
-  <PointsHintDialog
-    bind:isOpen={howToDialogOpen}
-    bind:spectatorTrackerDialogOpen={howToSpectatorOpen}
-  />
 
   <Dialog bind:open={inGameMenuOpen} surface$style="width: 450px">
     <Title id="inGameMenuTitle">Tracker Menu</Title>
@@ -543,13 +526,9 @@
         </p>
       {/if}
       {#if isHost && hostIsSpectator}
-        <Button color="secondary" on:click={openSpectatorDialog} variant="raised">
-          <Label>Spectator Host Help</Label>
-        </Button>
+        <PointsSpectatorHelpButton />
       {:else}
-        <Button color="secondary" on:click={openHowToDialog} variant="raised">
-          <Label>How To Play</Label>
-        </Button>
+        <PointsHowToPlayButton />
       {/if}
       <br /><br />
       <Button color="primary" on:click={handleStartNewGame} variant="raised">

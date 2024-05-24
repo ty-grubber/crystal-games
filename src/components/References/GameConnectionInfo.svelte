@@ -15,7 +15,7 @@
   /**
    * @type {function}
    * @param {any} id
-  */
+   */
   export let onReconnect;
   /** @type {function} */
   export let onDisconnect;

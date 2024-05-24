@@ -2,12 +2,11 @@
   import Button, { Label } from '@smui/button';
   import Select, { Option } from '@smui/select';
   import Textfield from '@smui/textfield';
+  import PointsHowToPlayButton from './Buttons/PointsHowToPlay.svelte';
   import LayoutChooser from './LayoutChooser.svelte';
 
   /** @type {function} */
   export let onSubmit;
-  /** @type {function} */
-  export let openHowToDialog;
   /** @type {function} */
   export let openCustomPointsDialog;
 
@@ -141,9 +140,7 @@
 <Button color="primary" on:click={onStartClick} disabled={disableStartButton} variant="raised">
   <Label>Start Game</Label>
 </Button>
-<Button color="secondary" on:click={openHowToDialog} variant="raised">
-  <Label>How To Play</Label>
-</Button>
+<PointsHowToPlayButton />
 <Button color="secondary" href="/" variant="outlined">
   <Label>Games Home</Label>
 </Button>
