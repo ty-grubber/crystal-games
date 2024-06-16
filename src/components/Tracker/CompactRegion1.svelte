@@ -357,12 +357,13 @@
         class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
         class:dumpable={(!revealRegionPoints &&
           !revealedRegions.includes(rp.regionId) &&
-          (selectedAvailableItem?.points || selectedFoundItem?.points)) ||
+          (selectedAvailableItem?.points > 0 || selectedFoundItem?.points > 0)) ||
           ((revealRegionPoints || (!revealRegionPoints && revealedRegions.includes(rp.regionId))) &&
-            selectedAvailableItem?.points <=
-              rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
-          selectedFoundItem?.points <=
-            rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)}
+            (selectedAvailableItem?.points > 0 && selectedAvailableItem?.points <=
+              rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0) ||
+            selectedFoundItem?.points > 0 && selectedFoundItem?.points <=
+              rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
+          )}
         class:new-revealed={revealedRegions[0] === rp.regionId}
         on:dragenter={() => (hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`)}
         on:drop={e => regionDrop(e, i)}
