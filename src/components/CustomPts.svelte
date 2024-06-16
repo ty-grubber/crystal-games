@@ -1,23 +1,31 @@
 <script>
-// @ts-nocheck
   import Button, { Label } from '@smui/button';
   import DEFAULT_PRESET, { MAXIMUM } from '../constants/keyItemPresets';
   import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import Select, { Option } from '@smui/select';
+
+  /**
+   * @typedef {import("../types/PointTracker").KeyItem} KeyItem
+   */
+
+  /**
+   * @type {function}
+   * @param {KeyItem[]} keyItems
+   */
   export let onConfirmPts;
   export let isOpen = false;
 
   let preset = 'default';
   // Map to new item to avoid mutation imported constants
-  let keyItems = DEFAULT_PRESET.map(item => ({...item}));
+  let keyItems = DEFAULT_PRESET.map(item => ({ ...item }));
   $: {
     switch (preset) {
       case 'default':
-        keyItems = DEFAULT_PRESET.map(item => ({...item}));
+        keyItems = DEFAULT_PRESET.map(item => ({ ...item }));
         break;
 
       case 'maximum':
-        keyItems = MAXIMUM.map(item => ({...item}));
+        keyItems = MAXIMUM.map(item => ({ ...item }));
         break;
 
       default:
@@ -34,7 +42,7 @@
   <Title>Customize Key Item Points</Title>
   <Content>
     <div class="item-list">
-      {#each keyItems as item, idx (item.id) }
+      {#each keyItems as item, idx (item.id)}
         <div class="item-pt-card">
           <img
             class={`icon ${item.upgradeModifier ? 'upgradable' : ''}`}
@@ -49,7 +57,7 @@
             min="1"
             max="9"
             bind:value={keyItems[idx].points}
-            on:change={() => preset = 'custom'}
+            on:change={() => (preset = 'custom')}
           />
         </div>
       {/each}
@@ -68,12 +76,11 @@
     <Button color="primary" on:click={handleOnConfirm} variant="raised">
       <Label>Confirm Points</Label>
     </Button>
-    <Button color="secondary" on:click={() => isOpen = false} variant="raised">
+    <Button color="secondary" on:click={() => (isOpen = false)} variant="raised">
       <Label>Cancel</Label>
     </Button>
   </Actions>
 </Dialog>
-
 
 <style>
   .item-list {

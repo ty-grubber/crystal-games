@@ -25,7 +25,7 @@
           locations,
           treasures,
           seed,
-        }
+        },
       });
     } else {
       if (treasures === 0) {
@@ -44,7 +44,12 @@
 <br />
 <TextField variant="outlined" bind:value={rivals} label="Rivals to Defeat:" type="number" />
 <br /><br />
-<TextField variant="outlined" bind:value={locations} label="Searchable Treasure Locations:" type="number" />
+<TextField
+  variant="outlined"
+  bind:value={locations}
+  label="Searchable Treasure Locations:"
+  type="number"
+/>
 <br /><br />
 <TextField variant="outlined" bind:value={treasures} label="Number of Treasures:" type="number" />
 <br /><br />

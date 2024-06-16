@@ -82,7 +82,7 @@ const NATIONAL_DEX = [
   { id: 80, name: 'Slowbro' },
   { id: 81, name: 'Magnemite' },
   { id: 82, name: 'Magneton' },
-  { id: 83, name: 'Farfetch\'d' },
+  { id: 83, name: "Farfetch'd" },
   { id: 84, name: 'Doduo' },
   { id: 85, name: 'Dodrio' },
   { id: 86, name: 'Seel' },
@@ -251,9 +251,7 @@ const NATIONAL_DEX = [
   { id: 249, name: 'Lugia' },
   { id: 250, name: 'Ho-oh' },
   { id: 251, name: 'Celebi' },
-]
+];
 /* spell-checker: enable */
 
-export {
-  NATIONAL_DEX
-};
+export { NATIONAL_DEX };

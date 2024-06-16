@@ -1,9 +1,13 @@
 <script>
   import Select, { Option } from '@smui/select';
-	import { SPECTATOR } from '../../constants/keyItemLayouts';
+  import { SPECTATOR } from '../../constants/keyItemLayouts';
+  /**
+   * @typedef {import("../../types/PointTracker").Basket} Basket
+   * @typedef {import("../../types/PointTracker").Region} Region
+   */
 
   /**
-   * @type {{type: string, name: string, items: {id: string, name: string, points: number, regionFound: string}[]}[]}
+   * @type {Basket[]}
    */
   export let baskets = [];
 
@@ -12,21 +16,26 @@
    */
   export let isActive = true;
 
-  export let onActivatePlayer = () => {};
+  /**
+   * @type {function}
+   * @param {string} playerName
+   * @param {string} eventValue
+   */
+  export let onActivatePlayer;
 
   /**
-   * @type {{regionId: number, name: string, description: string, points: number, items: {id: string, name: string, points: number, regionFound: string}[]}[]}
+   * @type {Region[]}
    */
   export let regionPoints = [];
 
   /**
-	 * @type {number[]}
-	 */
+   * @type {number[]}
+   */
   export let revealedRegions = [];
 
   /**
-	 * @type {string}
-	 */
+   * @type {string}
+   */
   export let playerName;
 
   /**
@@ -58,7 +67,6 @@
    * @param {CustomEvent} e
    */
   function handleSwitch(e) {
-    // @ts-ignore
     onActivatePlayer(playerName, e?.detail?.value);
   }
 
@@ -70,12 +78,15 @@
     let currBasket;
 
     // Find basket where this item is currently located to determine its status
-    // @ts-ignore
-    if (specItem.extra > 0) {
-      const allBasketsItemFoundIn = baskets.filter(basket => basket.items.filter(item => item.id === specItem.id).length > 0);
+    if ('extra' in specItem && specItem.extra > 0) {
+      const allBasketsItemFoundIn = baskets.filter(
+        basket => basket.items.filter(item => item.id === specItem.id).length > 0
+      );
 
       // Duplicate items might be in the same basket, so dupe baskets as necessary to make sure we're looking at the correct duplicate item's basket
-      // @ts-ignore
+      /**
+       * @type {Basket[]}
+       */
       const dupedBaskets = allBasketsItemFoundIn.reduce((acc, curr) => {
         const occurrences = curr.items.filter(item => item.id === specItem.id).length;
         for (let i = 0; i < occurrences; i++) {
@@ -86,7 +97,7 @@
         }
         return acc;
       }, []);
-      // @ts-ignore
+
       currBasket = dupedBaskets[specItem.extra];
     } else {
       // Not a duplicate item, so just find the first basket that it appears in
@@ -94,10 +105,8 @@
     }
 
     // Determine the item's status based on the type of basket it is found in
-    // @ts-ignore
     if (currBasket?.type === 'region') {
       itemStatus = `found:${currBasket.name}`;
-    // @ts-ignore
     } else if (currBasket?.type === 'item') {
       itemStatus = 'not-found';
     }
@@ -112,11 +121,16 @@
     return sum + curr.points;
   }, 0);
 
-  $: totalPointsRemaining = baskets.filter(basket => basket.type === 'item').reduce((sum, curr) => {
-    return sum + curr.items
-      .filter(item => !item.regionFound || item.regionFound === 'P')
-      .reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0);
-  }, 0);
+  $: totalPointsRemaining = baskets
+    .filter(basket => basket.type === 'item')
+    .reduce((sum, curr) => {
+      return (
+        sum +
+        curr.items
+          .filter(item => !item.regionFound || item.regionFound === 'P')
+          .reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0)
+      );
+    }, 0);
 </script>
 
 {#if regionPoints && baskets}
@@ -156,8 +170,7 @@
             <span class="region-pts-left" class:recent={rp.regionId === revealedRegions[0]}>
               {revealedRegions.includes(rp.regionId)
                 ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
-                : '??'
-              }
+                : '??'}
             </span>
           </div>
         </div>
@@ -177,15 +190,12 @@
           <div class="pts-remaining">
             <span class="pts-remaining-text">
               {revealedRegions.includes(ar.regionId)
-                ? ar.points - baskets[activeRegionIndex]?.items.reduce((acc, curr) => acc + curr.points, 0)
-                : '??'
-              }
+                ? ar.points -
+                  baskets[activeRegionIndex]?.items.reduce((acc, curr) => acc + curr.points, 0)
+                : '??'}
             </span>
           </div>
-          <div
-            class="basket-items"
-            class:big-list={baskets[activeRegionIndex]?.items.length > 11}
-          >
+          <div class="basket-items" class:big-list={baskets[activeRegionIndex]?.items.length > 11}>
             {#each baskets[activeRegionIndex]?.items as item, itemIndex (`${item.id}_${itemIndex}`)}
               <img
                 class="item-icon"
@@ -230,7 +240,9 @@
     line-height: 1.5;
   }
 
-  .emo-item, .region-image, .region-pts-count {
+  .emo-item,
+  .region-image,
+  .region-pts-count {
     border: 2px solid transparent;
     height: 40px;
     position: relative;
@@ -238,7 +250,8 @@
     width: 40px;
   }
 
-  .item-icon, .region-icon {
+  .item-icon,
+  .region-icon {
     max-height: 40px;
     max-width: 40px;
     width: 100%;
@@ -274,9 +287,10 @@
     background-color: green;
   }
 
-  .region-pts-count, .progress-info {
+  .region-pts-count,
+  .progress-info {
     font-size: 1.3rem;
-    line-height: 2
+    line-height: 2;
   }
 
   .region-pts-left.recent {

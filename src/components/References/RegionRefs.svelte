@@ -1,5 +1,5 @@
 <script>
-	import REGIONS from '../../constants/regions';
+  import REGIONS from '../../constants/regions';
   import Button, { Label } from '@smui/button';
 
   export let hideTitle = false;
@@ -11,13 +11,25 @@
     <b style="font-size:18px;">References</b>
   {/if}
   <br />
-  <Button color="primary" on:click={() => mapSelected = 'johto'} style={`text-decoration: ${mapSelected === 'johto' ? 'underline' : 'none'}`}>
+  <Button
+    color="primary"
+    on:click={() => (mapSelected = 'johto')}
+    style={`text-decoration: ${mapSelected === 'johto' ? 'underline' : 'none'}`}
+  >
     <Label>Johto Map</Label>
   </Button>
-  <Button color="primary" on:click={() => mapSelected = 'kanto'} style={`text-decoration: ${mapSelected === 'kanto' ? 'underline' : 'none'}`}>
+  <Button
+    color="primary"
+    on:click={() => (mapSelected = 'kanto')}
+    style={`text-decoration: ${mapSelected === 'kanto' ? 'underline' : 'none'}`}
+  >
     <Label>Kanto Map</Label>
   </Button>
-  <Button color="primary" on:click={() => mapSelected = 'text'} style={`text-decoration: ${mapSelected === 'text' ? 'underline' : 'none'}`}>
+  <Button
+    color="primary"
+    on:click={() => (mapSelected = 'text')}
+    style={`text-decoration: ${mapSelected === 'text' ? 'underline' : 'none'}`}
+  >
     <Label>Text Regions</Label>
   </Button>
   <br />
@@ -28,7 +40,10 @@
       {/each}
     </ol>
   {:else}
-    <img src={`/maps/${mapSelected}-points-region-map.png`} alt={`Points region map of ${mapSelected}`} />
+    <img
+      src={`/maps/${mapSelected}-points-region-map.png`}
+      alt={`Points region map of ${mapSelected}`}
+    />
   {/if}
 </div>
 

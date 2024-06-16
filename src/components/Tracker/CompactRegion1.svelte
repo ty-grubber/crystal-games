@@ -1,37 +1,77 @@
 <script>
   // @ts-nocheck
   import { clickOutside } from '$lib/clickOutside';
+  import { getEmptyBasketItem } from '$lib/getEmptyBasketItem';
   import Button, { Label } from '@smui/button';
-	import REGIONS from '../../constants/regions';
+  import REGIONS from '../../constants/regions';
   import GameConnectionInfo from '../References/GameConnectionInfo.svelte';
 
+  /**
+   * @typedef {import("../../types/PointTracker").Connection} ConnectionInfo
+   * @typedef {import("../../types/PointTracker").Basket} Basket
+   * @typedef {import("../../types/PointTracker").BasketItem} BasketItem
+   * @typedef {import("../../types/PointTracker").Region} Region
+   */
+
+  /** @type {Basket[]} */
   export let baskets = [];
+
+  /** @type {Region[]} */
   export let regionPoints = [];
+
+  /** @type {number[]}*/
   export let revealedRegions = [];
 
   export let revealRegionPoints = false;
   export let showSolution = false;
 
-  /**
-	 * @type {{ gameName: string; hostName: string; players: string[]; }}
-	 */
+  /** @type {ConnectionInfo} */
   export let connectionInfo;
+
+  /** @type {boolean} */
   export let isHost;
 
-  export let handleCheckToExposeRegion = () => {};
-  export let openInGameMenu = () => {};
-  export let onDisconnect = () => {};
-  export let onReconnect = () => {};
+  /**
+   * @type {function}
+   * @param {Basket} originalBasket
+   * @param {Basket} targetBasket
+   * @param {BasketItem} item
+   */
+  export let handleCheckToExposeRegion;
 
+  /** @type {function} */
+  export let openInGameMenu;
+  /** @type {function} */
+  export let onDisconnect;
+  /** @type {function} */
+  export let onReconnect;
+
+  /** @type {string|null} */
   let hoveringOverBasket;
-  let selectedAvailableItem = {};
-  let selectedFoundItem = {};
+  /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
+  let selectedAvailableItem = getEmptyBasketItem();
+  /** @type {BasketItem & { currBasketIndex: number, currItemIndex: number}} */
+  let selectedFoundItem = getEmptyBasketItem();
 
-  function updateRegionFoundFromRegionTransfer(movedItem, newRegionFoundValue, originalBasketIndex) {
-    const movedItemAvailableBasketIndex = baskets.findIndex(basket => basket.type === 'item' && basket.name === movedItem.points.toString());
+  /**
+   * @param {BasketItem} movedItem
+   * @param {string} newRegionFoundValue
+   * @param {number} originalBasketIndex
+   */
+  function updateRegionFoundFromRegionTransfer(
+    movedItem,
+    newRegionFoundValue,
+    originalBasketIndex
+  ) {
+    const movedItemAvailableBasketIndex = baskets.findIndex(
+      basket => basket.type === 'item' && basket.name === movedItem.points.toString()
+    );
     const movedItemAvailableBasket = baskets[movedItemAvailableBasketIndex];
 
-    const matchingAvailableItemIndex = movedItemAvailableBasket.items.findIndex(aItem => aItem.name === movedItem.name && aItem.regionFound === baskets[originalBasketIndex].name);
+    const matchingAvailableItemIndex = movedItemAvailableBasket.items.findIndex(
+      aItem =>
+        aItem.name === movedItem.name && aItem.regionFound === baskets[originalBasketIndex].name
+    );
 
     movedItemAvailableBasket.items[matchingAvailableItemIndex] = {
       ...movedItemAvailableBasket.items[matchingAvailableItemIndex],
@@ -43,26 +83,26 @@
   }
 
   /**
-	 * @param {DragEvent & { currentTarget: EventTarget & HTMLLIElement; }} event
-	 * @param {any} basketIndex
-	 * @param {number} itemIndex
-	 */
-	function dragStart(event, basketIndex, itemIndex) {
-		// The data we want to make available when the element is dropped
+   * @param {DragEvent & { currentTarget: EventTarget & HTMLLIElement; }} event
+   * @param {any} basketIndex
+   * @param {number} itemIndex
+   */
+  function dragStart(event, basketIndex, itemIndex) {
+    // The data we want to make available when the element is dropped
     // is the index of the item being dragged and
     // the index of the basket from which it is leaving.
-		const data = {basketIndex, itemIndex};
-   	event.dataTransfer?.setData('text/plain', JSON.stringify(data));
-	}
+    const data = { basketIndex, itemIndex };
+    event.dataTransfer?.setData('text/plain', JSON.stringify(data));
+  }
 
   /**
-	 * @param {DragEvent & { currentTarget: EventTarget & HTMLUListElement; }} event
-	 * @param {number} basketIndex
-	 */
-	function regionDrop(event, basketIndex) {
-		event.preventDefault();
+   * @param {DragEvent & { currentTarget: EventTarget & HTMLUListElement; }} event
+   * @param {number} basketIndex
+   */
+  function regionDrop(event, basketIndex) {
+    event.preventDefault();
     if (event.dataTransfer) {
-      const json = event.dataTransfer.getData("text/plain");
+      const json = event.dataTransfer.getData('text/plain');
       let origItemLocation;
       try {
         origItemLocation = JSON.parse(json);
@@ -80,7 +120,10 @@
       // Remove item if item came from another region, otherwise just copy it to its new location
       let item;
       if (originalBasket.type === 'item') {
-        [item] = originalBasket.items.slice(origItemLocation.itemIndex, origItemLocation.itemIndex + 1);
+        [item] = originalBasket.items.slice(
+          origItemLocation.itemIndex,
+          origItemLocation.itemIndex + 1
+        );
         // update the original item to include the new region where it was found
         originalBasket.items[origItemLocation.itemIndex] = {
           ...originalBasket.items[origItemLocation.itemIndex],
@@ -100,26 +143,36 @@
       handleCheckToExposeRegion(originalBasket, targetBasket, item);
 
       hoveringOverBasket = null;
-      selectedAvailableItem = {};
-      selectedFoundItem = {};
+      selectedAvailableItem = getEmptyBasketItem();
+      selectedFoundItem = getEmptyBasketItem();
     }
-	}
+  }
 
   /**
-	 * @param {number} basketIndex
-	 */
+   * @param {number} basketIndex
+   */
   function setSelectedItemIntoBasket(basketIndex) {
     let targetBasket = baskets[basketIndex];
-    const itemGettingPlaced = selectedAvailableItem.points ? selectedAvailableItem : selectedFoundItem;
+    const itemGettingPlaced = selectedAvailableItem.points
+      ? selectedAvailableItem
+      : selectedFoundItem;
 
-    if (itemGettingPlaced.points && (itemGettingPlaced.regionFound === 'P' || !itemGettingPlaced.regionFound)) {
+    if (
+      itemGettingPlaced.points &&
+      (itemGettingPlaced.regionFound === 'P' || !itemGettingPlaced.regionFound)
+    ) {
       // Remove item if item came from another region, otherwise just copy it to its new location
       const originalBasket = baskets[itemGettingPlaced.currBasketIndex];
-      const draggedItemIndexInBasket = baskets[itemGettingPlaced.currBasketIndex].items.findIndex((item, idx) => item.id === itemGettingPlaced.id && idx === itemGettingPlaced.currItemIndex);
+      const draggedItemIndexInBasket = baskets[itemGettingPlaced.currBasketIndex].items.findIndex(
+        (item, idx) => item.id === itemGettingPlaced.id && idx === itemGettingPlaced.currItemIndex
+      );
 
       let freedItem;
       if (originalBasket.type === 'item') {
-        [freedItem] = originalBasket.items.slice(draggedItemIndexInBasket, draggedItemIndexInBasket + 1);
+        [freedItem] = originalBasket.items.slice(
+          draggedItemIndexInBasket,
+          draggedItemIndexInBasket + 1
+        );
         // update the original item to include the new region where it was found
         originalBasket.items[draggedItemIndexInBasket] = {
           ...originalBasket.items[draggedItemIndexInBasket],
@@ -129,7 +182,11 @@
       } else {
         [freedItem] = originalBasket.items.splice(draggedItemIndexInBasket, 1);
 
-        updateRegionFoundFromRegionTransfer(freedItem, targetBasket.name, itemGettingPlaced.currBasketIndex);
+        updateRegionFoundFromRegionTransfer(
+          freedItem,
+          targetBasket.name,
+          itemGettingPlaced.currBasketIndex
+        );
       }
 
       // Add the item to the drop target basket.
@@ -139,10 +196,14 @@
       handleCheckToExposeRegion(originalBasket, targetBasket, freedItem);
     }
 
-    selectedAvailableItem = {};
-    selectedFoundItem = {};
+    selectedAvailableItem = getEmptyBasketItem();
+    selectedFoundItem = getEmptyBasketItem();
   }
 
+  /**
+   * @param {number} basketIndex
+   * @param {number} itemIndex
+   */
   function toggleHighlightItem(basketIndex, itemIndex) {
     let highlightedItem = {
       ...baskets[basketIndex].items[itemIndex],
@@ -157,14 +218,23 @@
     baskets = baskets;
   }
 
+  /**
+   * @param {MouseEvent|KeyboardEvent} event
+   * @param {BasketItem} item
+   * @param {number} currBasketIndex
+   * @param {number} currItemIndex
+   */
   function handleFoundItemClick(event, item, currBasketIndex, currItemIndex) {
     event.stopPropagation();
-    selectedAvailableItem = {};
+    selectedAvailableItem = getEmptyBasketItem();
 
-    if (selectedFoundItem?.id === item.id && selectedFoundItem?.currBasketIndex === currBasketIndex && selectedFoundItem?.currItemIndex === currItemIndex) {
-      // Highlight the item if they double click on the item
+    if (
+      selectedFoundItem?.id === item.id &&
+      selectedFoundItem?.currBasketIndex === currBasketIndex &&
+      selectedFoundItem?.currItemIndex === currItemIndex
+    ) {
       toggleHighlightItem(currBasketIndex, currItemIndex);
-      selectedFoundItem = {};
+      selectedFoundItem = getEmptyBasketItem();
     } else {
       selectedFoundItem = {
         ...item,
@@ -174,6 +244,12 @@
     }
   }
 
+  /**
+   * @param {MouseEvent|KeyboardEvent} event
+   * @param {BasketItem} item
+   * @param {number} currBasketIndex
+   * @param {number} currItemIndex
+   */
   function handleAvailableItemClick(event, item, currBasketIndex, currItemIndex) {
     event.stopPropagation();
     selectedAvailableItem = {
@@ -181,41 +257,55 @@
       currBasketIndex,
       currItemIndex,
     };
-    selectedFoundItem = {};
+    selectedFoundItem = getEmptyBasketItem();
   }
 
+  /**
+   * @param {CustomEvent} event
+   * @param {number} basketIndex
+   * @param {number} itemIndex
+   */
   function handleClearItem(event, basketIndex, itemIndex) {
     event.preventDefault();
 
     const [removedItem] = baskets[basketIndex].items.splice(itemIndex, 1);
 
-    updateRegionFoundFromRegionTransfer(removedItem, undefined, basketIndex);
+    updateRegionFoundFromRegionTransfer(removedItem, '', basketIndex);
     baskets = baskets;
 
     handleCheckToExposeRegion(baskets[basketIndex], baskets[REGIONS.length + 1], removedItem);
-    selectedAvailableItem = {};
-    selectedFoundItem = {};
+    selectedAvailableItem = getEmptyBasketItem();
+    selectedFoundItem = getEmptyBasketItem();
   }
 
   function assignToPokemon() {
     if (selectedAvailableItem.points) {
       baskets[selectedAvailableItem.currBasketIndex].items[selectedAvailableItem.currItemIndex] = {
-        ...baskets[selectedAvailableItem.currBasketIndex].items[selectedAvailableItem.currItemIndex],
+        ...baskets[selectedAvailableItem.currBasketIndex].items[
+          selectedAvailableItem.currItemIndex
+        ],
         regionFound: 'P',
       };
       baskets = baskets;
-      selectedAvailableItem = {};
+      selectedAvailableItem = getEmptyBasketItem();
     }
   }
 
+  /**
+   * @param {number} rpIndex
+   */
   function getRemainingSolutionItems(rpIndex) {
     const solutionItems = regionPoints[rpIndex].items.map(item => item);
     const basketItems = baskets[rpIndex].items.map(item => item.name);
 
     return solutionItems.reduce((all, curr) => {
       if (basketItems.includes(curr.name)) {
-        basketItems.splice(basketItems.findIndex(item => item === curr.name), 1);
+        basketItems.splice(
+          basketItems.findIndex(item => item === curr.name),
+          1
+        );
       } else {
+        // @ts-ignore
         all.push(curr);
       }
 
@@ -223,6 +313,9 @@
     }, []);
   }
 
+  /**
+   * @param {any} e
+   */
   function handleOutsideRegionTableClick(e) {
     if (
       e.explicitOriginalTarget &&
@@ -230,42 +323,51 @@
       e.explicitOriginalTarget.parentElement &&
       e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button'
     ) {
-      selectedAvailableItem = {};
-      selectedFoundItem = {};
+      selectedAvailableItem = getEmptyBasketItem();
+      selectedFoundItem = getEmptyBasketItem();
     }
   }
 
-  $: totalPointsAvailable = baskets.filter(basket => basket.type === 'item').reduce((sum, curr) => {
-    return sum + curr.items.reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0);
-  }, 0);
+  $: totalPointsAvailable = baskets
+    .filter(basket => basket.type === 'item')
+    .reduce((sum, curr) => {
+      return sum + curr.items.reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0);
+    }, 0);
 
-  $: totalPointsRemaining = baskets.filter(basket => basket.type === 'item').reduce((sum, curr) => {
-    return sum + curr.items
-      .filter(item => !item.regionFound || item.regionFound === 'P')
-      .reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0);
-  }, 0);
+  $: totalPointsRemaining = baskets
+    .filter(basket => basket.type === 'item')
+    .reduce((sum, curr) => {
+      return (
+        sum +
+        curr.items
+          .filter(item => !item.regionFound || item.regionFound === 'P')
+          .reduce((itemSum, itemCurr) => itemSum + itemCurr.points, 0)
+      );
+    }, 0);
 </script>
 
-<svelte:window on:dragend={() => hoveringOverBasket = null} />
+<svelte:window on:dragend={() => (hoveringOverBasket = null)} />
 
 <div class="container" use:clickOutside on:click_outside={handleOutsideRegionTableClick}>
   <div class="region-boxes">
     {#each regionPoints as rp, i (rp.regionId)}
-    {@const missingSolutionItems = showSolution ? getRemainingSolutionItems(i) : []}
+      {@const missingSolutionItems = showSolution ? getRemainingSolutionItems(i) : []}
       <!-- svelte-ignore a11y-no-static-element-interactions -->
       <div
         class="box"
         class:hovering={hoveringOverBasket === `${baskets[i].type}_${baskets[i].name}`}
-        class:dumpable={
-          (!revealRegionPoints && !revealedRegions.includes(rp.regionId) && (selectedAvailableItem?.points || selectedFoundItem?.points)) ||
+        class:dumpable={(!revealRegionPoints &&
+          !revealedRegions.includes(rp.regionId) &&
+          (selectedAvailableItem?.points > 0 || selectedFoundItem?.points > 0)) ||
           ((revealRegionPoints || (!revealRegionPoints && revealedRegions.includes(rp.regionId))) &&
-            (selectedAvailableItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)) ||
-            (selectedFoundItem?.points <= rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
-          )
-        }
+            (selectedAvailableItem?.points > 0 && selectedAvailableItem?.points <=
+              rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0) ||
+            selectedFoundItem?.points > 0 && selectedFoundItem?.points <=
+              rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0))
+          )}
         class:new-revealed={revealedRegions[0] === rp.regionId}
-        on:dragenter={() => hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`}
-        on:drop={(e) => regionDrop(e, i)}
+        on:dragenter={() => (hoveringOverBasket = `${baskets[i].type}_${baskets[i].name}`)}
+        on:drop={e => regionDrop(e, i)}
         ondragover="return false;"
         on:click={() => setSelectedItemIntoBasket(i)}
         on:keypress={() => setSelectedItemIntoBasket(i)}
@@ -279,31 +381,32 @@
         </div>
         <div class="side-section">
           <div class="remaining">
-            {(revealRegionPoints || revealedRegions.includes(rp.regionId))
+            {revealRegionPoints || revealedRegions.includes(rp.regionId)
               ? rp.points - baskets[i].items.reduce((acc, curr) => acc + curr.points, 0)
-              : '??'
-            }
+              : '??'}
           </div>
         </div>
-        <div class={`items ${baskets[i].items.concat(missingSolutionItems).length > 11 ? 'big-list' : ''}`}>
+        <div
+          class={`items ${
+            baskets[i].items.concat(missingSolutionItems).length > 11 ? 'big-list' : ''
+          }`}
+        >
           {#each baskets[i].items as item, itemIndex (`${item.id}_${itemIndex}`)}
             <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
             <img
               src={`/keyItems/${item.id}.png`}
               alt={item.name}
               class="region"
-              class:selected={
-                selectedFoundItem?.id === item.id &&
+              class:selected={selectedFoundItem?.id === item.id &&
                 selectedFoundItem?.currItemIndex === itemIndex &&
-                selectedFoundItem?.currBasketIndex === i
-              }
+                selectedFoundItem?.currBasketIndex === i}
               class:highlighted={item.highlighted}
               title={`${item.name} - ${item.points}pts`}
               draggable={true}
-              on:dragstart={(e) => dragStart(e, i, itemIndex)}
-              on:click={(e) => handleFoundItemClick(e, item, i, itemIndex)}
-              on:keypress={(e) => handleFoundItemClick(e, item, i, itemIndex)}
-              on:contextmenu={(e) => handleClearItem(e, i, itemIndex)}
+              on:dragstart={e => dragStart(e, i, itemIndex)}
+              on:click={e => handleFoundItemClick(e, item, i, itemIndex)}
+              on:keypress={e => handleFoundItemClick(e, item, i, itemIndex)}
+              on:contextmenu={e => handleClearItem(e, i, itemIndex)}
             />
           {/each}
           {#if showSolution}
@@ -338,22 +441,31 @@
           <div
             class="item-wrapper"
             class:draggable={!item.regionFound || item.regionFound === 'P'}
-            class:selected={selectedAvailableItem?.id === item.id && selectedAvailableItem?.currItemIndex === itemIndex}
+            class:selected={selectedAvailableItem?.id === item.id &&
+              selectedAvailableItem?.currItemIndex === itemIndex}
             draggable={!item.regionFound || item.regionFound === 'P'}
-            on:dragstart={(e) => {
+            on:dragstart={e => {
               if (!item.regionFound || item.regionFound === 'P') {
                 dragStart(e, REGIONS.length + basketIndex, itemIndex);
-              }}
-            }
-            on:click={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
-            on:keypress={(e) => handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
+              }
+            }}
+            on:click={e =>
+              handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
+            on:keypress={e =>
+              handleAvailableItemClick(e, item, REGIONS.length + basketIndex, itemIndex)}
           >
             <img
               alt={item.name}
               class="icon"
               class:owned={!!item.regionFound}
               src={`/keyItems/${item.id}.png`}
-              title={`${item.name} - ${item.points}pts${!!item.regionFound ? `: Found ${item.regionFound === 'P' ? 'On Pokémon' : `In Region ${item.regionFound}`}` : ''}`}
+              title={`${item.name} - ${item.points}pts${
+                !!item.regionFound
+                  ? `: Found ${
+                      item.regionFound === 'P' ? 'On Pokémon' : `In Region ${item.regionFound}`
+                    }`
+                  : ''
+              }`}
             />
             {#if item.regionFound}
               <span class="region-found">{item.regionFound}</span>
@@ -364,15 +476,17 @@
     </div>
   {/each}
   {#if regionPoints.length > 0}
-    <div class='extra-actions'>
+    <div class="extra-actions">
       <Button color="primary" on:click={openInGameMenu} variant="raised">
         <Label>Menu</Label>
       </Button>
       <Button
         color="primary"
-        on:click={(e) => assignToPokemon(e)}
+        on:click={() => assignToPokemon()}
         variant="raised"
-        style={!selectedAvailableItem.points || !selectedAvailableItem.onPoke ? 'visibility: hidden' : ''}
+        style={!selectedAvailableItem.points || !selectedAvailableItem.onPoke
+          ? 'visibility: hidden'
+          : ''}
       >
         Found On Pokémon
       </Button>
@@ -382,12 +496,7 @@
     </div>
   {/if}
   {#if connectionInfo}
-    <GameConnectionInfo
-      connectionInfo={connectionInfo}
-      isHost={isHost}
-      onDisconnect={onDisconnect}
-      onReconnect={onReconnect}
-    />
+    <GameConnectionInfo {connectionInfo} {isHost} {onDisconnect} {onReconnect} />
   {/if}
 </div>
 

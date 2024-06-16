@@ -6,40 +6,42 @@
   const TREASURE_STR = 'TREASURE!!!';
 
   /**
-	 * @type {any[]}
-	 */
+   * @type {any[]}
+   */
   export let rivals = [];
   /**
-	 * @type {any[]}
-	 */
+   * @type {any[]}
+   */
   export let locations = [];
   /**
    * @type {any[]}
    */
   export let treasures = [];
 
-
   /**
-	 * @type {string | any[]}
-	 */
+   * @type {string | any[]}
+   */
   let defeated = [];
   /**
-	 * @type {any[]}
-	 */
+   * @type {any[]}
+   */
   let formattedLocations = [];
   $: {
-    const treasureIds = treasures.map(treasure => treasure.id)
+    const treasureIds = treasures.map(treasure => treasure.id);
     const treasureIdSeed = treasureIds.join(',');
     const randomizedTreasures = randomizeArray(treasures, treasureIdSeed);
 
     const nonTreasureLocations = locations.filter(location => !treasureIds.includes(location.id));
-    const randomizedNonTreasureLocationIds = randomizeArray(nonTreasureLocations, treasureIdSeed).map(l => l.id);
+    const randomizedNonTreasureLocationIds = randomizeArray(
+      nonTreasureLocations,
+      treasureIdSeed
+    ).map(l => l.id);
 
     const getTreasureForNonTreasureHint = (/** @type {any} */ locationId) => {
       const nonTreasureIndex = randomizedNonTreasureLocationIds.findIndex(id => locationId === id);
       // use modulus to make sure we don't look outside the index of randomizedTreasures
       return randomizedTreasures[nonTreasureIndex % randomizedTreasures.length];
-    }
+    };
 
     const rng = seedrandom(treasureIdSeed);
 
@@ -47,24 +49,22 @@
       id: location.id,
       description: location.description,
       found: false,
-      result:
-        treasureIds.includes(location.id)
+      result: treasureIds.includes(location.id)
         ? TREASURE_STR
-        : getTreasureForNonTreasureHint(location.id).hintOpts[Math.floor((rng() * 100)) % 2],
+        : getTreasureForNonTreasureHint(location.id).hintOpts[Math.floor(rng() * 100) % 2],
     }));
-  };
-
+  }
 
   /**
-	 * @param {number} locationIndex
-	 */
+   * @param {number} locationIndex
+   */
   function handleCheckboxClick(locationIndex) {
     formattedLocations[locationIndex].found = !formattedLocations[locationIndex].found;
   }
 
   /**
-	 * @param {any} rivalId
-	 */
+   * @param {any} rivalId
+   */
   function handleRivalDefeated(rivalId) {
     const index = defeated.indexOf(rivalId);
 
@@ -84,7 +84,8 @@
     <h2>
       Treasure Hunt&nbsp;
       <span class="gold heading">
-        ({formattedLocations.filter(l => l.found && l.result === TREASURE_STR).length}/{treasures.length})
+        ({formattedLocations.filter(l => l.found && l.result === TREASURE_STR)
+          .length}/{treasures.length})
       </span>
     </h2>
 
@@ -99,7 +100,9 @@
       <Body>
         {#each formattedLocations as location, i (location.id)}
           <Row style={location.found && 'background-color: rgba(235, 251, 233, 0.5);'}>
-            <Cell style="width: 300px; white-space: normal; height: 42px;">{location.description}</Cell>
+            <Cell style="width: 300px; white-space: normal; height: 42px;">
+              {location.description}
+            </Cell>
             <Cell style="text-align: center">
               <input
                 type="checkbox"
@@ -110,7 +113,7 @@
             </Cell>
             <Cell style="width: 275px; white-space: normal;">
               <span class={`${!location.found ? 'hidden' : ''}`}>
-                <span class={`${(location.result === TREASURE_STR && location.found) ? 'gold' : ''}`}>
+                <span class={`${location.result === TREASURE_STR && location.found ? 'gold' : ''}`}>
                   {location.found ? location.result : 'Location not found'}
                 </span>
               </span>
@@ -121,7 +124,8 @@
     </DataTable>
   {/if}
   {#if rivals.length > 0}
-    <h2>Hidden Rivals&nbsp;
+    <h2>
+      Hidden Rivals&nbsp;
       <span class="green heading">
         ({defeated.length}/{rivals.length})
       </span>
@@ -137,9 +141,16 @@
       </Head>
       <Body>
         {#each rivals as rival (rival.id)}
-          <Row style={defeated.includes(rival.id) ? 'background-color: rgba(235, 251, 233, 0.5);' : ''}>
+          <Row
+            style={defeated.includes(rival.id) ? 'background-color: rgba(235, 251, 233, 0.5);' : ''}
+          >
             <Cell>{rival.location}</Cell>
-            <Cell>{rival.name}{#if rival.missable}{@html '<span style="color: red;">*</span>'}{/if}</Cell>
+            <Cell>
+              {rival.name}
+              {#if rival.missable}
+                {@html '<span style="color: red;">*</span>'}
+              {/if}
+            </Cell>
             <Cell style="text-align: center">
               <input
                 type="checkbox"

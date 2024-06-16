@@ -1,33 +1,44 @@
 <script>
-	import Button, { Label } from '@smui/button';
+  import Button, { Label } from '@smui/button';
   import Dialog, { Content, Title } from '@smui/dialog';
-	import Textfield from '@smui/textfield';
+  import Textfield from '@smui/textfield';
 
   /**
-	 * @type {{ gameName: string; hostName: string; isConnected: boolean, players: {name: string; gameData: object}[]; }}
-	 */
+   * @typedef {import("../../types/PointTracker").Connection} ConnectionInfo
+   */
+
+  /** @type {ConnectionInfo} */
   export let connectionInfo;
-  /**
-   * @type boolean
-  */
+  /** @type {boolean} */
   export let isHost;
 
-  export let onReconnect = (/** @type {any} */ id) => {};
-  export let onDisconnect = () => {};
+  /**
+   * @type {function}
+   * @param {any} id
+   */
+  export let onReconnect;
+  /** @type {function} */
+  export let onDisconnect;
 
   let reconnectDialogOpen = false;
-  /**
-	 * @type {string}
-	 */
+  /** @type {string} */
   let reconnectJoinID = '';
 
   function handleConnectButtonClicked() {
     if (connectionInfo.isConnected && !isHost) {
-      if (confirm('You are attempting to disconnect from your current game and will be unable to send any updates to the host? This will not affect your ability to use your tracker. Are you sure you wish to disconnect?')) {
+      if (
+        confirm(
+          'You are attempting to disconnect from your current game and will be unable to send any updates to the host? This will not affect your ability to use your tracker. Are you sure you wish to disconnect?'
+        )
+      ) {
         onDisconnect();
       }
     } else if (connectionInfo.isConnected && isHost) {
-      if (confirm('You are attempting to disconnect from your current game and will be unable to receive any updates from other players and cannot send game info to new players. Are you sure you wish to disconnect?')) {
+      if (
+        confirm(
+          'You are attempting to disconnect from your current game and will be unable to receive any updates from other players and cannot send game info to new players. Are you sure you wish to disconnect?'
+        )
+      ) {
         onDisconnect();
       }
     } else if (!isHost) {
@@ -38,8 +49,8 @@
   }
 
   /**
-	 * @param {any} id
-	 */
+   * @param {any} id
+   */
   function handleReconnect(id) {
     reconnectDialogOpen = false;
     onReconnect(id);
@@ -57,7 +68,9 @@
   <br />
   <ul class="player-list">
     {#each connectionInfo.players as player, playerIndex}
-      <li class="player">{player.name}{player.name === connectionInfo.hostName ? ' (Host)' : ''}</li>
+      <li class="player">
+        {player.name}{player.name === connectionInfo.hostName ? ' (Host)' : ''}
+      </li>
     {/each}
   </ul>
   <br />
@@ -71,18 +84,9 @@
   <Content>
     <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
     <br /><br />
-    <Textfield
-      bind:value={reconnectJoinID}
-      label="Host ID"
-      variant="outlined"
-    />
+    <Textfield bind:value={reconnectJoinID} label="Host ID" variant="outlined" />
     <br /><br />
-    <Button
-      color="primary"
-      disabled={!reconnectJoinID}
-      on:click={handleReconnect}
-      variant="raised"
-    >
+    <Button color="primary" disabled={!reconnectJoinID} on:click={handleReconnect} variant="raised">
       <Label>Reconnect To Host</Label>
     </Button>
   </Content>
