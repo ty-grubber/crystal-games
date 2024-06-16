@@ -1,3 +1,5 @@
+import REGIONS from '../constants/regions';
+
 /**
  * @param {string} originalBasketType
  * @param {string} targetBasketType
@@ -12,16 +14,12 @@ function checkToExposeRegion(
   regionRevealOrder,
   revealedRegions
 ) {
-  if (regionRevealOrder.length > 0) {
-    if (originalBasketType === 'item' && targetBasketType === 'region' && movedItemPoints === 9) {
+  if (movedItemPoints === 9) {
+    if (regionRevealOrder.length > 0 && originalBasketType === 'item' && targetBasketType === 'region') {
       // Found a badge in a region so expose a region's point value
       const regionToExpose = regionRevealOrder.shift();
       revealedRegions.unshift(regionToExpose);
-    } else if (
-      originalBasketType === 'region' &&
-      targetBasketType === 'item' &&
-      movedItemPoints === 9
-    ) {
+    } else if (revealedRegions.length > 0 && originalBasketType === 'region' && targetBasketType === 'item') {
       // Unmarked a badge in a region so hide the last exposed region's point value
       const regionToExpose = revealedRegions.shift();
       regionRevealOrder.unshift(regionToExpose);
