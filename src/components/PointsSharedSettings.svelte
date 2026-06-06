@@ -1,12 +1,13 @@
 <script>
-  // @ts-nocheck
   import Button, { Label } from '@smui/button';
   import Select, { Option } from '@smui/select';
-	import Textfield from '@smui/textfield';
+  import Textfield from '@smui/textfield';
+  import PointsHowToPlayButton from './Buttons/PointsHowToPlay.svelte';
   import LayoutChooser from './LayoutChooser.svelte';
 
+  /** @type {function} */
   export let onSubmit;
-  export let openHowToDialog;
+  /** @type {function} */
   export let openCustomPointsDialog;
 
   export let showNetworking = false;
@@ -20,7 +21,7 @@
   let trackerLayout = 'classic';
   let revealOrdering = 'random';
   let initialRevealedRegions = 1;
-  let spoilerFile;
+  let spoilerFile = '';
 
   function onStartClick() {
     onSubmit({
@@ -31,8 +32,11 @@
     });
   }
 
+  /**
+   * @param {any} e
+   */
   function handleSpoilerFileChange(e) {
-    spoilerFile = e.target.files[0];
+    spoilerFile = e?.target?.files[0];
   }
 
   function toggleSpectatorMode() {
@@ -43,7 +47,7 @@
     navigator.clipboard.writeText(hostID);
     copiedHostId = true;
 
-    setTimeout(() => copiedHostId = false, 5000);
+    setTimeout(() => (copiedHostId = false), 5000);
   }
 
   $: disableStartButton = showNetworking
@@ -55,11 +59,7 @@
   {#if showNetworking}
     <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
     <br /><br />
-    <Textfield
-      bind:value={playerName}
-      label="*Player Name"
-      variant="outlined"
-    />
+    <Textfield bind:value={playerName} label="*Player Name" variant="outlined" />
     <input
       id="spectatorCheckbox"
       type="checkbox"
@@ -78,21 +78,20 @@
       variant="outlined"
     />
     <br /><br />
-    <div >
-      <Textfield
-        disabled
-        label="Private Host ID"
-        value={hostID}
-        variant="outlined"
-      />
+    <div>
+      <Textfield disabled label="Private Host ID" value={hostID} variant="outlined" />
       <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
       <div class="field-blurb" on:click={copyHostID}>
         <span>
-          {copiedHostId ? 'Copied!!!' : 'Click here to copy this ID for players to connect to your game'}
+          {copiedHostId
+            ? 'Copied!!!'
+            : 'Click here to copy this ID for players to connect to your game'}
         </span>
       </div>
     </div>
-    <br /><br /><hr /><br />
+    <br /><br />
+    <hr />
+    <br />
   {/if}
   <label for="spoiler">
     {!spoilerFile ? '*Upload spoiler file (.txt):' : 'Spoiler Uploaded!'}
@@ -106,10 +105,15 @@
   />
   {#if !isSpectatorMode}
     <br /><br />
-    <LayoutChooser bind:trackerLayout={trackerLayout} />
+    <LayoutChooser bind:trackerLayout />
   {/if}
   <br /><br />
-  <Select bind:value={revealOrdering} variant="outlined" label="Game Region Reveal Order" style="width: 214px;">
+  <Select
+    bind:value={revealOrdering}
+    variant="outlined"
+    label="Game Region Reveal Order"
+    style="width: 214px;"
+  >
     <Option value="random">Random</Option>
     <Option value="desc">Highest First</Option>
     <Option value="asc">Lowest First</Option>
@@ -124,30 +128,19 @@
     style="margin-left: 1rem; width: 214px;"
   />
   <br /><br />
-  <Button
-    color="primary"
-    variant="outlined"
-    on:click={openCustomPointsDialog}
-  >
+  <Button color="primary" variant="outlined" on:click={() => openCustomPointsDialog()}>
     Customize Item Points
   </Button>
 </div>
 <br /><br />
 {#if isConnecting}
-<span>Setting up connection...</span>
+  <span>Setting up connection...</span>
 {/if}
 <br />
-<Button
-  color="primary"
-  on:click={onStartClick}
-  disabled={disableStartButton}
-  variant="raised"
->
+<Button color="primary" on:click={onStartClick} disabled={disableStartButton} variant="raised">
   <Label>Start Game</Label>
 </Button>
-<Button color="secondary" on:click={openHowToDialog} variant="raised">
-  <Label>How To Play</Label>
-</Button>
+<PointsHowToPlayButton />
 <Button color="secondary" href="/" variant="outlined">
   <Label>Games Home</Label>
 </Button>

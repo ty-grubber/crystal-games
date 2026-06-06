@@ -9,7 +9,7 @@ function convertTo2DArray(arr, columns) {
   var arr2d = [];
 
   while (arr1d.length > 0) {
-    arr2d.push(arr1d.splice(0, columns))
+    arr2d.push(arr1d.splice(0, columns));
   }
 
   return arr2d;
@@ -49,9 +49,4 @@ function convert2DIndexToIndex(ddIndex, columns) {
   return ddIndex.i * columns + ddIndex.j;
 }
 
-export {
-  convert2DIndexToIndex,
-  convertIndexTo2DIndex,
-  convertTo2DArray,
-  flatten2DArray,
-}
+export { convert2DIndexToIndex, convertIndexTo2DIndex, convertTo2DArray, flatten2DArray };

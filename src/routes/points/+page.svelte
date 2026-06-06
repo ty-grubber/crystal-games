@@ -8,8 +8,9 @@
   import Tab, { Label as TabLabel } from '@smui/tab';
   import TabBar from '@smui/tab-bar';
   import Textfield from '@smui/textfield';
+  import PointsHowToPlayButton from '../../components/Buttons/PointsHowToPlay.svelte';
+  import PointsSpectatorHelpButton from '../../components/Buttons/PointsSpectatorHelp.svelte';
   import CustomPtsDialog from '../../components/CustomPts.svelte';
-  import PointsHintDialog from '../../components/HowTos/PointsHintDialog.svelte';
   import LayoutChooser from '../../components/LayoutChooser.svelte';
   import PointsSharedSettings from '../../components/PointsSharedSettings.svelte';
   import ClassicRegion from '../../components/Tracker/ClassicRegion.svelte';
@@ -18,21 +19,36 @@
   import KEY_ITEMS from '../../constants/keyItemPresets';
   import { peerJSConnectionConfig } from '../../constants/network';
 
+  /**
+   * @typedef {import("../../types/PointTracker").BasketItem} BasketItem
+   * @typedef {import("../../types/PointTracker").Basket} Basket
+   * @typedef {import("../../types/PointTracker").Connection} ConnectionInfo
+   * @typedef {import("../../types/PointTracker").KeyItem} KeyItem
+   * @typedef {import("../../types/PointTracker").Player} Player
+   * @typedef {import("../../types/PointTracker").Region} Region
+   */
+
   const HOST_ID_PREFIX = 'PCPT-';
 
+  /** @type {Region[]} */
   let regionPoints;
+  /** @type {Region[]} */
   let startingRegionPoints = [];
+  /** @type {Basket[]} */
   let baskets = [];
+  /** @type {Basket[]} */
   let startingBaskets = [];
+  /** @type {number[]} */
   let regionRevealOrder = [];
+  /** @type {number[]} */
   let startingRegionRevealOrder = [];
+  /** @type {number[]} */
   let revealedRegions = [];
+  /** @type {number[]} */
   let startingRevealedRegions = [];
   let showSolution = false;
 
   let settingsDialogOpen = true;
-  let howToDialogOpen = false;
-  let howToSpectatorOpen = false;
   let customPtsMenuOpen = false;
   let inGameMenuOpen = false;
   let activeTab = 'Solo';
@@ -42,12 +58,16 @@
   let copiedHostId = false;
 
   let revealRegionPoints = false;
+  /** @type {string} */
   let trackerLayout;
+  /** @type {string} */
   let revealOrdering;
+  /** @type {number} */
   let initialRevealedRegions;
+  /** @type {any} */
   let spoilerFile;
 
-  let keyItems = [ ...KEY_ITEMS];
+  let keyItems = [...KEY_ITEMS];
 
   let playerName = '';
   let gameName = '';
@@ -59,21 +79,17 @@
   let hostIsSpectator = false;
   let revealHostID = false;
 
+  /** @type {any} */
   let currentPeer;
+  /** @type {any} */
   let hostConnection;
+  /** @type {any[]} */
   let peerConnections = [];
+  /** @type {ConnectionInfo} */
   let connectionInfo;
 
   function openSettingsDialog() {
     settingsDialogOpen = true;
-  }
-
-  function openHowToDialog() {
-    howToDialogOpen = true;
-  }
-
-  function openSpectatorDialog() {
-    howToSpectatorOpen = true;
   }
 
   function openCustomPointsDialog() {
@@ -97,42 +113,51 @@
     revealRegionPoints = !revealRegionPoints;
   }
 
+  /**
+   * @param {KeyItem[]} updatedKeyItems
+   */
   function handleUpdatePointValues(updatedKeyItems) {
-    keyItems = [...updatedKeyItems]
+    keyItems = [...updatedKeyItems];
     customPtsMenuOpen = false;
   }
 
   function establishHostConnections() {
+    // @ts-ignore
     currentPeer = new Peer(`${HOST_ID_PREFIX}${newHostConnectionID || hostID}`, {
       config: peerJSConnectionConfig,
-      debug: 2, // TODO: reset to 0 when we go to production
+      debug: 0,
     });
     isConnecting = true;
-    currentPeer.on('open', function(id) {
+    currentPeer.on('open', function () {
       connectionInfo = {
         gameName,
         hostName: playerName,
         hostIsSpectator,
         isConnected: true,
-        players: trackerLayout !== 'spectator' ? [{
-          name: playerName,
-          gameData: {},
-        }] : [],
+        players:
+          trackerLayout !== 'spectator'
+            ? [
+                {
+                  name: playerName,
+                  gameData: {},
+                },
+              ]
+            : [],
       };
       isConnecting = false;
       settingsDialogOpen = false;
     });
 
-    currentPeer.on('close', function() {
+    currentPeer.on('close', function () {
       connectionInfo.isConnected = false;
     });
 
-    currentPeer.on('disconnected', function() {
+    currentPeer.on('disconnected', function () {
       connectionInfo.isConnected = false;
-    })
+    });
 
     // Send all vars above this if block and connection info to connector
-    currentPeer.on('connection', function(conn) {
+    currentPeer.on('connection', function (/** @type {any} */ conn) {
       // see if this is an existing player re-connecting
       const existingConnectionIndex = peerConnections.findIndex(pc => pc.peer === conn.peer);
       const connectionExists = existingConnectionIndex < 0;
@@ -143,7 +168,7 @@
       }
       peerConnections = peerConnections;
 
-      conn.on('open', function(id) {
+      conn.on('open', function () {
         conn.send({
           connectionInfo,
           gameInfo: {
@@ -151,14 +176,18 @@
             regionRevealOrder: startingRegionRevealOrder,
             regionPoints: startingRegionPoints,
             revealedRegions: startingRevealedRegions,
-          }
+          },
         });
       });
-      conn.on('data', function(data) {
-        const {playerToAdd, playerToUpdate, ...rest} = data;
+      conn.on('data', function (/** @type {any} */ data) {
+        const { playerToAdd, playerToUpdate, ...rest } = data;
         if (playerToAdd) {
           // Only add the player if they don't already exist (ie. if they've reconnected)
-          if (connectionInfo.players.findIndex(player => player.name === playerToAdd) < 0) {
+          if (
+            connectionInfo.players.findIndex(
+              (/** @type {Player} */ player) => player.name === playerToAdd
+            ) < 0
+          ) {
             connectionInfo.players = [
               ...connectionInfo.players,
               {
@@ -180,7 +209,9 @@
         } else if (playerToUpdate) {
           // we're getting updated game data
           if (isHost && hostIsSpectator) {
-            const indexToUpdate = connectionInfo.players.findIndex(player => player.name === playerToUpdate)
+            const indexToUpdate = connectionInfo.players.findIndex(
+              (/** @type {Player} */ player) => player.name === playerToUpdate
+            );
             connectionInfo.players[indexToUpdate].gameData = rest;
           }
         }
@@ -193,8 +224,12 @@
       ({
         baskets: startingBaskets,
         regionRevealOrder: startingRegionRevealOrder,
-        regionPoints: startingRegionPoints
-      } = await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering));
+        regionPoints: startingRegionPoints,
+      } = (await extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrdering)) || {
+        baskets: [],
+        regionRevealOrder: [],
+        regionPoints: [],
+      });
 
       startingRevealedRegions = startingRegionRevealOrder.splice(0, initialRevealedRegions);
 
@@ -212,36 +247,30 @@
     }
   }
 
+  /**
+   * @param {{ trackerLayout: string; revealOrdering: string; initialRevealedRegions: number; spoilerFile: any; }} settings
+   */
   function handleSettingsSubmit(settings) {
     isHost = activeTab === 'Host';
-    ({
-      trackerLayout,
-      revealOrdering,
-      initialRevealedRegions,
-      spoilerFile
-    } = settings);
+    ({ trackerLayout, revealOrdering, initialRevealedRegions, spoilerFile } = settings);
     hostIsSpectator = trackerLayout === 'spectator';
     onStartClick();
   }
 
+  /** @param {string|void} id */
   function establishConnectionToHost(id) {
     hostConnection = currentPeer.connect(`${HOST_ID_PREFIX}${id || joinID}`);
 
-    hostConnection.on('open', function() {
+    hostConnection.on('open', function () {
       hostConnection.send({
         playerToAdd: playerName,
       });
 
-      hostConnection.on('data', function(data) {
+      hostConnection.on('data', function (/** @type {any} */ data) {
         connectionInfo = data.connectionInfo;
         // Don't need to update our existing game data if we already have the info from the spoiler (ie. we reconnected to the host)
         if (data.gameInfo && !regionPoints) {
-          ({
-            baskets,
-            regionRevealOrder,
-            regionPoints,
-            revealedRegions,
-          } = data.gameInfo);
+          ({ baskets, regionRevealOrder, regionPoints, revealedRegions } = data.gameInfo);
         }
         ({ hostIsSpectator } = connectionInfo);
         connectionInfo.isConnected = true;
@@ -250,18 +279,19 @@
       });
     });
 
-    hostConnection.on('close', function() {
+    hostConnection.on('close', function () {
       connectionInfo.isConnected = false;
     });
   }
 
   function onConnectClick() {
     isConnecting = true;
+    // @ts-ignore
     currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
       config: peerJSConnectionConfig,
-      debug: 2, // TODO: Reset this to 0 when we go to production
+      debug: 0,
     });
-    currentPeer.on('open', function() {
+    currentPeer.on('open', function () {
       establishConnectionToHost();
     });
   }
@@ -273,6 +303,9 @@
     currentPeer.disconnect();
   }
 
+  /**
+   * @param {string} id
+   */
   function onReconnect(id) {
     if (!isHost) {
       isConnecting = true;
@@ -281,11 +314,12 @@
         establishConnectionToHost(id);
       } else {
         // re-create a connection to the PeerServer so we can reconnect to the host
+        // @ts-ignore
         currentPeer = new Peer(`${HOST_ID_PREFIX}${hostID}`, {
           config: peerJSConnectionConfig,
-          debug: 2, // TODO: Reset this to 0 when we go to production
+          debug: 0,
         });
-        currentPeer.on('open', function() {
+        currentPeer.on('open', function () {
           establishConnectionToHost(id);
         });
       }
@@ -304,14 +338,14 @@
     let confirmAction = 'and end your current one';
 
     if (isHost) {
-      confirmAction = 'and end all connections to the current one'
+      confirmAction = 'and end all connections to the current one';
     } else if (joinID) {
-      confirmAction = 'and end your connection to the current one'
+      confirmAction = 'and end your connection to the current one';
     }
 
-    const confirmMessage = `Starting a new game will refresh the page ${confirmAction}. Are you sure you wish to start a new game?`
+    const confirmMessage = `Starting a new game will refresh the page ${confirmAction}. Are you sure you wish to start a new game?`;
 
-    if(confirm(confirmMessage)) {
+    if (confirm(confirmMessage)) {
       if (currentPeer) {
         currentPeer.destroy();
       }
@@ -320,6 +354,11 @@
     }
   }
 
+  /**
+   * @param {Basket} originalBasket
+   * @param {Basket} targetBasket
+   * @param {BasketItem} movedItem
+   */
   function handleCheckToExposeRegion(originalBasket, targetBasket, movedItem) {
     ({ regionRevealOrder, revealedRegions } = checkToExposeRegion(
       originalBasket.type,
@@ -340,6 +379,10 @@
     }
   }
 
+  /**
+   * @param {string} swapInPlayerName
+   * @param {string} activeSlot
+   */
   function handleActivatePlayer(swapInPlayerName, activeSlot) {
     const newPlayerOrder = [...connectionInfo.players];
     const swapInPlayerIndex = newPlayerOrder.findIndex(player => player.name === swapInPlayerName);
@@ -356,9 +399,12 @@
     navigator.clipboard.writeText(newHostConnectionID);
     copiedHostId = true;
 
-    setTimeout(() => copiedHostId = false, 5000);
+    setTimeout(() => (copiedHostId = false), 5000);
   }
 
+  /**
+   * @param {any} event
+   */
   function beforeUnload(event) {
     if (regionPoints && confirmOnRefresh) {
       event.preventDefault();
@@ -371,7 +417,10 @@
 
 <svelte:head>
   <title>Pokémon Crystal Points Hint Tracker Race Connection</title>
-  <meta property="description" content="Host or join a points hint tracker race without sharing the spoiler log to all participants" />
+  <meta
+    property="description"
+    content="Host or join a points hint tracker race without sharing the spoiler log to all participants"
+  />
   {#each KEY_ITEMS as keyItem}
     <link rel="preload" as="image" href={`/keyItems/${keyItem.id}.png`} />
   {/each}
@@ -386,9 +435,7 @@
     <Button color="primary" on:click={openSettingsDialog} variant="raised">
       <Label>New Game</Label>
     </Button>
-    <Button color="secondary" on:click={openHowToDialog} variant="raised">
-      <Label>How To Play</Label>
-    </Button>
+    <PointsHowToPlayButton />
     <Button color="secondary" href="/" variant="outlined">
       <Label>Games Home</Label>
     </Button>
@@ -406,49 +453,36 @@
       {#if activeTab === 'Host'}
         <PointsSharedSettings
           onSubmit={handleSettingsSubmit}
-          openHowToDialog={openHowToDialog}
-          openCustomPointsDialog={openCustomPointsDialog}
+          {openCustomPointsDialog}
           showNetworking={true}
-          hostID={hostID}
-          isConnecting={isConnecting}
-          bind:playerName={playerName}
-          bind:gameName={gameName}
+          {hostID}
+          {isConnecting}
+          bind:playerName
+          bind:gameName
         />
       {:else if activeTab === 'Solo'}
-        <PointsSharedSettings
-          onSubmit={handleSettingsSubmit}
-          openHowToDialog={openHowToDialog}
-          openCustomPointsDialog={openCustomPointsDialog}
-        />
+        <PointsSharedSettings onSubmit={handleSettingsSubmit} {openCustomPointsDialog} />
       {:else}
         <div class="join-wrapper">
-          <span><small>Do not stream this modal as unwanted players will be able to join</small></span>
+          <span>
+            <small> Do not stream this modal as unwanted players will be able to join </small>
+          </span>
           <br /><br />
-          <Textfield
-            bind:value={playerName}
-            label="Player Name"
-            variant="outlined"
-          />
-          <Textfield
-            bind:value={joinID}
-            label="Host ID"
-            variant="outlined"
-          />
+          <Textfield bind:value={playerName} label="Player Name" variant="outlined" />
+          <Textfield bind:value={joinID} label="Host ID" variant="outlined" />
           <br /><br />
-          <LayoutChooser bind:trackerLayout={trackerLayout} />
+          <LayoutChooser bind:trackerLayout />
         </div>
         <br /><br /><br />
         <Button
           color="primary"
-          disabled={!playerName || !joinID || isConnecting }
+          disabled={!playerName || !joinID || isConnecting}
           on:click={onConnectClick}
           variant="raised"
         >
           <Label>Connect</Label>
         </Button>
-        <Button color="secondary" on:click={openHowToDialog} variant="raised">
-          <Label>How To Play</Label>
-        </Button>
+        <PointsHowToPlayButton />
         <Button color="secondary" href="/" variant="outlined">
           <Label>Games Home</Label>
         </Button>
@@ -457,8 +491,6 @@
   </Dialog>
 
   <CustomPtsDialog bind:isOpen={customPtsMenuOpen} onConfirmPts={handleUpdatePointValues} />
-
-  <PointsHintDialog bind:isOpen={howToDialogOpen} bind:spectatorTrackerDialogOpen={howToSpectatorOpen} />
 
   <Dialog bind:open={inGameMenuOpen} surface$style="width: 450px">
     <Title id="inGameMenuTitle">Tracker Menu</Title>
@@ -494,13 +526,9 @@
         </p>
       {/if}
       {#if isHost && hostIsSpectator}
-        <Button color="secondary" on:click={openSpectatorDialog} variant="raised">
-          <Label>Spectator Host Help</Label>
-        </Button>
+        <PointsSpectatorHelpButton />
       {:else}
-        <Button color="secondary" on:click={openHowToDialog} variant="raised">
-          <Label>How To Play</Label>
-        </Button>
+        <PointsHowToPlayButton />
       {/if}
       <br /><br />
       <Button color="primary" on:click={handleStartNewGame} variant="raised">
@@ -509,7 +537,11 @@
       <br /><br />
       <h3>Credits</h3>
       <p class="credits">
-        Key Item image sprites courtesy of <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">Sekii's Pokémon Tracker</a> and Kovolta.&nbsp;
+        Key Item image sprites courtesy of&nbsp;
+        <a href="https://gitlab.com/Sekii/pokemon-tracker" rel="noreferrer" target="_blank">
+          Sekii's Pokémon Tracker
+        </a>
+        &nbsp;and Kovolta.&nbsp;
         {#if trackerLayout === 'classic'}
           Region map images created by Kovolta.
         {:else}
@@ -538,7 +570,9 @@
       <!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
       <div class="field-blurb" on:click={copyNewHostID}>
         <span>
-          {copiedHostId ? 'Copied!!!' : 'Click here to copy this ID for players to connect to your game'}
+          {copiedHostId
+            ? 'Copied!!!'
+            : 'Click here to copy this ID for players to connect to your game'}
         </span>
       </div>
       <br /><br />
@@ -565,7 +599,7 @@
               baskets={player.gameData.baskets}
               onActivatePlayer={handleActivatePlayer}
               playerName={player.name}
-              regionPoints={regionPoints}
+              {regionPoints}
               revealedRegions={player.gameData.revealedRegions}
             />
           {/each}
@@ -586,7 +620,7 @@
                 isActive={false}
                 onActivatePlayer={handleActivatePlayer}
                 playerName={player.name}
-                regionPoints={regionPoints}
+                {regionPoints}
                 revealedRegions={player.gameData.revealedRegions}
               />
             {/each}
@@ -597,30 +631,30 @@
     {:else if trackerLayout === 'compact1'}
       <CompactRegion1
         bind:baskets
-        connectionInfo={connectionInfo}
-        handleCheckToExposeRegion={handleCheckToExposeRegion}
-        isHost={isHost}
+        {connectionInfo}
+        {handleCheckToExposeRegion}
+        {isHost}
         onDisconnect={onDisconnectClick}
-        onReconnect={onReconnect}
-        openInGameMenu={openInGameMenu}
-        regionPoints={regionPoints}
-        revealRegionPoints={revealRegionPoints}
-        revealedRegions={revealedRegions}
-        showSolution={showSolution}
+        {onReconnect}
+        {openInGameMenu}
+        {regionPoints}
+        {revealRegionPoints}
+        {revealedRegions}
+        {showSolution}
       />
     {:else}
       <ClassicRegion
         bind:baskets
-        connectionInfo={connectionInfo}
-        handleCheckToExposeRegion={handleCheckToExposeRegion}
-        isHost={isHost}
+        {connectionInfo}
+        {handleCheckToExposeRegion}
+        {isHost}
         onDisconnect={onDisconnectClick}
-        onReconnect={onReconnect}
-        openInGameMenu={openInGameMenu}
-        regionPoints={regionPoints}
-        revealRegionPoints={revealRegionPoints}
-        revealedRegions={revealedRegions}
-        showSolution={showSolution}
+        {onReconnect}
+        {openInGameMenu}
+        {regionPoints}
+        {revealRegionPoints}
+        {revealedRegions}
+        {showSolution}
       />
     {/if}
   {/if}

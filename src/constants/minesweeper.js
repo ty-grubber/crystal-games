@@ -13,8 +13,4 @@ const STATUS = {
 const MINE = 'M';
 const EXPLOSION = 'E';
 
-export {
-  EXPLOSION,
-  MINE,
-  STATUS
-};
+export { EXPLOSION, MINE, STATUS };

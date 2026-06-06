@@ -4,7 +4,10 @@
 
 <svelte:head>
   <title>Pokémon Crystal Randomizer Games Home</title>
-  <meta property="description" content="A collection of additional games you can play with your Pokémon Crystal randomizer seed!" />
+  <meta
+    property="description"
+    content="A collection of additional games you can play with your Pokémon Crystal randomizer seed!"
+  />
 </svelte:head>
 
 <div class="page">
@@ -31,7 +34,14 @@
   <b>Credits:</b>
   <p class="credits">
     Designed & created by tigertygr28 (TyGr) & Kovolta<br />
-    Like these games? We make board games, too! Check out <a href="https://www.thegamecrafter.com/designers/dastardly-fun-entertainment" target="_blank" rel="noreferrer">our games on TheGameCrafter</a>
+    Like these games? We make board games, too! Check out&nbsp;
+    <a
+      href="https://www.thegamecrafter.com/designers/dastardly-fun-entertainment"
+      target="_blank"
+      rel="noreferrer"
+    >
+      our games on TheGameCrafter
+    </a>
   </p>
 </div>
 
@@ -54,4 +64,3 @@
     font-size: 14px;
   }
 </style>
-

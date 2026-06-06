@@ -2,12 +2,12 @@
   // TODO: Make floating menu and info section responsive
   import short from 'short-uuid';
   import Button, { Label } from '@smui/button';
-	import Dialog, { Actions, Content, Title } from '@smui/dialog';
+  import Dialog, { Actions, Content, Title } from '@smui/dialog';
   import TextField from '@smui/textfield';
-	import { convertTo2DArray, flatten2DArray } from '$lib/arrayConversion';
+  import { convertTo2DArray, flatten2DArray } from '$lib/arrayConversion';
   import { clickOutside } from '$lib/clickOutside';
-	import { randomizeArray } from '$lib/randomize';
-	import { EXPLOSION, MINE, STATUS } from '../../constants/minesweeper';
+  import { randomizeArray } from '$lib/randomize';
+  import { EXPLOSION, MINE, STATUS } from '../../constants/minesweeper';
   import { NATIONAL_DEX } from '../../constants/pokedex';
 
   const EXCAVATED_MINE_PENALTY = 15;
@@ -33,23 +33,24 @@
   let statusList = [];
   let monList = NATIONAL_DEX;
   /**
-	 * @type {any[]}
-	 */
+   * @type {any[]}
+   */
   let mineList = [];
 
   /**
-	 * @type {TextField}
-	 */
+   * @type {TextField}
+   */
   let searchInput;
 
   /**
-	 * @type {string}
-	 */
+   * @type {string}
+   */
   let searchTerm = '';
   let searchFocussed = false;
+
   /**
-	 * @type {NodeJS.Timeout}
-	 */
+   * @type {number | undefined}
+   */
   let searchBlurTimeout;
   let gridSeedFocussed = false;
   let mineSeedFocussed = false;
@@ -58,7 +59,13 @@
   let timePenaltyOpen = false;
 
   function handleStartNewGame() {
-    if (!gridSeed || !mineSeed || confirm('Starting a new game will end the current one. Are you sure you wish to start a new game?')) {
+    if (
+      !gridSeed ||
+      !mineSeed ||
+      confirm(
+        'Starting a new game will end the current one. Are you sure you wish to start a new game?'
+      )
+    ) {
       mineList = [];
       statusList = [];
       monList = NATIONAL_DEX;
@@ -99,8 +106,8 @@
   }
 
   /**
-	 * @param {{ explicitOriginalTarget: { parentElement: { tagName: string; }; }; }} e
-	 */
+   * @param {{ explicitOriginalTarget: { parentElement: { tagName: string; }; }; }} e
+   */
   function handleOutsideDexClick(e) {
     if (e.explicitOriginalTarget.parentElement.tagName.toLowerCase() !== 'button') {
       selectedMonIndex = -1;
@@ -108,13 +115,14 @@
   }
 
   /**
-	 * @param {{ which: any; keyCode: any; ctrlKey: boolean; }} e
-	 */
+   * @param {{ which: any; keyCode: any; ctrlKey: boolean; }} e
+   */
   function updateSearch(e) {
     const keyCode = e.which || e.keyCode;
     if (!e.ctrlKey) {
       // valid keys are letters, numbers, dash, apostrophe or period;
-      const validKeyPressed = (keyCode >= 48 && keyCode <= 90) || keyCode === 222 || keyCode === 189 || keyCode === 190;
+      const validKeyPressed =
+        (keyCode >= 48 && keyCode <= 90) || keyCode === 222 || keyCode === 189 || keyCode === 190;
       if (!searchFocussed && !gridSeedFocussed && !mineSeedFocussed && validKeyPressed) {
         searchInput.focus();
         selectedMonIndex = -1;
@@ -127,8 +135,8 @@
   }
 
   /**
-	 * @param {any} e
-	 */
+   * @param {any} e
+   */
   function searchKeyDown(e) {
     const keyCode = e.which || e.keyCode;
     if (keyCode === 27) {
@@ -145,9 +153,9 @@
   }
 
   /**
-	 * @param {number} monIndex
-	 * @param {string[]} stateArray
-	 */
+   * @param {number} monIndex
+   * @param {string[]} stateArray
+   */
   function toggleStatusStates(monIndex, stateArray) {
     let currentStatus = statusList[monIndex];
 
@@ -171,8 +179,8 @@
   }
 
   /**
-	 * @param {number} monIndex
-	 */
+   * @param {number} monIndex
+   */
   function contextSelectMon(monIndex) {
     // Toggle status state if game is still ongoing
     if (!gameIsComplete) {
@@ -181,10 +189,10 @@
   }
 
   /**
-	 * @param {number} monIndex
-	 * @param {MouseEvent & { currentTarget: EventTarget & HTMLDivElement; }} event
-	 */
-   function auxSelectMon(monIndex, event) {
+   * @param {number} monIndex
+   * @param {MouseEvent & { currentTarget: EventTarget & HTMLDivElement; }} event
+   */
+  function auxSelectMon(monIndex, event) {
     // Toggle status state if game is still ongoing and we received a middle click
     if (!gameIsComplete && (event.which === 2 || event.button === 1)) {
       toggleStatusStates(monIndex, [STATUS.SEEN, STATUS.OWNED]);
@@ -195,12 +203,12 @@
    * @param {number} index
    */
   function selectMon(index) {
-     selectedMonIndex = index;
+    selectedMonIndex = index;
   }
 
   /**
-	 * @param {string} status
-	 */
+   * @param {string} status
+   */
   function monAction(status) {
     if (selectedMonIndex > -1 && !gameIsComplete) {
       let currentStatus = statusList[selectedMonIndex];
@@ -266,13 +274,13 @@
   }
 
   /**
-	 * @param {number} monIndex
+   * @param {number} monIndex
    * @param {string} mineStatus
-	 */
+   */
   function mineMon(monIndex, mineStatus = STATUS.MINED, mineNeighborsIfZero = true) {
     if (
       mineList &&
-      typeof(mineList[monIndex]) !== 'undefined' &&
+      typeof mineList[monIndex] !== 'undefined' &&
       statusList &&
       ![STATUS.MINED, STATUS.EXPLODED, STATUS.ORIGIN_EXPLODED].includes(statusList[monIndex])
     ) {
@@ -285,14 +293,17 @@
         mineMon(monIndex + GRID_COLUMNS); // mon below
 
         // Make sure we aren't at left edge of grid
-        if (monIndex > 0 && Math.abs(monIndex % GRID_COLUMNS - ((monIndex - 1) % GRID_COLUMNS)) === 1) {
+        if (
+          monIndex > 0 &&
+          Math.abs((monIndex % GRID_COLUMNS) - ((monIndex - 1) % GRID_COLUMNS)) === 1
+        ) {
           mineMon(monIndex - 1); // mon to left
           mineMon(monIndex - GRID_COLUMNS - 1); // mon to upper left
           mineMon(monIndex + GRID_COLUMNS - 1); // mon to lower left
         }
 
         // Make sure we aren't at right edge of grid
-        if (Math.abs(monIndex % GRID_COLUMNS - ((monIndex + 1) % GRID_COLUMNS)) === 1) {
+        if (Math.abs((monIndex % GRID_COLUMNS) - ((monIndex + 1) % GRID_COLUMNS)) === 1) {
           mineMon(monIndex + 1); // mon to right
           mineMon(monIndex - GRID_COLUMNS + 1); //mon to upper right
           mineMon(monIndex + GRID_COLUMNS + 1); // mon to lower right
@@ -302,8 +313,8 @@
   }
 
   /**
-	 * @param {number} monIndex
-	 */
+   * @param {number} monIndex
+   */
   function explodeMon(monIndex) {
     // explode selected mon
     mineMon(monIndex, STATUS.ORIGIN_EXPLODED);
@@ -313,14 +324,17 @@
     mineMon(monIndex + GRID_COLUMNS, STATUS.EXPLODED); // mon below
 
     // Make sure we aren't at left edge of grid
-    if (monIndex > 0 && Math.abs(monIndex % GRID_COLUMNS - ((monIndex - 1) % GRID_COLUMNS)) === 1) {
+    if (
+      monIndex > 0 &&
+      Math.abs((monIndex % GRID_COLUMNS) - ((monIndex - 1) % GRID_COLUMNS)) === 1
+    ) {
       mineMon(monIndex - 1, STATUS.EXPLODED); // mon to left
       mineMon(monIndex - GRID_COLUMNS - 1, STATUS.EXPLODED); // mon to upper left
       mineMon(monIndex + GRID_COLUMNS - 1, STATUS.EXPLODED); // mon to lower left
     }
 
     // Make sure we aren't at right edge of grid
-    if (Math.abs(monIndex % GRID_COLUMNS - ((monIndex + 1) % GRID_COLUMNS)) === 1) {
+    if (Math.abs((monIndex % GRID_COLUMNS) - ((monIndex + 1) % GRID_COLUMNS)) === 1) {
       mineMon(monIndex + 1, STATUS.EXPLODED); // mon to right
       mineMon(monIndex - GRID_COLUMNS + 1, STATUS.EXPLODED); //mon to upper right
       mineMon(monIndex + GRID_COLUMNS + 1, STATUS.EXPLODED); // mon to lower right
@@ -332,7 +346,11 @@
 
     // Filter through statusList to find cells that are not flagged, excavated, or exploded
     const indexesToMine = statusList.forEach((status, index) => {
-      if (!status.includes(STATUS.FLAGGED) && !status.includes(STATUS.MINED) && !status.includes(STATUS.EXPLODED)) {
+      if (
+        !status.includes(STATUS.FLAGGED) &&
+        !status.includes(STATUS.MINED) &&
+        !status.includes(STATUS.EXPLODED)
+      ) {
         // Set each of these cells to new status of AUTO_MINED, but do not expand mining if a 0 is uncovered
         mineMon(index, STATUS.AUTO_MINED, false);
       }
@@ -413,18 +431,25 @@
 
   // A mine has been found if it has been flagged, or if it is an uncovered mine in the grid
   // (whether via excavation or explosion)
-  $: minesRemaining = gameIsComplete ? 0 : NUM_MINES - statusList.filter((status, index) =>
-    status.includes(STATUS.FLAGGED) ||
-    ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) && mineList[index] === MINE
-  )).length;
+  $: minesRemaining = gameIsComplete
+    ? 0
+    : NUM_MINES -
+      statusList.filter(
+        (status, index) =>
+          status.includes(STATUS.FLAGGED) ||
+          ((status === STATUS.MINED || status.includes(STATUS.EXPLODED)) &&
+            mineList[index] === MINE)
+      ).length;
 
-  $: minesExcavated = statusList.filter((status, index) =>
-    status.includes(STATUS.MINED) && mineList[index] === MINE
+  $: minesExcavated = statusList.filter(
+    (status, index) => status.includes(STATUS.MINED) && mineList[index] === MINE
   ).length;
 
-  $: minesExploded = statusList.filter((status, index) =>
-    status === STATUS.ORIGIN_EXPLODED ||
-    mineList[index] === MINE && (status === STATUS.EXPLODED || status === STATUS.ORIGIN_EXPLODED)
+  $: minesExploded = statusList.filter(
+    (status, index) =>
+      status === STATUS.ORIGIN_EXPLODED ||
+      (mineList[index] === MINE &&
+        (status === STATUS.EXPLODED || status === STATUS.ORIGIN_EXPLODED))
   ).length;
 </script>
 
@@ -451,7 +476,7 @@
     </Button>
   {/if}
   {#if mineList.length > 0}
-    <div class='floating-menu'>
+    <div class="floating-menu">
       <Button color="primary" on:click={openMenuDialog} variant="raised">
         <Label>Menu</Label>
       </Button>
@@ -497,8 +522,8 @@
       <TextField
         variant="outlined"
         bind:value={gridSeed}
-        on:blur={() => gridSeedFocussed = false}
-        on:focus={() => gridSeedFocussed = true}
+        on:blur={() => (gridSeedFocussed = false)}
+        on:focus={() => (gridSeedFocussed = true)}
         label="Grid Layout Seed:"
       />
       <Button color="secondary" on:click={onRandomizeGridSeed} variant="unelevated">
@@ -508,15 +533,20 @@
       <TextField
         variant="outlined"
         bind:value={mineSeed}
-        on:blur={() => mineSeedFocussed = false}
-        on:focus={() => mineSeedFocussed = true}
+        on:blur={() => (mineSeedFocussed = false)}
+        on:focus={() => (mineSeedFocussed = true)}
         label="Mine Layout Seed:"
       />
       <Button color="secondary" on:click={onRandomizeMineSeed} variant="unelevated">
         <Label>Randomize Seed</Label>
       </Button>
       <br /><br />
-      <Button color="primary" on:click={onStartClick} disabled={!gridSeed || !mineSeed} variant="unelevated">
+      <Button
+        color="primary"
+        on:click={onStartClick}
+        disabled={!gridSeed || !mineSeed}
+        variant="unelevated"
+      >
         <Label>Start Game!</Label>
       </Button>
       <Button color="secondary" on:click={openHowToDialog} variant="raised">
@@ -529,73 +559,207 @@
     <Content id="howToContent">
       <h3>Object</h3>
 
-      <p>The object of Pokédex Minesweeper is to find all of the hidden mines in the Pokédex grid as fast as possible. This is ideally done by using logic to flag the Pokémon you know to be mines based on the clues given by other excavated Pokémon. Once all 40 mines have been found, stop your timer (not implemented on this page) and add any accrued penalties to your time to find your final score (see below for Penalties).</p>
+      <p>
+        The object of Pokédex Minesweeper is to find all of the hidden mines in the Pokédex grid as
+        fast as possible. This is ideally done by using logic to flag the Pokémon you know to be
+        mines based on the clues given by other excavated Pokémon. Once all 40 mines have been
+        found, stop your timer (not implemented on this page) and add any accrued penalties to your
+        time to find your final score (see below for Penalties).
+      </p>
 
-      <p>Pokédex Minesweeper is a great way to spice up a standard Catch-Em-All randomizer and it is highly encouraged to add in a full-item or even a map randomizer to make things extra chaotic!</p>
+      <p>
+        Pokédex Minesweeper is a great way to spice up a standard Catch-Em-All randomizer and it is
+        highly encouraged to add in a full-item or even a map randomizer to make things extra
+        chaotic!
+      </p>
 
       <h3>Setting Up A Game</h3>
-      <p>When the page initially loads, or when you start a new game, you will be presented with a dialog to input the settings for minesweeper:</p>
+      <p>
+        When the page initially loads, or when you start a new game, you will be presented with a
+        dialog to input the settings for minesweeper:
+      </p>
       <ul>
-        <li><b>Grid Seed:</b> A string used for randomization of the Pokédex. Type one of your choice or click the Randomize Grid Seed button to have one generated for you.</li>
-        <li><b>Mine Seed:</b> A string used for randomization of the grid for the mines. Type one of your choice or click the Randomize Mine Seed button to have one generated for you.</li>
+        <li>
+          <b>Grid Seed:</b> A string used for randomization of the Pokédex. Type one of your choice or
+          click the Randomize Grid Seed button to have one generated for you.
+        </li>
+        <li>
+          <b>Mine Seed:</b> A string used for randomization of the grid for the mines. Type one of your
+          choice or click the Randomize Mine Seed button to have one generated for you.
+        </li>
       </ul>
-      <p>Once you have clicked the 'Start Game!' button, the dialog should close and before you will be a Pokédex grid along with info and actions beside it. Every game of Minesweeper starts with the last 5 squares in the bottom pre-excavated for you.</p>
+      <p>
+        Once you have clicked the 'Start Game!' button, the dialog should close and before you will
+        be a Pokédex grid along with info and actions beside it. Every game of Minesweeper starts
+        with the last 5 squares in the bottom pre-excavated for you.
+      </p>
 
       <h3>The Grid</h3>
-      <p>The Pokédex grid displays all important information and clues about where mines are hidden in the grid. Any square that has a number or a letter overtop of the Pokémon's icon indicates that that square has been mined. That number or letter indicates the following:</p>
+      <p>
+        The Pokédex grid displays all important information and clues about where mines are hidden
+        in the grid. Any square that has a number or a letter overtop of the Pokémon's icon
+        indicates that that square has been mined. That number or letter indicates the following:
+      </p>
       <ul>
-        <li><b>Number:</b> indicates how many mines are adjacent (including diagonals) to this square</li>
-        <li><b>M:</b> indicates that this square contains a mine (and appropriate penalty has been applied)</li>
-        <li><b>E:</b> (optional, see Actions below) indicates that this square exploded on its own and contained a mine (and appropriate penalty has been applied)</li>
+        <li>
+          <b>Number:</b> indicates how many mines are adjacent (including diagonals) to this square
+        </li>
+        <li>
+          <b>M:</b> indicates that this square contains a mine (and appropriate penalty has been applied)
+        </li>
+        <li>
+          <b>E:</b> (optional, see Actions below) indicates that this square exploded on its own and
+          contained a mine (and appropriate penalty has been applied)
+        </li>
       </ul>
 
-      <p>Additionally, each Pokémon in the grid is colored in a way to indicate its different potential statuses:</p>
+      <p>
+        Additionally, each Pokémon in the grid is colored in a way to indicate its different
+        potential statuses:
+      </p>
       <ul>
-        <li><b>Purple Border:</b> indicates this Pokémon is currently selected. Actions can now be performed on its cell and you can see its full status written out above the Actions on the right. </li>
-        <li><b>Red Border & Light Red Background:</b> indicates this Pokémon's cell has been flagged, meaning you think there is a mine underneath. This cell will also have a light red background.</li>
-        <li><b>Green Border & Light Green Background:</b> indicates this Pokémon's cell is safe to be excavated (ie. you do not think there is a mine underneath it). This cell will also have a light green background.</li>
+        <li>
+          <b>Purple Border:</b> indicates this Pokémon is currently selected. Actions can now be performed
+          on its cell and you can see its full status written out above the Actions on the right.
+        </li>
+        <li>
+          <b>Red Border & Light Red Background:</b> indicates this Pokémon's cell has been flagged, meaning
+          you think there is a mine underneath. This cell will also have a light red background.
+        </li>
+        <li>
+          <b>Green Border & Light Green Background:</b> indicates this Pokémon's cell is safe to be excavated
+          (ie. you do not think there is a mine underneath it). This cell will also have a light green
+          background.
+        </li>
         <li><b>Blue Dot:</b> indicates that you have seen this Pokémon during game play.</li>
-        <li><b>Yellow Dot:</b> indicates that you have caught or own this Pokémon in your game's Pokédex.</li>
-        <li><b>Light Blue Background:</b> indicates that a search is active below the grid and this Pokémon matches the search term provided.</li>
-        <li><b>Red Background:</b> indicates that this cell has been excavated and a mine was found or the cell exploded (indicated by the letter in the cell, see above)</li>
-        <li><b>Grey-scale Background:</b> indicates the cell has been mined, but no mine was found underneath. The darker the background the more mines that are adjacent (including diagonals) to this cell.</li>
+        <li>
+          <b>Yellow Dot:</b> indicates that you have caught or own this Pokémon in your game's Pokédex.
+        </li>
+        <li>
+          <b>Light Blue Background:</b> indicates that a search is active below the grid and this Pokémon
+          matches the search term provided.
+        </li>
+        <li>
+          <b>Red Background:</b> indicates that this cell has been excavated and a mine was found or
+          the cell exploded (indicated by the letter in the cell, see above)
+        </li>
+        <li>
+          <b>Grey-scale Background:</b> indicates the cell has been mined, but no mine was found underneath.
+          The darker the background the more mines that are adjacent (including diagonals) to this cell.
+        </li>
       </ul>
-      <p>Some statuses of a cell can be stacked, such as Safe and Seen. In this case, you will see both the green border and background of the Pokémon, as well as the blue dot.</p>
+      <p>
+        Some statuses of a cell can be stacked, such as Safe and Seen. In this case, you will see
+        both the green border and background of the Pokémon, as well as the blue dot.
+      </p>
 
       <h3>Information Panel</h3>
-      <p>This information panel provides a quick look at how you are doing in the game. It will list how many mines you have found (via excavation, explosion, flagging), what your current time penalty is (due to mine excavations ({EXCAVATED_MINE_PENALTY} minutes each) and explosions ({EXPLODED_MINE_PENALTY} minutes each)), the currently selected Pokémon in the grid and the current status of the selected Pokémon (there could be more than one).</p>
+      <p>
+        This information panel provides a quick look at how you are doing in the game. It will list
+        how many mines you have found (via excavation, explosion, flagging), what your current time
+        penalty is (due to mine excavations ({EXCAVATED_MINE_PENALTY} minutes each) and explosions ({EXPLODED_MINE_PENALTY}
+        minutes each)), the currently selected Pokémon in the grid and the current status of the selected
+        Pokémon (there could be more than one).
+      </p>
 
       <h3>Actions</h3>
-      <p>Once you have selected a Pokémon in the grid, various actions can be performed on that cell to add a status to that Pokémon's cell. Unless otherwise stated, once a Pokémon in the grid has been excavated or has exploded, no further actions can be performed on it. The possible actions are:</p>
+      <p>
+        Once you have selected a Pokémon in the grid, various actions can be performed on that cell
+        to add a status to that Pokémon's cell. Unless otherwise stated, once a Pokémon in the grid
+        has been excavated or has exploded, no further actions can be performed on it. The possible
+        actions are:
+      </p>
       <ul>
         <li><b>Clear Status:</b> clear all existing statuses on the cell</li>
-        <li><b>Flag:</b> mark the cell as flagged. This will auto-decrement the number of remaining mines by 1</li>
+        <li>
+          <b>Flag:</b> mark the cell as flagged. This will auto-decrement the number of remaining mines
+          by 1
+        </li>
         <li><b>Safe:</b> mark the cell as safe to be mined</li>
         <li><b>Seen:</b> mark the Pokémon as seen</li>
-        <li><b>Own:</b> mark the Pokémon as owned (which makes the Pokémon's cell able to be excavated)</li>
-        <li><b>Excavate</b> excavate the Pokémon's cell. This is only performable if the Pokémon has already been set to Owned. This action cannot be undone once performed. If you excavate a cell and a mine is underneath, the number of mines remaining will auto-decrement by 1 and you'll incur a {EXCAVATED_MINE_PENALTY}-minute penalty to your overall time.</li>
-        <li><b>Explosion</b> explode the Pokémon's cell, which will also excavate all adjacent cells automatically, incurring penalties as required. This action cannot be undone once performed. (see optional rules for more info)</li>
+        <li>
+          <b>Own:</b> mark the Pokémon as owned (which makes the Pokémon's cell able to be excavated)
+        </li>
+        <li>
+          <b>Excavate</b> excavate the Pokémon's cell. This is only performable if the Pokémon has
+          already been set to Owned. This action cannot be undone once performed. If you excavate a
+          cell and a mine is underneath, the number of mines remaining will auto-decrement by 1 and
+          you'll incur a {EXCAVATED_MINE_PENALTY}-minute penalty to your overall time.
+        </li>
+        <li>
+          <b>Explosion</b> explode the Pokémon's cell, which will also excavate all adjacent cells automatically,
+          incurring penalties as required. This action cannot be undone once performed. (see optional
+          rules for more info)
+        </li>
       </ul>
 
       <h3>Shortcuts</h3>
       <p>There are a few shortcuts that can help you use this tracker faster:</p>
       <ul>
-        <li><b>Right-click:</b> right-clicking on any cell in the grid will toggle the cell between Flagged, Safe, and Neither. If this cell has a Owned or Seen status, that status is not affected by the right-click action.</li>
-        <li><b>Middle-click:</b> middle-clicking on any cell in the grid will toggle the cell between Seen, Owned, and Neither. If this cell has a Flagged or Safe status, that status is not affected by the middle-click action.</li>
-        <li><b>Typing:</b> as long as the tab is focussed, typing any key will automatically start a search in the grid. This search clears any selected pokemon and fades-out all pokemon in the grid that do not match the searched term. As well, the search clears itself after {searchClearTimeoutAmount / 1000} seconds of non-typing activity.</li>
-        <li><b>Escape Key:</b> hitting the escape key will clear any search and de-select any selected pokemon in the grid.</li>
+        <li>
+          <b>Right-click:</b> right-clicking on any cell in the grid will toggle the cell between Flagged,
+          Safe, and Neither. If this cell has a Owned or Seen status, that status is not affected by
+          the right-click action.
+        </li>
+        <li>
+          <b>Middle-click:</b> middle-clicking on any cell in the grid will toggle the cell between Seen,
+          Owned, and Neither. If this cell has a Flagged or Safe status, that status is not affected
+          by the middle-click action.
+        </li>
+        <li>
+          <b>Typing:</b> as long as the tab is focussed, typing any key will automatically start a
+          search in the grid. This search clears any selected pokemon and fades-out all pokemon in
+          the grid that do not match the searched term. As well, the search clears itself after {searchClearTimeoutAmount /
+            1000} seconds of non-typing activity.
+        </li>
+        <li>
+          <b>Escape Key:</b> hitting the escape key will clear any search and de-select any selected
+          pokemon in the grid.
+        </li>
       </ul>
 
       <h3>End Game</h3>
-      <p>When you have found the {NUM_MINES}<sup>th</sup> mine in the grid (via excavation, explosion, or flagging), a Finish Game button will appear near the top right corner of the winder. Clicking this will allow you to confirm that you are done and also allow the grid to be auto-excavated to confirm your logic for the game. If your flagging is correct, you have nothing to worry about, but if a mine is uncovered during the auto-mine process, its penalty will still be applied to your final time. For quick reference, all auto-mined cells will appear in italicized font, including any mines that may have been found.</p>
-      <p>Once the grid has been auto-mined, you will not be able to perform any action on the grid besides searching and selecting.</p>
-      <p>Once all un-excavated cells have been excavated, add your timer's time to the Time Penalty indicated in the Information Panel to get your final time. If you are racing against others, whoever has the fastest time wins the race!</p>
+      <p>
+        When you have found the {NUM_MINES}<sup>th</sup> mine in the grid (via excavation, explosion,
+        or flagging), a Finish Game button will appear near the top right corner of the winder. Clicking
+        this will allow you to confirm that you are done and also allow the grid to be auto-excavated
+        to confirm your logic for the game. If your flagging is correct, you have nothing to worry about,
+        but if a mine is uncovered during the auto-mine process, its penalty will still be applied to
+        your final time. For quick reference, all auto-mined cells will appear in italicized font, including
+        any mines that may have been found.
+      </p>
+      <p>
+        Once the grid has been auto-mined, you will not be able to perform any action on the grid
+        besides searching and selecting.
+      </p>
+      <p>
+        Once all un-excavated cells have been excavated, add your timer's time to the Time Penalty
+        indicated in the Information Panel to get your final time. If you are racing against others,
+        whoever has the fastest time wins the race!
+      </p>
 
       <h3>Optional Explosions</h3>
-      <p>To add a bit of difficulty to your game play in Pokémon Crystal, you can implement this optional Explosions rule-set to Minesweeper.</p>
-      <p>While playing Pokémon Crystal, if <b>any</b> Pokémon in the game uses the move SelfDestruct or Explosion on you, that Pokémon also explodes in your grid (feel free to house-rule some other moves, too, like Egg Bomb or Present). When this occurs, select the Pokémon that exploded on you in the grid and click the Explosion action.</p>
-      <p>When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates all grid cells adjacent to it (including diagonals). Each mine uncovered in this way (including the Pokémon that exploded) incurs a 5-minute penalty to your overall time. For quick reference, any Pokémon that explodes due to SelfDestruct or Explosion will have its revealed value bolded and underlined, signifying it was the origin of an explosion.</p>
-      <p><b>Note:</b> if a Pokémon has already been excavated, it cannot explode afterwards. Therefore, you will not be able to select the Explosion action on an excavated Pokémon.</p>
+      <p>
+        To add a bit of difficulty to your game play in Pokémon Crystal, you can implement this
+        optional Explosions rule-set to Minesweeper.
+      </p>
+      <p>
+        While playing Pokémon Crystal, if <b>any</b> Pokémon in the game uses the move SelfDestruct or
+        Explosion on you, that Pokémon also explodes in your grid (feel free to house-rule some other
+        moves, too, like Egg Bomb or Present). When this occurs, select the Pokémon that exploded on
+        you in the grid and click the Explosion action.
+      </p>
+      <p>
+        When a Pokémon explodes in the grid, that Pokémon immediately becomes a mine that excavates
+        all grid cells adjacent to it (including diagonals). Each mine uncovered in this way
+        (including the Pokémon that exploded) incurs a 5-minute penalty to your overall time. For
+        quick reference, any Pokémon that explodes due to SelfDestruct or Explosion will have its
+        revealed value bolded and underlined, signifying it was the origin of an explosion.
+      </p>
+      <p>
+        <b>Note:</b> if a Pokémon has already been excavated, it cannot explode afterwards. Therefore,
+        you will not be able to select the Explosion action on an excavated Pokémon.
+      </p>
     </Content>
     <Actions>
       <Button>Close</Button>
@@ -606,7 +770,10 @@
     <Title>Auto-mine Grid?</Title>
     <Content>
       <p>All mines have been flagged or uncovered. Would you like to end your game?</p>
-      <p>If yes, all grid cells that have not been excavated and are not flagged will be auto-excavated.</p>
+      <p>
+        If yes, all grid cells that have not been excavated and are not flagged will be
+        auto-excavated.
+      </p>
     </Content>
     <Actions>
       <Button color="primary" on:click={autoMineGrid} variant="raised">Yes (Stop Timer)</Button>
@@ -617,35 +784,52 @@
   {#if mineList.length > 0}
     <div class="playArea">
       <div class="grid">
-        <div use:clickOutside on:click_outside={handleOutsideDexClick} class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}>
+        <div
+          use:clickOutside
+          on:click_outside={handleOutsideDexClick}
+          class={`dex ${searchTerm.length > 0 ? 'search' : ''}`}
+        >
           {#each monList as pokemon, i (pokemon.id)}
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
             <div
               class={`dex-mon ${
                 statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED)
-                  ? mineList[i] === MINE ? 'mine' : `safe${mineList[i]}`
+                  ? mineList[i] === MINE
+                    ? 'mine'
+                    : `safe${mineList[i]}`
                   : statusList[i] || ''
-              } ${
-                i === selectedMonIndex ? 'selected' : ''
-              } ${
-                searchTerm !== '' && pokemon.name.toLowerCase().includes(searchTerm) ? 'matched' : ''
+              } ${i === selectedMonIndex ? 'selected' : ''} ${
+                searchTerm !== '' && pokemon.name.toLowerCase().includes(searchTerm)
+                  ? 'matched'
+                  : ''
               }`}
               on:click={() => selectMon(i)}
               on:keydown={() => selectMon(i)}
-              on:auxclick|preventDefault={(e) => auxSelectMon(i, e)}
+              on:auxclick|preventDefault={e => auxSelectMon(i, e)}
               on:contextmenu|preventDefault={() => contextSelectMon(i)}
             >
               {#if statusList[i].includes(STATUS.SEEN) || statusList[i].includes(STATUS.OWNED)}
                 <div class="dot">&nbsp;</div>
               {/if}
               <img
-                class={`mon-icon ${statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED) ? STATUS.MINED : ''}`}
+                class={`mon-icon ${
+                  statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED)
+                    ? STATUS.MINED
+                    : ''
+                }`}
                 src={`/pokedex/${pokemon.id}.png`}
                 alt={pokemon.name}
               />
               {#if mineList.length > 0 && (statusList[i].includes(STATUS.MINED) || statusList[i].includes(STATUS.EXPLODED))}
                 <div class="mine-value-container">
-                  <span class={`mine-list-value ${statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''} ${statusList[i] === STATUS.AUTO_MINED ? 'auto-excavated' : ''}`}>
-                    {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE ? EXPLOSION : (mineList[i] || '')}
+                  <span
+                    class={`mine-list-value ${
+                      statusList[i] === STATUS.ORIGIN_EXPLODED ? 'origin-explosion' : ''
+                    } ${statusList[i] === STATUS.AUTO_MINED ? 'auto-excavated' : ''}`}
+                  >
+                    {statusList[i].includes(STATUS.EXPLODED) && mineList[i] === MINE
+                      ? EXPLOSION
+                      : mineList[i] || ''}
                   </span>
                 </div>
               {/if}
@@ -675,15 +859,18 @@
               variant="outlined"
               bind:value={searchTerm}
               bind:this={searchInput}
-              on:blur={() => searchFocussed = false}
-              on:focus={() => searchFocussed = true}
+              on:blur={() => (searchFocussed = false)}
+              on:focus={() => (searchFocussed = true)}
               on:keydown={searchKeyDown}
               label="Dex Search"
               style={'margin-top: 1rem'}
             />
             <br />
             <p class="credits">
-              Pokémon sprites courtesy of <a href="https://www.serebii.net" rel="noreferrer" target="_blank">serebii.net</a>.<br />
+              Pokémon sprites courtesy of&nbsp;
+              <a href="https://www.serebii.net" rel="noreferrer" target="_blank"> serebii.net </a>
+              .
+              <br />
             </p>
           </div>
           <div>
@@ -701,13 +888,15 @@
         <h2 class="time-penalty-title">
           Total Time Penalty:&nbsp;
           {#if statusList.length > 0}
-            {(minesExcavated * EXCAVATED_MINE_PENALTY) + (minesExploded * EXPLODED_MINE_PENALTY)}:00
+            {minesExcavated * EXCAVATED_MINE_PENALTY + minesExploded * EXPLODED_MINE_PENALTY}:00
           {/if}
         </h2>
         <p class="penalty-breakdown">
-          &rarr;Mines Excavated ({minesExcavated}) = {minesExcavated * EXCAVATED_MINE_PENALTY}:00 penalty
+          &rarr;Mines Excavated ({minesExcavated}) = {minesExcavated * EXCAVATED_MINE_PENALTY}:00
+          penalty
           <br />
-          &rarr;Mines Exploded ({minesExploded}) = {minesExploded * EXPLODED_MINE_PENALTY}:00 penalty
+          &rarr;Mines Exploded ({minesExploded}) = {minesExploded * EXPLODED_MINE_PENALTY}:00
+          penalty
         </p>
         <h2>
           Mines Remaining:&nbsp;
@@ -798,7 +987,8 @@
 </div>
 
 <style>
-  .playArea, .below-grid {
+  .playArea,
+  .below-grid {
     display: inline-flex;
   }
 
@@ -932,7 +1122,7 @@
     background-color: rgba(0, 127, 0, 0.2);
   }
 
-  @media(prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: dark) {
     .dex-mon.flagged {
       background-color: rgba(255, 0, 0, 0.8);
     }
