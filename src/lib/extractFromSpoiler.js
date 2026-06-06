@@ -6,6 +6,36 @@ import { randomTiesSorting, randomizeArray } from './randomize';
  * @param {any[]} keyItems
  */
 function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
+  // Use the spoiler log to determine which randomizer we're dealing with
+  let spoilerLines = spoilerFileText.split('\r\n');
+  // Check if spoiler was generated without carriage return.
+  // There should be hundreds of spoiler lines...but only one if the carriage return is missing on each line
+  // Let's be safe in case some are mixed in somehow
+  if (spoilerLines.length < keyItems.length) {
+    spoilerLines = spoilerFileText.split('\n');
+  }
+
+  if (spoilerLines.find(line => line.includes('Seed:')) && spoilerLines.find(line => line.includes('CV:'))) {
+    // TODO: switch to Kovolta randomizer
+    return extractRegionsFromSpeedchoiceSpoiler(spoilerLines, keyItems);
+  } else {
+    return extractRegionsFromSpeedchoiceSpoiler(spoilerLines, keyItems);
+  }
+}
+
+/**
+ * @param {string[]} spoilerLines
+ * @param {any[]} keyItems
+ */
+function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
+  
+}
+
+/**
+ * @param {string[]} spoilerLines
+ * @param {any[]} keyItems
+ */
+function extractRegionsFromSpeedchoiceSpoiler(spoilerLines, keyItems) {
   /**
    * @type {{ points: number; id: string; name: string; }[]}
    */
@@ -17,14 +47,6 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
     points: 0,
     items: [],
   }));
-
-  let spoilerLines = spoilerFileText.split('\r\n');
-  // Check if spoiler was generated without carriage return.
-  // There should be hundreds of spoiler lines...but only one if the carriage return is missing on each line
-  // Let's be safe in case some are mixed in somehow
-  if (spoilerLines.length < keyItems.length) {
-    spoilerLines = spoilerFileText.split('\n');
-  }
 
   const rngSeed = spoilerLines.find(line => line.includes('RNG Seed:'))?.replace('RNG Seed: ', '');
   const solutionStartIndex = spoilerLines.findIndex(line => line.includes('Solution:'));
