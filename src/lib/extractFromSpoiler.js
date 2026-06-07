@@ -1,9 +1,9 @@
-import REGIONS from '../constants/regions';
+import REGIONS, { KOVOLTA_REGIONS } from '../constants/regions';
 import { randomTiesSorting, randomizeArray } from './randomize';
 
 /**
  * @param {string} spoilerFileText
- * @param {any[]} keyItems
+ * @param {import("../types/PointTracker").KeyItem[]} keyItems
  */
 function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
   // Use the spoiler log to determine which randomizer we're dealing with
@@ -16,7 +16,6 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
   }
 
   if (spoilerLines.find(line => line.includes('Seed:')) && spoilerLines.find(line => line.includes('CV:'))) {
-    // TODO: switch to Kovolta randomizer
     return extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems);
   } else {
     return extractRegionsFromSpeedchoiceSpoiler(spoilerLines, keyItems);
@@ -25,7 +24,7 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
 
 /**
  * @param {string[]} spoilerLines
- * @param {any[]} keyItems
+ * @param {import("../types/PointTracker").KeyItem[]} keyItems
  */
 function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   /**
@@ -42,23 +41,79 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
 
   const rngSeed = spoilerLines.find(line => line.includes('Seed:'))?.replace('Seed: ', '');
 
-  // Items are all caps and we need to find the line where the item does not have a : after it
-  // When matching, make sure the line is after the ----- ITEM LOCATIONS -----
-    // This is where we should the start index for the itemLocations lines
-  // Something like: new RegExp(`${item.name.replace('_', '').toUpperCase()}(?!:)`);
-  // Note: item above is the key item constant
-  // Note: only badges remove the space?
-  // Exceptions: Badges, TMs, and HMs (which match item.id not item.name),
-    // So, we could check item.id if we can't find it in item.name, or we could add a property to the constant to indicate the field to check (better, because we do badges with it)
+  const locationsStartIndex = spoilerLines.findIndex(line => line.includes('----- ITEM LOCATIONS -----'));
+  const locationsEndIndex = spoilerLines.findIndex(line => line.includes('----- OTHER -----'));
+  const locationLines = spoilerLines.slice(locationsStartIndex, locationsEndIndex);
 
-  // And remember that we need to match multiple items in log (ex. Water Stone, TM08)
+  const keyItemMatches = [];
 
-  // Need to verify that if an item is not randomized (ex. GS Ball), that it doesn't appear in the log
+  // Generate an array of exact strings for each key item that needs to be found in the location spoiler
+  keyItems.forEach(item => {
+    let matchName = item.kovoltaMatchProp;
+    if (matchName === 'id') {
+      matchName = String(item[matchName]).replace('_', '').toUpperCase();
+    } else if (matchName === 'name') {
+      matchName = String(item[matchName]).toUpperCase();
+    } else {
+      matchName = item.kovoltaMatchProp.toUpperCase();
+    }
 
-  // If Item is not in a shop, we can just use the line it is found on for its location. Location is at start of line
-  // If Item is in shop, we need to check the line it is found on for its location, which would be at start of line
-  //     If first character found is a | on the line (after trimming), we need to try the previous line and repeat check
-  //        Can we get the index of the line in the array when we use the regex to match above?
+    keyItemMatches.push(matchName);
+  });
+
+  locationLines.forEach((line, lineIndex) => {
+    if (!line.startsWith('-') && line.trim() !== '') {
+      // 1. Check for each Key Item match name in the line using the block above
+      keyItems.forEach(keyItem => {
+        let matchName = keyItem.kovoltaMatchProp;
+        if (matchName === 'id') {
+          matchName = String(keyItem[matchName]).replace('_', '').toUpperCase();
+        } else if (matchName === 'name') {
+          matchName = String(keyItem[matchName]).toUpperCase();
+        } else {
+          matchName = keyItem.kovoltaMatchProp.toUpperCase();
+        }
+
+        if (line.includes(matchName)) {
+          // 2. If match, grab everything of line before the first | and trim it
+          let itemLocation = line.substring(0, line.indexOf('|')).trim();
+          let currLineIndex = lineIndex;
+
+          while (!itemLocation) {
+            // 2A. If result of 2 is empty, repeat 2 for the line above it until it isn't empty (b/c it's in a shop)
+            currLineIndex -= 1;
+            itemLocation = locationLines[currLineIndex].substring(0, line.indexOf('|')).trim();
+          }
+
+          // 3. Iterate through each REGIONS const, checking against locations and routes
+          const matchedRegion = KOVOLTA_REGIONS.find(
+            region =>
+              region.locations.filter(regionLocation => itemLocation.startsWith(regionLocation.toUpperCase()))
+                .length > 0 ||
+              region.routes.filter(regionRoute => itemLocation.includes(`ROUTE_${regionRoute.toString()} `))
+                .length > 0
+          );
+
+          // 4. For the matched REGION found in 3, create the `addedItem` object
+          const shouldUpgradeItem = false; // TODO: Need rules here. keyItem.upgradeModifier won't help
+
+          const addedItem = {
+            ...keyItem,
+            points: keyItem.points + (shouldUpgradeItem ? keyItem.upgradeAmt : 0),
+          };
+
+          // 5. Add to regionPointsArray and randomizedItems (similar to speedchoice extraction)
+          const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedRegion?.id);
+          regionPointsArray[matchedRPAIndex].points += addedItem.points;
+
+          // @ts-ignore
+          regionPointsArray[matchedRPAIndex].items.push(addedItem);
+
+          randomizedItems.push(addedItem);
+        }
+      });
+    }
+  });
 
   // We need to find the modifiers in the SETTINGS section that trigger certain key items to increase in value
     // Alternatively, we might just have to look for specific ITEM_LOCATION strings
@@ -88,7 +143,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
 
 /**
  * @param {string[]} spoilerLines
- * @param {any[]} keyItems
+ * @param {import("../types/PointTracker").KeyItem[]} keyItems
  */
 function extractRegionsFromSpeedchoiceSpoiler(spoilerLines, keyItems) {
   /**
@@ -197,7 +252,7 @@ function extractRegionsFromSpeedchoiceSpoiler(spoilerLines, keyItems) {
 
 /**
  * @param {any} spoilerFile
- * @param {any[]} keyItems
+ * @param {import("../types/PointTracker").KeyItem[]} keyItems
  * @param {string} revealOrdering
  * @returns {Promise<{ baskets: import('../types/PointTracker').Basket[]; regionPoints: import('../types/PointTracker').Region[]; regionRevealOrder: number[]; }|undefined>}
  */

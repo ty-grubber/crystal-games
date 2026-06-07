@@ -19,6 +19,7 @@ export type KeyItem = {
   points: number;
   upgradeModifier: string;
   upgradeAmt: number;
+  kovoltaMatchProp: string;
 };
 
 export type Region = {
