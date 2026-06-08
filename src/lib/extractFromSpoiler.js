@@ -45,94 +45,128 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   const locationsEndIndex = spoilerLines.findIndex(line => line.includes('----- OTHER -----'));
   const locationLines = spoilerLines.slice(locationsStartIndex, locationsEndIndex);
 
-  const keyItemMatches = [];
+  const excludeLocationsStartIndex = spoilerLines.findIndex(line => line.includes('EXCLUDE_LOCATIONS:'));
+  const excludeLocationsEndIndex = spoilerLines.findIndex(line => line.includes('START_WITH_ITEMS:'));
+  const excludeLocationsLines = spoilerLines.slice(excludeLocationsStartIndex, excludeLocationsEndIndex);
 
-  // Generate an array of exact strings for each key item that needs to be found in the location spoiler
-  keyItems.forEach(item => {
-    let matchName = item.kovoltaMatchProp;
-    if (matchName === 'id') {
-      matchName = String(item[matchName]).replace('_', '').toUpperCase();
-    } else if (matchName === 'name') {
-      matchName = String(item[matchName]).toUpperCase();
-    } else {
-      matchName = item.kovoltaMatchProp.toUpperCase();
-    }
+  const startingItemsStartIndex = excludeLocationsEndIndex;
+  const startingItemsEndIndex = spoilerLines.findIndex(line => line.includes('BANNED_ITEMS:'));
+  const startingItemsLines = spoilerLines.slice(startingItemsStartIndex, startingItemsEndIndex);
 
-    keyItemMatches.push(matchName);
-  });
+  // Whether if we know ahead of time we can skip certain key items
+  const skipBicycle = startingItemsLines.find(line => line.includes('- BICYCLE'));
+  const skipGSBall = spoilerLines.find(line => line.includes('ENABLE_GS_BALL_EVENT:'))?.split(':')[1].trim() || false;
+  const skipUnowndex = excludeLocationsLines.find(
+    line => line.includes('RUINS_OF_ALPH_OUTSIDE_MAIN_AREA_RESEARCHERS_GIFT')
+  );
+  const skipMapCard = excludeLocationsLines.find(
+    line => line.includes('CHERRYGROVE_CITY_GUIDE_GENTS_GIFT')
+  );;
+
+  // Key Item point modifier checks
+  const hasHiddenItemChecks = !!spoilerLines.find(line => line.includes('- REGULAR_HIDDEN_ITEMS'));
+  const hasMonLockedChecks = [
+    'NATIONAL_PARK_BEVERLYS_GIFT_FOR_MARILL',
+    'ROUTE_39_DEREKS_GIFT_FOR_PIKACHU',
+    'ROUTE_43_TIFFANY_GIFT_FOR_CLEFARIY',
+    'LAKE_OF_RAGE_MAGIKARP_HOUSE_MANS_GIFT_FOR_MAGIKARP',
+    'ELMS_LAB_ELMS_GIFT_FOR_TOGEPI',
+    'RUINS_OF_ALPH_OUTSIDE_MAIN_AREA_RESEARCHERS_GIFT',
+    'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_LICKITUNG',
+    'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_ODDISH',
+    'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_STARYU',
+    'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_GROWLITHE',
+    'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_PICHU',
+  ].some(check => !excludeLocationsLines.find(line => line.includes(check)));
+
+  const shopLocationsStartIndex = locationLines.findIndex(line => line.includes('----- SHOP ITEMS -----'));
+  const shopLocationsLines = locationLines.slice(shopLocationsStartIndex, locationsEndIndex);
+
+  // If some of the Blue Card shop items are vanilla, then it isn't randomized
+  const blueCardShopLinesStartIndex = shopLocationsLines.findIndex(
+    line => line.includes('RADIO_TOWER_2F_BLUE_CARD_SHOP')
+  );
+  const hasBlueCardChecks = blueCardShopLinesStartIndex >= 0
+    ? !shopLocationsLines[blueCardShopLinesStartIndex].replace(' ', '').includes('|ULTRABALL|2')
+      || !shopLocationsLines[blueCardShopLinesStartIndex + 1].replace(' ', '').includes('|FULLRESTORE|2')
+      || !shopLocationsLines[blueCardShopLinesStartIndex + 2].replace(' ', '').includes('|NUGGET|3')
+    : false;
+
+  // If some of the game corner items are vanilla, then it isn't randomized
+  const gameCornerShopLineIndex = shopLocationsLines.findIndex(line => line.includes('GOLDENROD_GAME_CORNER_ITEM_SHOP'));
+  const hasGameCornerChecks = gameCornerShopLineIndex >= 0
+    ? !shopLocationsLines[gameCornerShopLineIndex].replace(' ', '').includes('|TM25|5500')
+      || !shopLocationsLines[gameCornerShopLineIndex + 1].replace(' ', '').includes('|TM14|5500')
+      || !shopLocationsLines[gameCornerShopLineIndex + 2].replace(' ', '').includes('|TM38|5500')
+    : false;
 
   locationLines.forEach((line, lineIndex) => {
     if (!line.startsWith('-') && line.trim() !== '') {
       // 1. Check for each Key Item match name in the line using the block above
       keyItems.forEach(keyItem => {
-        let matchName = keyItem.kovoltaMatchProp;
-        if (matchName === 'id') {
-          matchName = String(keyItem[matchName]).replace('_', '').toUpperCase();
-        } else if (matchName === 'name') {
-          matchName = String(keyItem[matchName]).toUpperCase();
-        } else {
-          matchName = keyItem.kovoltaMatchProp.toUpperCase();
-        }
-
-        if (line.includes(matchName)) {
-          // 2. If match, grab everything of line before the first | and trim it
-          let itemLocation = line.substring(0, line.indexOf('|')).trim();
-          let currLineIndex = lineIndex;
-
-          while (!itemLocation) {
-            // 2A. If result of 2 is empty, repeat 2 for the line above it until it isn't empty (b/c it's in a shop)
-            currLineIndex -= 1;
-            itemLocation = locationLines[currLineIndex].substring(0, line.indexOf('|')).trim();
+        // If we hit a key item that we know doesn't need to be included in the tracker, skip it
+        if (!skipBicycle && !skipGSBall && !skipMapCard && !skipUnowndex) {
+          let matchName = keyItem.kovoltaMatchProp;
+          if (matchName === 'id') {
+            matchName = String(keyItem[matchName]).replace('_', '').toUpperCase();
+          } else if (matchName === 'name') {
+            matchName = String(keyItem[matchName]).toUpperCase();
+          } else {
+            matchName = keyItem.kovoltaMatchProp.toUpperCase();
           }
 
-          // 3. Iterate through each REGIONS const, checking against locations and routes
-          const matchedRegion = KOVOLTA_REGIONS.find(
-            region =>
-              region.locations.filter(regionLocation => itemLocation.startsWith(regionLocation.toUpperCase()))
-                .length > 0 ||
-              region.routes.filter(regionRoute => itemLocation.includes(`ROUTE_${regionRoute.toString()} `))
-                .length > 0
-          );
+          if (line.includes(matchName)) {
+            // 2. If match, grab everything of line before the first | and trim it
+            let itemLocation = line.substring(0, line.indexOf('|')).trim();
+            let currLineIndex = lineIndex;
 
-          // 4. For the matched REGION found in 3, create the `addedItem` object
-          const shouldUpgradeItem = false; // TODO: Need rules here. keyItem.upgradeModifier won't help
+            while (!itemLocation) {
+              // 2A. If result of 2 is empty, repeat 2 for the line above it until it isn't empty (b/c it's in a shop)
+              currLineIndex -= 1;
+              itemLocation = locationLines[currLineIndex].substring(0, line.indexOf('|')).trim();
+            }
 
-          const addedItem = {
-            ...keyItem,
-            points: keyItem.points + (shouldUpgradeItem ? keyItem.upgradeAmt : 0),
-          };
+            // 3. Iterate through each REGIONS const, checking against locations and routes
+            const matchedRegion = KOVOLTA_REGIONS.find(
+              region =>
+                region.locations.filter(regionLocation => itemLocation.startsWith(regionLocation.toUpperCase()))
+                  .length > 0 ||
+                region.routes.filter(regionRoute => itemLocation.includes(`ROUTE_${regionRoute.toString()} `))
+                  .length > 0
+            );
 
-          // 5. Add to regionPointsArray and randomizedItems (similar to speedchoice extraction)
-          const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedRegion?.id);
-          regionPointsArray[matchedRPAIndex].points += addedItem.points;
+            // 4. For the matched REGION found in 3, create the `addedItem` object, but check if points need upgrading
+            const pokedexNeedsUpgrade = keyItem.name === 'Pokedex' && hasMonLockedChecks;
+            const tm12NeedsUpgrade = keyItem.name === 'Sweet Scent' && hasMonLockedChecks;
+            const bicycleNeedsUpgrade = keyItem.name === 'Bicycle' && hasHiddenItemChecks;
+            const blueCardNeedsUpgrade = keyItem.name === 'Blue Card' && hasBlueCardChecks;
+            const coinCaseNeedsUpgrade = keyItem.name === 'Coin Case' && hasGameCornerChecks;
 
-          // @ts-ignore
-          regionPointsArray[matchedRPAIndex].items.push(addedItem);
+            const shouldUpgradeItem =
+              pokedexNeedsUpgrade ||
+              tm12NeedsUpgrade ||
+              bicycleNeedsUpgrade ||
+              blueCardNeedsUpgrade ||
+              coinCaseNeedsUpgrade;
 
-          randomizedItems.push(addedItem);
+            const addedItem = {
+              ...keyItem,
+              points: keyItem.points + (shouldUpgradeItem ? keyItem.upgradeAmt : 0),
+            };
+
+            // 5. Add to regionPointsArray and randomizedItems (similar to speedchoice extraction)
+            const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedRegion?.id);
+            regionPointsArray[matchedRPAIndex].points += addedItem.points;
+
+            // @ts-ignore
+            regionPointsArray[matchedRPAIndex].items.push(addedItem);
+
+            randomizedItems.push(addedItem);
+          }
         }
       });
     }
   });
-
-  // We need to find the modifiers in the SETTINGS section that trigger certain key items to increase in value
-    // Alternatively, we might just have to look for specific ITEM_LOCATION strings
-      // Ex: (LAKE_OF_RAGE_MAGIKARP_HOUSE_MANS_GIFT_FOR_MAGIKARP, BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_LICKITUNG)
-  // Name -> Speedchoice Modifier -> Kovolta Modifier
-  // Pokedex -> Mon Locked Checks -> Need to check with Kovolta how to know if this is on
-  // Bicycle -> Hidden Items
-  //    Two Options for Kovolta:
-  //      -> Look directly for RANDOMIZE_REGULAR_HIDDEN_ITEMS. If next line is VALUE: true, then true
-  //      -> Look directly for - REGULAR_HIDDEN_ITEMS. If exists, then true
-  // Bicycle -> Start With Bike (which removes it from spoiler log) -> START_WITH_ITEMS ==\n+==> KEY_ITEMS ==\n+==> BICYCLE
-  // Blue Card -> Buena Items -> Need to check with Kovolta how to know if this is on
-  // Coin Case -> Game Corner -> Need to check with Kovolta how to know if this is on
-  // TM12 -> Mon Locked Checks -> See Pokedex above
-
-  // All locations use _ instead spaces. So we need to check ROUTE_42 not ROUTE 42
-  // We might be able to mostly re-use the regions.js constant, but we could do some inline hacks instead of making a new set of constants
-    // Ex. Region 12 needs to add DRAGON_SHRINE_BADGE
-    // But we also have PLAYERS_HOUSE and MR_POKEMONS_HOUSE (instead of Mr. Pokemon), so it might just be better to do a fresh constant (using the existing one as a base)
 
   return {
     randomizedItems,
@@ -318,4 +352,4 @@ async function extractPointsInfoFromSpoiler(spoilerFile, keyItems, revealOrderin
   }
 }
 
-export { extractRegionsFromSpoiler, extractPointsInfoFromSpoiler };
+export { extractPointsInfoFromSpoiler };
