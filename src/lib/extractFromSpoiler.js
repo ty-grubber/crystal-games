@@ -28,7 +28,7 @@ function extractRegionsFromSpoiler(spoilerFileText, keyItems) {
  */
 function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   /**
-   * @type {{ points: number; id: string; name: string; }[]}
+   * @type {import("../types/PointTracker").KeyItem[]}
    */
   let randomizedItems = [];
   const regionPointsArray = REGIONS.map(region => ({
@@ -45,23 +45,29 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   const locationsEndIndex = spoilerLines.findIndex(line => line.includes('----- OTHER -----'));
   const locationLines = spoilerLines.slice(locationsStartIndex, locationsEndIndex);
 
-  const excludeLocationsStartIndex = spoilerLines.findIndex(line => line.includes('EXCLUDE_LOCATIONS:'));
-  const excludeLocationsEndIndex = spoilerLines.findIndex(line => line.includes('START_WITH_ITEMS:'));
-  const excludeLocationsLines = spoilerLines.slice(excludeLocationsStartIndex, excludeLocationsEndIndex);
+  const shuffleItemsStartIndex = spoilerLines.findIndex(line => line.includes('SHUFFLE_ITEMS:'));
+  const shuffleItemsEndIndex = spoilerLines.findIndex(line => line.includes('START_WITH_ITEMS:'));
+  const shuffleItemsLines = spoilerLines.slice(shuffleItemsStartIndex, shuffleItemsEndIndex);
 
-  const startingItemsStartIndex = excludeLocationsEndIndex;
+  const excludeLocationsStartIndex = shuffleItemsLines.findIndex(line => line.includes('EXCLUDE_LOCATIONS:'));
+  const excludeLocationsLines = spoilerLines.slice(
+    shuffleItemsStartIndex + excludeLocationsStartIndex,
+    shuffleItemsEndIndex
+  );
+
+  const startingItemsStartIndex = shuffleItemsEndIndex;
   const startingItemsEndIndex = spoilerLines.findIndex(line => line.includes('BANNED_ITEMS:'));
   const startingItemsLines = spoilerLines.slice(startingItemsStartIndex, startingItemsEndIndex);
 
   // Whether if we know ahead of time we can skip certain key items
-  const skipBicycle = startingItemsLines.find(line => line.includes('- BICYCLE'));
-  const skipGSBall = spoilerLines.find(line => line.includes('ENABLE_GS_BALL_EVENT:'))?.split(':')[1].trim() || false;
-  const skipUnowndex = excludeLocationsLines.find(
+  const skipBicycle = !!startingItemsLines.find(line => line.includes('- BICYCLE'));
+  const skipGSBall = !spoilerLines.find(line => line.includes('ENABLE_GS_BALL_EVENT:'))?.split(':')[1].trim();
+  const skipUnowndex = !!excludeLocationsLines.find(
     line => line.includes('RUINS_OF_ALPH_OUTSIDE_MAIN_AREA_RESEARCHERS_GIFT')
   );
-  const skipMapCard = excludeLocationsLines.find(
+  const skipMapCard = !!excludeLocationsLines.find(
     line => line.includes('CHERRYGROVE_CITY_GUIDE_GENTS_GIFT')
-  );;
+  );
 
   // Key Item point modifier checks
   const hasHiddenItemChecks = !!spoilerLines.find(line => line.includes('- REGULAR_HIDDEN_ITEMS'));
@@ -80,7 +86,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   ].some(check => !excludeLocationsLines.find(line => line.includes(check)));
 
   const shopLocationsStartIndex = locationLines.findIndex(line => line.includes('----- SHOP ITEMS -----'));
-  const shopLocationsLines = locationLines.slice(shopLocationsStartIndex, locationsEndIndex);
+  const shopLocationsLines = locationLines.slice(shopLocationsStartIndex);
 
   // If some of the Blue Card shop items are vanilla, then it isn't randomized
   const blueCardShopLinesStartIndex = shopLocationsLines.findIndex(
@@ -105,7 +111,12 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
       // 1. Check for each Key Item match name in the line using the block above
       keyItems.forEach(keyItem => {
         // If we hit a key item that we know doesn't need to be included in the tracker, skip it
-        if (!skipBicycle && !skipGSBall && !skipMapCard && !skipUnowndex) {
+        if (
+          !(keyItem.name === 'Bicycle' && skipBicycle)
+          && !(keyItem.name === 'GS Ball' && skipGSBall)
+          && !(keyItem.name === 'Unown Dex' && skipUnowndex)
+          && !(keyItem.name === 'Map Card' && skipMapCard)
+        ) {
           let matchName = keyItem.kovoltaMatchProp;
           if (matchName === 'id') {
             matchName = String(keyItem[matchName]).replace('_', '').toUpperCase();
@@ -115,7 +126,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
             matchName = keyItem.kovoltaMatchProp.toUpperCase();
           }
 
-          if (line.includes(matchName)) {
+          if (line.split('|')[1].includes(matchName)) {
             // 2. If match, grab everything of line before the first | and trim it
             let itemLocation = line.substring(0, line.indexOf('|')).trim();
             let currLineIndex = lineIndex;
@@ -131,7 +142,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
               region =>
                 region.locations.filter(regionLocation => itemLocation.startsWith(regionLocation.toUpperCase()))
                   .length > 0 ||
-                region.routes.filter(regionRoute => itemLocation.includes(`ROUTE_${regionRoute.toString()} `))
+                region.routes.filter(regionRoute => itemLocation.startsWith(`ROUTE_${regionRoute.toString()}`))
                   .length > 0
             );
 
@@ -154,9 +165,13 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
               points: keyItem.points + (shouldUpgradeItem ? keyItem.upgradeAmt : 0),
             };
 
-            // 5. Add to regionPointsArray and randomizedItems (similar to speedchoice extraction)
+            // 5. Add to regionPointsArray and update randomizedItems array (similar to speedchoice extraction)
             const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedRegion?.id);
-            regionPointsArray[matchedRPAIndex].points += addedItem.points;
+            try {
+              regionPointsArray[matchedRPAIndex].points += addedItem.points;
+            } catch (error) {
+              console.log(`MatchedRPAIndex: ${matchedRPAIndex}; Key Item Match: ${keyItem.name}; Location line: ${line}; itemLocation: ${itemLocation}`)
+            }
 
             // @ts-ignore
             regionPointsArray[matchedRPAIndex].items.push(addedItem);
@@ -168,8 +183,22 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
     }
   });
 
+  // Finally, we need to re-order the randomizedItems to match the KeyItems constant order
+  // Note that there could be duplicate key items randomized, hence the use of filter and concat
+  // Ex. TM08 or Water Stone
+  const orderedRandomizedItems = keyItems.reduce(
+    (
+      /**
+     * @type {import("../types/PointTracker").KeyItem[]}
+     */
+      orderedArray,
+      curr,
+    ) => orderedArray.concat(randomizedItems.filter(item => item.id === curr.id)),
+    []
+  );
+
   return {
-    randomizedItems,
+    randomizedItems: orderedRandomizedItems,
     regionPointsArray,
     rngSeed,
   }

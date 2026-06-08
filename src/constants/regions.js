@@ -253,7 +253,7 @@ export const KOVOLTA_REGIONS = [
   {
     id: 10,
     name: 'Mahogany',
-    locations: ['Mahogany_Gym', 'Lake_Of_Rage', 'Team_Rocket_Base'],
+    locations: ['Mahogany', 'Lake_Of_Rage', 'Team_Rocket_Base'],
     routes: [43],
     description: 'Mahogany, Lake of Rage + Rt 43',
   },
@@ -281,7 +281,7 @@ export const KOVOLTA_REGIONS = [
   {
     id: 14,
     name: 'Eastern Kanto',
-    locations: ['Fuchsia', 'Lav_Radio_Tower', 'Rock_Tunnel', 'Power_Plant'],
+    locations: ['Fuchsia', 'Lav_Radio_Tower', 'Rock_Tunnel', 'Power_Plant', 'Lavender'],
     routes: [8, 9, 10, 11, 12, 13, 14, 15],
     description: 'Lavender, Fuchsia, Rock Tunnel, Power Plant + Rts 8-15',
   },
