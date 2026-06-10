@@ -74,7 +74,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   const hasMonLockedChecks = [
     'NATIONAL_PARK_BEVERLYS_GIFT_FOR_MARILL',
     'ROUTE_39_DEREKS_GIFT_FOR_PIKACHU',
-    'ROUTE_43_TIFFANY_GIFT_FOR_CLEFARIY',
+    'ROUTE_43_TIFFANYS_GIFT_FOR_CLEFAIRY',
     'LAKE_OF_RAGE_MAGIKARP_HOUSE_MANS_GIFT_FOR_MAGIKARP',
     'ELMS_LAB_ELMS_GIFT_FOR_TOGEPI',
     'RUINS_OF_ALPH_OUTSIDE_MAIN_AREA_RESEARCHERS_GIFT',
@@ -106,7 +106,11 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
       || !shopLocationsLines[gameCornerShopLineIndex + 2].replace(' ', '').includes('|TM38|5500')
     : false;
 
-  locationLines.forEach((line, lineIndex) => {
+  // Need to check if shop shuffle is on. If not, we can remove checking those lines in the spoiler
+  const isShopShuffleOn = shuffleItemsLines.find(line => line.includes('- SHOP'));
+  const locationsToCheckLines = isShopShuffleOn ? locationLines : locationLines.slice(0, shopLocationsStartIndex);
+
+  locationsToCheckLines.forEach((line, lineIndex) => {
     if (!line.startsWith('-') && line.trim() !== '') {
       // 1. Check for each Key Item match name in the line using the block above
       keyItems.forEach(keyItem => {
@@ -134,7 +138,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
             while (!itemLocation) {
               // 2A. If result of 2 is empty, repeat 2 for the line above it until it isn't empty (b/c it's in a shop)
               currLineIndex -= 1;
-              itemLocation = locationLines[currLineIndex].substring(0, line.indexOf('|')).trim();
+              itemLocation = locationsToCheckLines[currLineIndex].substring(0, line.indexOf('|')).trim();
             }
 
             // 3. Iterate through each REGIONS const, checking against locations and routes
@@ -142,7 +146,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
               region =>
                 region.locations.filter(regionLocation => itemLocation.startsWith(regionLocation.toUpperCase()))
                   .length > 0 ||
-                region.routes.filter(regionRoute => itemLocation.startsWith(`ROUTE_${regionRoute.toString()}`))
+                region.routes.filter(regionRoute => itemLocation.startsWith(`ROUTE_${regionRoute.toString()}_`))
                   .length > 0
             );
 

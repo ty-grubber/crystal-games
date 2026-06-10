@@ -168,7 +168,7 @@ export const EXPANSION = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
-  kovoltaMatchProp: 'name',
+  kovoltaMatchProp: 'Expn Card',
 };
 export const SQUIRTBOTTLE = {
   id: 'squirtbottle',
@@ -395,7 +395,7 @@ export const UNOWN_DEX = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
-  kovoltaMatchProp: 'name',
+  kovoltaMatchProp: 'id',
 };
 export const BICYCLE = {
   id: 'bicycle',
