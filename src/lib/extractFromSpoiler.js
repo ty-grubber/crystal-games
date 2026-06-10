@@ -111,7 +111,11 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   const locationsToCheckLines = isShopShuffleOn ? locationLines : locationLines.slice(0, shopLocationsStartIndex);
 
   locationsToCheckLines.forEach((line, lineIndex) => {
-    if (!line.startsWith('-') && line.trim() !== '') {
+    const isLocationExcluded =
+      excludeLocationsLines.length <= 1 // no excluded locations still has line in array: EXCLUDE_LOCATIONS: []
+      || excludeLocationsLines.find(excludedLocation => line.startsWith(excludedLocation.replace('-', '').trim()));
+
+    if (!line.startsWith('-') && line.trim() !== '' && !isLocationExcluded) {
       // 1. Check for each Key Item match name in the line using the block above
       keyItems.forEach(keyItem => {
         // If we hit a key item that we know doesn't need to be included in the tracker, skip it
