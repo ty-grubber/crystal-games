@@ -83,7 +83,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
     'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_STARYU',
     'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_GROWLITHE',
     'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_PICHU',
-  ].some(check => !excludeLocationsLines.find(line => line.includes(check)));
+  ].every(check => !excludeLocationsLines.find(line => line.includes(check)));
 
   const shopLocationsStartIndex = locationLines.findIndex(line => line.includes('----- SHOP ITEMS -----'));
   const shopLocationsLines = locationLines.slice(shopLocationsStartIndex);
@@ -93,17 +93,17 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
     line => line.includes('RADIO_TOWER_2F_BLUE_CARD_SHOP')
   );
   const hasBlueCardChecks = blueCardShopLinesStartIndex >= 0
-    ? !shopLocationsLines[blueCardShopLinesStartIndex].replace(' ', '').includes('|ULTRABALL|2')
-      || !shopLocationsLines[blueCardShopLinesStartIndex + 1].replace(' ', '').includes('|FULLRESTORE|2')
-      || !shopLocationsLines[blueCardShopLinesStartIndex + 2].replace(' ', '').includes('|NUGGET|3')
+    ? !shopLocationsLines[blueCardShopLinesStartIndex].replace(/\s/g, '').includes('|ULTRABALL|2')
+      || !shopLocationsLines[blueCardShopLinesStartIndex + 1].replace(/\s/g, '').includes('|FULLRESTORE|2')
+      || !shopLocationsLines[blueCardShopLinesStartIndex + 2].replace(/\s/g, '').includes('|NUGGET|3')
     : false;
 
   // If some of the game corner items are vanilla, then it isn't randomized
   const gameCornerShopLineIndex = shopLocationsLines.findIndex(line => line.includes('GOLDENROD_GAME_CORNER_ITEM_SHOP'));
   const hasGameCornerChecks = gameCornerShopLineIndex >= 0
-    ? !shopLocationsLines[gameCornerShopLineIndex].replace(' ', '').includes('|TM25|5500')
-      || !shopLocationsLines[gameCornerShopLineIndex + 1].replace(' ', '').includes('|TM14|5500')
-      || !shopLocationsLines[gameCornerShopLineIndex + 2].replace(' ', '').includes('|TM38|5500')
+    ? !shopLocationsLines[gameCornerShopLineIndex].replace(/\s/g, '').includes('|TM25|5500')
+      || !shopLocationsLines[gameCornerShopLineIndex + 1].replace(/\s/g, '').includes('|TM14|5500')
+      || !shopLocationsLines[gameCornerShopLineIndex + 2].replace(/\s/g, '').includes('|TM38|5500')
     : false;
 
   // Need to check if shop shuffle is on. If not, we can remove checking those lines in the spoiler
@@ -111,11 +111,16 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   const locationsToCheckLines = isShopShuffleOn ? locationLines : locationLines.slice(0, shopLocationsStartIndex);
 
   locationsToCheckLines.forEach((line, lineIndex) => {
-    const isLocationExcluded =
-      excludeLocationsLines.length <= 1 // no excluded locations still has line in array: EXCLUDE_LOCATIONS: []
-      || excludeLocationsLines.find(excludedLocation => line.startsWith(excludedLocation.replace('-', '').trim()));
+    // Skip lines in the locations lines that are useless or we know have been excluded from randomization
+    const shouldSkipLine =
+      line.startsWith('-')
+      || line.trim() === ''
+      || (
+        excludeLocationsLines.length > 1 // no excluded locations still has line in array: EXCLUDE_LOCATIONS: []
+        && excludeLocationsLines.find(excludedLocation => line.startsWith(excludedLocation.replace('-', '').trim()))
+      );
 
-    if (!line.startsWith('-') && line.trim() !== '' && !isLocationExcluded) {
+    if (!shouldSkipLine) {
       // 1. Check for each Key Item match name in the line using the block above
       keyItems.forEach(keyItem => {
         // If we hit a key item that we know doesn't need to be included in the tracker, skip it
@@ -127,7 +132,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
         ) {
           let matchName = keyItem.kovoltaMatchProp;
           if (matchName === 'id') {
-            matchName = String(keyItem[matchName]).replace('_', '').toUpperCase();
+            matchName = String(keyItem[matchName]).replace(/_/g, '').toUpperCase();
           } else if (matchName === 'name') {
             matchName = String(keyItem[matchName]).toUpperCase();
           } else {
