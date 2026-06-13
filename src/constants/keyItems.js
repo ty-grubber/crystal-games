@@ -361,6 +361,16 @@ export const TM08 = {
   kovoltaMatchProp: 'id',
 };
 
+export const EON_MAIL = {
+  id: 'eon_mail',
+  name: 'Eon Mail',
+  points: 4,
+  onPoke: false,
+  upgradeModifier: '',
+  upgradeAmt: 0,
+  kovoltaMatchProp: 'name'
+}
+
 export const SILVER_WING = {
   id: 'silver_wing',
   name: 'Silver Wing',

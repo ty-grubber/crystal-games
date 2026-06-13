@@ -65,7 +65,7 @@ const REGIONS = [
       'Coin Case',
       'GS Ball',
     ],
-    routes: [34, 35],
+    routes: [35],
     description: 'Goldenrod, National Park + Rt 35',
   },
   {
@@ -219,7 +219,7 @@ export const KOVOLTA_REGIONS = [
     id: 5,
     name: 'Goldenrod',
     locations: ['Goldenrod', 'Radio_Tower', 'National_Park'],
-    routes: [34, 35],
+    routes: [35],
     description: 'Goldenrod, National Park + Rt 35',
   },
   {

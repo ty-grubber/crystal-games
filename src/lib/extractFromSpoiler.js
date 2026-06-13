@@ -61,13 +61,14 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
 
   // Whether if we know ahead of time we can skip certain key items
   const skipBicycle = !!startingItemsLines.find(line => line.includes('- BICYCLE'));
-  const skipGSBall = !spoilerLines.find(line => line.includes('ENABLE_GS_BALL_EVENT:'))?.split(':')[1].trim();
+  const skipGSBall = !shuffleItemsLines.find(line => line.includes('- KEY_ITEMS'));
   const skipUnowndex = !!excludeLocationsLines.find(
     line => line.includes('RUINS_OF_ALPH_OUTSIDE_MAIN_AREA_RESEARCHERS_GIFT')
   );
   const skipMapCard = !!excludeLocationsLines.find(
     line => line.includes('CHERRYGROVE_CITY_GUIDE_GENTS_GIFT')
   );
+  const skipEonMail = !shuffleItemsLines.find(line => line.includes('- REGULAR_GIFTS')) || !!excludeLocationsLines.find(line => line.includes('GOLDENROD_DEPT_STORE_5F_MYSTERY_GIFT_GIRLS_GIFT'));
 
   // Key Item point modifier checks
   const hasHiddenItemChecks = !!spoilerLines.find(line => line.includes('- REGULAR_HIDDEN_ITEMS'));
@@ -129,6 +130,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
           && !(keyItem.name === 'GS Ball' && skipGSBall)
           && !(keyItem.name === 'Unown Dex' && skipUnowndex)
           && !(keyItem.name === 'Map Card' && skipMapCard)
+          && !(keyItem.name === 'Eon Mail' && skipEonMail)
         ) {
           let matchName = keyItem.kovoltaMatchProp;
           if (matchName === 'id') {
@@ -165,6 +167,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
             const bicycleNeedsUpgrade = keyItem.name === 'Bicycle' && hasHiddenItemChecks;
             const blueCardNeedsUpgrade = keyItem.name === 'Blue Card' && hasBlueCardChecks;
             const coinCaseNeedsUpgrade = keyItem.name === 'Coin Case' && hasGameCornerChecks;
+            // const gsBallNeedsUpgrade = false; // TODO: true if KEY_ITEMS is shuffled and AZALEA_TOWN_KURTS_GIFT_FOR_GS_BALL is not excluded
 
             const shouldUpgradeItem =
               pokedexNeedsUpgrade ||
