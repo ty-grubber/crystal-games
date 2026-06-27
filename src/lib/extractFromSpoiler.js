@@ -62,6 +62,11 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   const shopLocationsStartIndex = locationLines.findIndex(line => line.includes('----- SHOP ITEMS -----'));
   const shopLocationsLines = locationLines.slice(shopLocationsStartIndex);
 
+  const hasRegularGiftChecks = !!shuffleItemsLines.find(line => line.includes('- REGULAR_GIFTS'));
+  const hasHiddenItemChecks = !!shuffleItemsLines.find(line => line.includes('- REGULAR_HIDDEN_ITEMS'));
+  const hasTMGiftChecks = !!shuffleItemsLines.find(line => line.includes('- TM_GIFTS'));
+  const hasTMItemBallChecks = !!shuffleItemsLines.find(line => line.includes('- TM_ITEM_BALLS'));
+
   // Whether if we know ahead of time we can skip certain key items
   const skipBicycle = !!startingItemsLines.find(line => line.includes('- BICYCLE'));
   const skipGSBall = !shuffleItemsLines.find(line => line.includes('- KEY_ITEMS'));
@@ -71,14 +76,14 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   const skipMapCard = !!excludeLocationsLines.find(
     line => line.includes('CHERRYGROVE_CITY_GUIDE_GENTS_GIFT')
   );
-  const skipEonMail = !shuffleItemsLines.find(line => line.includes('- REGULAR_GIFTS')) || !!excludeLocationsLines.find(line => line.includes('GOLDENROD_DEPT_STORE_5F_MYSTERY_GIFT_GIRLS_GIFT'));
-  const skipWaterStone = !shuffleItemsLines.find(line => line.includes('- REGULAR_ITEM_BALLS'))
-    && !shuffleItemsLines.find(line => line.includes('- REGULAR_GIFTS'));
+  const skipEonMail = !hasRegularGiftChecks || !!excludeLocationsLines.find(line => line.includes('GOLDENROD_DEPT_STORE_5F_MYSTERY_GIFT_GIRLS_GIFT'));
+  // Don't track additionally added water stones if both vanilla locations aren't randomized
+  const skipWaterStone = !hasRegularGiftChecks || [
+    'ROUTE_42_MAHOGANY_SIDE_TULLYS_GIFT',
+    'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_STARYU',
+  ].every(check => excludeLocationsLines.some(line => line.includes(check)));
 
   // Key Item point modifier checks
-  const hasHiddenItemChecks = !!shuffleItemsLines.find(line => line.includes('- REGULAR_HIDDEN_ITEMS'));
-  const hasTMGiftChecks = !!shuffleItemsLines.find(line => line.includes('- TM_GIFTS'));
-  const hasTMItemBallChecks = !!shuffleItemsLines.find(line => line.includes('- TM_ITEM_BALLS'));
   const hasMonLockedChecks = [
     'NATIONAL_PARK_BEVERLYS_GIFT_FOR_MARILL',
     'ROUTE_39_DEREKS_GIFT_FOR_PIKACHU',
@@ -91,7 +96,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
     'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_STARYU',
     'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_GROWLITHE',
     'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_PICHU',
-  ].every(check => !excludeLocationsLines.find(line => line.includes(check)));
+  ].some(check => !excludeLocationsLines.some(line => line.includes(check)));
 
   const hasGSBallShuffled = !skipGSBall && !excludeLocationsLines.find(line => line.includes('AZALEA_TOWN_KURTS_GIFT_FOR_GS_BALL'));
 
