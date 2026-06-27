@@ -386,7 +386,7 @@ export const GS_BALL = {
   points: 3,
   onPoke: false,
   upgradeModifier: '',
-  upgradeAmt: 0,
+  upgradeAmt: 1,
   kovoltaMatchProp: 'name',
 };
 export const POKEDEX = {
