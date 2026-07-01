@@ -78,10 +78,13 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
   );
   const skipEonMail = !hasRegularGiftChecks || !!excludeLocationsLines.find(line => line.includes('GOLDENROD_DEPT_STORE_5F_MYSTERY_GIFT_GIRLS_GIFT'));
   // Don't track additionally added water stones if both vanilla locations aren't randomized
-  const skipWaterStone = !hasRegularGiftChecks || [
+  const hasVanillaWaterStones = !hasRegularGiftChecks || [
     'ROUTE_42_MAHOGANY_SIDE_TULLYS_GIFT',
     'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_STARYU',
   ].every(check => excludeLocationsLines.some(line => line.includes(check)));
+  // Exception to the above is if the water stone is the added shop one, and shops are randomized
+  const hasShopSanityWaterStone = !!shuffleItemsLines.find(line => line.includes('- SHOPS'))
+    && !!spoilerLines.slice(startingItemsEndIndex).find(line => line.includes('BUYABLE_EVOLUTION_STONES: true'));
 
   // Key Item point modifier checks
   const hasMonLockedChecks = [
@@ -142,7 +145,7 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
           && !(keyItem.name === 'Unown Dex' && skipUnowndex)
           && !(keyItem.name === 'Map Card' && skipMapCard)
           && !(keyItem.name === 'Eon Mail' && skipEonMail)
-          && !(keyItem.name === 'Water Stone' && skipWaterStone)
+          && !(keyItem.name === 'Water Stone' && hasVanillaWaterStones && !hasShopSanityWaterStone)
           && !(keyItem.name === 'Leftovers' && !hasHiddenItemChecks)
           && !(keyItem.name === 'Headbutt' && !hasTMGiftChecks)
           && !(keyItem.name === 'Sweet Scent' && !hasTMGiftChecks)
@@ -163,54 +166,61 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
             let itemLocation = line.substring(0, line.indexOf('|')).trim();
             let currLineIndex = lineIndex;
 
-            while (!itemLocation) {
-              // 2A. If result of 2 is empty, repeat 2 for the line above it until it isn't empty (b/c it's in a shop)
-              currLineIndex -= 1;
-              itemLocation = locationsToCheckLines[currLineIndex].substring(0, line.indexOf('|')).trim();
+            // Skip vanilla water stones
+            if (!(matchName === 'WATER STONE' && [
+              'BILLS_HOUSE_BILLS_GRANDPAS_GIFT_FOR_STARYU',
+              'ROUTE_42_MAHOGANY_SIDE_TULLYS_GIFT'
+            ].includes(itemLocation))) {
+
+              while (!itemLocation) {
+                // 2A. If result of 2 is empty, repeat 2 for the line above it until it isn't empty (b/c it's in a shop)
+                currLineIndex -= 1;
+                itemLocation = locationsToCheckLines[currLineIndex].substring(0, line.indexOf('|')).trim();
+              }
+
+              // 3. Iterate through each REGIONS const, checking against locations and routes
+              const matchedRegion = KOVOLTA_REGIONS.find(
+                region =>
+                  region.locations.filter(regionLocation => itemLocation.startsWith(regionLocation.toUpperCase()))
+                    .length > 0 ||
+                  region.routes.filter(regionRoute => itemLocation.startsWith(`ROUTE_${regionRoute.toString()}_`))
+                    .length > 0
+              );
+
+              // 4. For the matched REGION found in 3, create the `addedItem` object, but check if points need upgrading
+              const pokedexNeedsUpgrade = keyItem.name === 'Pokedex' && hasMonLockedChecks;
+              const tm12NeedsUpgrade = keyItem.name === 'Sweet Scent' && hasMonLockedChecks;
+              const bicycleNeedsUpgrade = keyItem.name === 'Bicycle' && hasHiddenItemChecks;
+              const blueCardNeedsUpgrade = keyItem.name === 'Blue Card' && hasBlueCardChecks;
+              const coinCaseNeedsUpgrade = keyItem.name === 'Coin Case' && hasGameCornerChecks;
+              const gsBallNeedsUpgrade = keyItem.name === 'GS Ball' && hasGSBallShuffled;
+
+              const shouldUpgradeItem =
+                pokedexNeedsUpgrade ||
+                tm12NeedsUpgrade ||
+                bicycleNeedsUpgrade ||
+                blueCardNeedsUpgrade ||
+                coinCaseNeedsUpgrade ||
+                gsBallNeedsUpgrade;
+
+              const addedItem = {
+                ...keyItem,
+                points: keyItem.points + (shouldUpgradeItem ? keyItem.upgradeAmt : 0),
+              };
+
+              // 5. Add to regionPointsArray and update randomizedItems array (similar to speedchoice extraction)
+              const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedRegion?.id);
+              try {
+                regionPointsArray[matchedRPAIndex].points += addedItem.points;
+              } catch (error) {
+                console.log(`MatchedRPAIndex: ${matchedRPAIndex}; Key Item Match: ${keyItem.name}; Location line: ${line}; itemLocation: ${itemLocation}`)
+              }
+
+              // @ts-ignore
+              regionPointsArray[matchedRPAIndex].items.push(addedItem);
+
+              randomizedItems.push(addedItem);
             }
-
-            // 3. Iterate through each REGIONS const, checking against locations and routes
-            const matchedRegion = KOVOLTA_REGIONS.find(
-              region =>
-                region.locations.filter(regionLocation => itemLocation.startsWith(regionLocation.toUpperCase()))
-                  .length > 0 ||
-                region.routes.filter(regionRoute => itemLocation.startsWith(`ROUTE_${regionRoute.toString()}_`))
-                  .length > 0
-            );
-
-            // 4. For the matched REGION found in 3, create the `addedItem` object, but check if points need upgrading
-            const pokedexNeedsUpgrade = keyItem.name === 'Pokedex' && hasMonLockedChecks;
-            const tm12NeedsUpgrade = keyItem.name === 'Sweet Scent' && hasMonLockedChecks;
-            const bicycleNeedsUpgrade = keyItem.name === 'Bicycle' && hasHiddenItemChecks;
-            const blueCardNeedsUpgrade = keyItem.name === 'Blue Card' && hasBlueCardChecks;
-            const coinCaseNeedsUpgrade = keyItem.name === 'Coin Case' && hasGameCornerChecks;
-            const gsBallNeedsUpgrade = keyItem.name === 'GS Ball' && hasGSBallShuffled;
-
-            const shouldUpgradeItem =
-              pokedexNeedsUpgrade ||
-              tm12NeedsUpgrade ||
-              bicycleNeedsUpgrade ||
-              blueCardNeedsUpgrade ||
-              coinCaseNeedsUpgrade ||
-              gsBallNeedsUpgrade;
-
-            const addedItem = {
-              ...keyItem,
-              points: keyItem.points + (shouldUpgradeItem ? keyItem.upgradeAmt : 0),
-            };
-
-            // 5. Add to regionPointsArray and update randomizedItems array (similar to speedchoice extraction)
-            const matchedRPAIndex = regionPointsArray.findIndex(rpa => rpa.regionId === matchedRegion?.id);
-            try {
-              regionPointsArray[matchedRPAIndex].points += addedItem.points;
-            } catch (error) {
-              console.log(`MatchedRPAIndex: ${matchedRPAIndex}; Key Item Match: ${keyItem.name}; Location line: ${line}; itemLocation: ${itemLocation}`)
-            }
-
-            // @ts-ignore
-            regionPointsArray[matchedRPAIndex].items.push(addedItem);
-
-            randomizedItems.push(addedItem);
           }
         }
       });
