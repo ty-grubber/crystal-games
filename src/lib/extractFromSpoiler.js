@@ -122,18 +122,29 @@ function extractRegionsFromKovoltaSpoiler(spoilerLines, keyItems) {
     : false;
 
   // Need to check if shop shuffle is on. If not, we can remove checking those lines in the spoiler
-  const isShopShuffleOn = shuffleItemsLines.find(line => line.includes('- SHOP'));
+  const isShopShuffleOn = shuffleItemsLines.some(line => line.includes('- SHOP'));
   const locationsToCheckLines = isShopShuffleOn ? locationLines : locationLines.slice(0, shopLocationsStartIndex);
 
+  let roofShop1LineIndex = -1;
+  let isSkippingRoofShop1 = false;
+
   locationsToCheckLines.forEach((line, lineIndex) => {
+    if (lineIndex > shopLocationsStartIndex) {
+      // With shop shuffle on, Roof Shop 2 contains all of Roof Shop 1, even if Roof Shop 2 is excluded, so skip Shop 1
+      roofShop1LineIndex = line.includes('GOLDENROD_DEPT_STORE_ROOF_SHOP_1') ? lineIndex : roofShop1LineIndex;
+
+      // However, this section has lines that don't start with the location name, so we have to account for that
+      if (roofShop1LineIndex > -1) {
+        isSkippingRoofShop1 = lineIndex >= roofShop1LineIndex && lineIndex <= roofShop1LineIndex + 4;
+      }
+    }
+
     // Skip lines in the locations lines that are useless or we know have been excluded from randomization
     const shouldSkipLine =
       line.startsWith('-')
       || line.trim() === ''
-      || (
-        excludeLocationsLines.length > 1 // no excluded locations still has line in array: EXCLUDE_LOCATIONS: []
-        && excludeLocationsLines.find(excludedLocation => line.startsWith(excludedLocation.replace('-', '').trim()))
-      );
+      || isSkippingRoofShop1
+      || excludeLocationsLines.some(excludedLocation => line.startsWith(excludedLocation.replace('-', '').trim()));
 
     if (!shouldSkipLine) {
       // 1. Check for each Key Item match name in the line using the block above
