@@ -5,6 +5,7 @@ export const ZEPHYR = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const HIVE = {
   id: 'hive_badge',
@@ -13,6 +14,7 @@ export const HIVE = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const PLAIN = {
   id: 'plain_badge',
@@ -21,6 +23,7 @@ export const PLAIN = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const FOG = {
   id: 'fog_badge',
@@ -29,6 +32,7 @@ export const FOG = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const STORM = {
   id: 'storm_badge',
@@ -37,6 +41,7 @@ export const STORM = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const MINERAL = {
   id: 'mineral_badge',
@@ -45,6 +50,7 @@ export const MINERAL = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const GLACIER = {
   id: 'glacier_badge',
@@ -53,6 +59,7 @@ export const GLACIER = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const RISING = {
   id: 'rising_badge',
@@ -61,6 +68,7 @@ export const RISING = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const BOULDER = {
   id: 'boulder_badge',
@@ -69,6 +77,7 @@ export const BOULDER = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const CASCADE = {
   id: 'cascade_badge',
@@ -77,6 +86,7 @@ export const CASCADE = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const THUNDER = {
   id: 'thunder_badge',
@@ -85,6 +95,7 @@ export const THUNDER = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const RAINBOW = {
   id: 'rainbow_badge',
@@ -93,6 +104,7 @@ export const RAINBOW = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const SOUL = {
   id: 'soul_badge',
@@ -101,6 +113,7 @@ export const SOUL = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const MARSH = {
   id: 'marsh_badge',
@@ -109,6 +122,7 @@ export const MARSH = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const VOLCANO = {
   id: 'volcano_badge',
@@ -117,6 +131,7 @@ export const VOLCANO = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const EARTH = {
   id: 'earth_badge',
@@ -125,6 +140,7 @@ export const EARTH = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 
 export const POKEGEAR = {
@@ -134,6 +150,7 @@ export const POKEGEAR = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const RADIO = {
   id: 'radio_card',
@@ -142,6 +159,7 @@ export const RADIO = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const EXPANSION = {
   id: 'expn_card',
@@ -150,6 +168,7 @@ export const EXPANSION = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'Expn Card',
 };
 export const SQUIRTBOTTLE = {
   id: 'squirtbottle',
@@ -158,6 +177,7 @@ export const SQUIRTBOTTLE = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const CARD_KEY = {
   id: 'card_key',
@@ -166,6 +186,7 @@ export const CARD_KEY = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const SS_TICKET = {
   id: 'ss_ticket',
@@ -174,6 +195,7 @@ export const SS_TICKET = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'S.S.Ticket',
 };
 export const PASS = {
   id: 'pass',
@@ -182,6 +204,7 @@ export const PASS = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const HM01 = {
   id: 'hm01',
@@ -190,6 +213,7 @@ export const HM01 = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const HM02 = {
   id: 'hm02',
@@ -198,6 +222,7 @@ export const HM02 = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const HM03 = {
   id: 'hm03',
@@ -206,6 +231,7 @@ export const HM03 = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const HM04 = {
   id: 'hm04',
@@ -214,6 +240,7 @@ export const HM04 = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const HM05 = {
   id: 'hm05',
@@ -222,6 +249,7 @@ export const HM05 = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const HM06 = {
   id: 'hm06',
@@ -230,6 +258,7 @@ export const HM06 = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const HM07 = {
   id: 'hm07',
@@ -238,6 +267,7 @@ export const HM07 = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 
 export const SECRETPOTION = {
@@ -247,6 +277,7 @@ export const SECRETPOTION = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const MACHINE_PART = {
   id: 'machine_part',
@@ -255,6 +286,7 @@ export const MACHINE_PART = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const CLEAR_BELL = {
   id: 'clear_bell',
@@ -263,6 +295,7 @@ export const CLEAR_BELL = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const RAINBOW_WING = {
   id: 'rainbow_wing',
@@ -271,6 +304,7 @@ export const RAINBOW_WING = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const BASEMENT_KEY = {
   id: 'basement_key',
@@ -279,6 +313,7 @@ export const BASEMENT_KEY = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const LOST_ITEM = {
   id: 'lost_item',
@@ -287,6 +322,7 @@ export const LOST_ITEM = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const RED_SCALE = {
   id: 'red_scale',
@@ -295,6 +331,7 @@ export const RED_SCALE = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const MYSTERY_EGG = {
   id: 'mystery_egg',
@@ -303,6 +340,7 @@ export const MYSTERY_EGG = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const WATER_STONE = {
   id: 'water_stone',
@@ -311,6 +349,7 @@ export const WATER_STONE = {
   onPoke: true,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const TM08 = {
   id: 'tm08',
@@ -319,7 +358,18 @@ export const TM08 = {
   onPoke: true,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
+
+export const EON_MAIL = {
+  id: 'eon_mail',
+  name: 'Eon Mail',
+  points: 4,
+  onPoke: false,
+  upgradeModifier: '',
+  upgradeAmt: 0,
+  kovoltaMatchProp: 'name'
+}
 
 export const SILVER_WING = {
   id: 'silver_wing',
@@ -328,6 +378,7 @@ export const SILVER_WING = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const GS_BALL = {
   id: 'gs_ball',
@@ -335,7 +386,8 @@ export const GS_BALL = {
   points: 3,
   onPoke: false,
   upgradeModifier: '',
-  upgradeAmt: 0,
+  upgradeAmt: 1,
+  kovoltaMatchProp: 'name',
 };
 export const POKEDEX = {
   id: 'pokedex',
@@ -344,6 +396,7 @@ export const POKEDEX = {
   onPoke: false,
   upgradeModifier: 'Mon Locked Checks',
   upgradeAmt: 2,
+  kovoltaMatchProp: 'name',
 };
 export const UNOWN_DEX = {
   id: 'unown_dex',
@@ -352,6 +405,7 @@ export const UNOWN_DEX = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const BICYCLE = {
   id: 'bicycle',
@@ -360,6 +414,7 @@ export const BICYCLE = {
   onPoke: false,
   upgradeModifier: 'Hidden Items',
   upgradeAmt: 2,
+  kovoltaMatchProp: 'name',
 };
 export const TOWN_MAP = {
   id: 'town_map',
@@ -368,6 +423,7 @@ export const TOWN_MAP = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const BLUE_CARD = {
   id: 'blue_card',
@@ -376,6 +432,7 @@ export const BLUE_CARD = {
   onPoke: false,
   upgradeModifier: 'Buena Items',
   upgradeAmt: 2,
+  kovoltaMatchProp: 'name',
 };
 export const COIN_CASE = {
   id: 'coin_case',
@@ -384,6 +441,7 @@ export const COIN_CASE = {
   onPoke: false,
   upgradeModifier: 'Game Corner',
   upgradeAmt: 2,
+  kovoltaMatchProp: 'name',
 };
 export const ITEMFINDER = {
   id: 'itemfinder',
@@ -392,6 +450,7 @@ export const ITEMFINDER = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const OLD_ROD = {
   id: 'old_rod',
@@ -400,6 +459,7 @@ export const OLD_ROD = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const GOOD_ROD = {
   id: 'good_rod',
@@ -408,6 +468,7 @@ export const GOOD_ROD = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const SUPER_ROD = {
   id: 'super_rod',
@@ -416,6 +477,7 @@ export const SUPER_ROD = {
   onPoke: false,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const LEFTOVERS = {
   id: 'leftovers',
@@ -424,6 +486,7 @@ export const LEFTOVERS = {
   onPoke: true,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'name',
 };
 export const HEADBUTT = {
   id: 'tm02',
@@ -432,6 +495,7 @@ export const HEADBUTT = {
   onPoke: true,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
 export const TM12 = {
   id: 'tm12',
@@ -440,6 +504,7 @@ export const TM12 = {
   upgradeModifier: 'Mon Locked Checks',
   upgradeAmt: 2,
   onPoke: true,
+  kovoltaMatchProp: 'id',
 };
 export const TM28 = {
   id: 'tm28',
@@ -448,4 +513,5 @@ export const TM28 = {
   onPoke: true,
   upgradeModifier: '',
   upgradeAmt: 0,
+  kovoltaMatchProp: 'id',
 };
