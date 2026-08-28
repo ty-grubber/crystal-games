@@ -43,7 +43,7 @@ const TREASURES = [
   },
   {
     id: 6,
-    description: 'Collect the Cerulean City hidden item.',
+    description: 'Collect the Cerulean City hidden item outside.',
     hintOpts: [
       "You'll need to calm the seas to find some treasures.",
       "Some treasures aren't immediately obvious.",
@@ -59,7 +59,7 @@ const TREASURES = [
   },
   {
     id: 8,
-    description: 'Buy a vitamin from the Department Store in Celadon City.',
+    description: 'Buy something from the Department Store in Celadon City.',
     hintOpts: ['Some treasures can only be bought.', 'Not all treasure is found outside.'],
   },
   {
@@ -299,6 +299,46 @@ const TREASURES = [
     hintOpts: [
       'Treasures can be found with the right equipment.',
       'New friends are always something to treasure.',
+    ],
+  },
+  {
+    id: 40,
+    description: 'Receive the item from the lady in the house on Route 28.',
+    hintOpts: [
+      "You will need to cut some obstacles to find the treasure you seek.",
+      "Sometimes treasure is just given to us willingly."
+    ],
+  },
+  {
+    id: 41,
+    description: 'Ride down both waterfalls in Silver Cave.',
+    hintOpts: [
+      "You'll need to go for a ride to find this treasure.",
+      "Sometimes you need a bright light to find treasure.",
+    ],
+  },
+  {
+    id: 42,
+    description: 'Buy something from the rooftop sale in the Goldenrod Mart.',
+    hintOpts: [
+      "Some treasures can only be bought.",
+      "You'll find you'll treasure a nice chat with a friend.",
+    ],
+  },
+  {
+    id: 43,
+    description: "Catch a Pokemon found under a breakable rock in Cianwood.",
+    hintOpts: [
+      'New friends are always something to treasure.',
+      "Some treasures are found amongst the rubble.",
+    ],
+  },
+  {
+    id: 44,
+    description: "Pick up the item in the trash can of the Celadon City restaurant",
+    hintOpts: [
+      "One person's trash is another person's treasure.",
+      "Some treasures aren't immediately obvious.",
     ],
   },
 ];
