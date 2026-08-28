@@ -218,7 +218,7 @@ export const KOVOLTA_REGIONS = [
   {
     id: 5,
     name: 'Goldenrod',
-    locations: ['Goldenrod', 'Radio_Tower', 'Route_36_National_Park'],
+    locations: ['Goldenrod', 'Radio_Tower', 'Route_36_National_Park', 'National_Park'],
     routes: [35],
     description: 'Goldenrod, National Park + Rt 35',
   },
